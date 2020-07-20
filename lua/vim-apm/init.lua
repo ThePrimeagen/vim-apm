@@ -5,6 +5,7 @@ timerIdx = timerIdx or 0
 buckets = buckets or Bucket:new(60 * 5, 5)
 bufh = bufh or 0
 win_id = win_id or 0
+active = active or false
 
 local INSERT = 1
 local NORMAL = 2
@@ -34,6 +35,7 @@ local function shutdown()
     bufh = 0
     win_id = 0
     vim.remove_keystroke_callback(id)
+    active = false
 end
 
 local function on_winclose(closed_id)
@@ -43,6 +45,10 @@ local function on_winclose(closed_id)
 end
 
 local function on_resize()
+    if active == false then
+        return
+    end
+
     local w = vim.fn.nvim_win_get_width(0)
     local h = vim.fn.nvim_win_get_height(0)
 
@@ -71,6 +77,7 @@ local function create_window_and_buf()
 end
 
 local function apm()
+    active = true
     timerIdx = timerIdx + 1
     local localTimerId = timerIdx
 
