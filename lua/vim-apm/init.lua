@@ -107,7 +107,7 @@ local function apm()
 
         vim.fn.nvim_buf_set_lines(bufh, 0, 2, false, {
             string.format("n: %s / %s", math.floor(nScore), math.floor(nStroke)),
-            string.format("i: %s / %s", math.floor(iScore), math.floor(iStroke)),
+            string.format("i: %s", math.floor(iScore)),
             string.format("t: %s / %s", math.floor(iScore) + math.floor(nScore), math.floor(iStroke) + math.floor(nStroke)),
         })
 
