@@ -1,7 +1,5 @@
-local buckets = require("vim-apm.buckets")
+local Utils = require("vim-apm.utils")
 
--- NOTE TO USER.
--- this is one of the most disgusting things I have ever written, and I have
 -- written rust two separate moments in my life where I was rock bottom.  But
 -- don't worry, I drank a bottle of coconut oil and crushed it.
 --
@@ -81,14 +79,10 @@ local function on_command()
     mode = COMMAND
 end
 
+-- All time is in SECONDS because of LUA
+local minBucketDuration = 60
 local calcCount = 0
 local function calculateAPM(buckets, length, bucketTime)
-    --[[
-    item.score = 0.0
-    item.strokes = 0
-    item.time_stamp = time
-    ]]
-
     local scoreSum = 0
     local strokeSum = 0
     local bucketCount = 0
@@ -103,7 +97,12 @@ local function calculateAPM(buckets, length, bucketTime)
         end
     end
 
-    local period = (bucketTime * bucketCount) / 60
+    local period = bucketTime * bucketCount
+    if period < minBucketDuration then
+        period = minBucketDuration
+    end
+
+    period = period / 60
     calcCount = calcCount + 1
 
     -- TODO: Probably should make this more awesome.
@@ -112,6 +111,29 @@ local function calculateAPM(buckets, length, bucketTime)
     end
 
     return strokeSum / period, scoreSum / period
+end
+
+local startTime = Utils.getMillis()
+local historicalTime = 60 * 1 * 5 -- because lua be like that
+local bucketTime = 5 * 1
+local bucketCount = historicalTime / bucketTime + 1
+local usedBucketCount = 1
+
+local function getCurrentBucketIdx(buckets, currentTime)
+    local bucket_idx = math.floor(((currentTime - startTime) % historicalTime) / bucketTime) + 1
+
+    -- Bucketidx sucks right now, if you go insert -> normal it will inc it 2x
+    -- fix this.
+    if buckets[bucket_idx] == nil or (currentTime - buckets[bucket_idx].time_stamp > historicalTime) then
+
+        buckets[bucket_idx] = createApmBucket(currentTime)
+
+        if usedBucketCount < bucketCount then
+            usedBucketCount = usedBucketCount + 1
+        end
+    end
+
+    return bucket_idx, buckets[bucket_idx]
 end
 
 local function apm()
@@ -157,16 +179,15 @@ local function apm()
     local insertBuckets = {}
     local lastSeenKeys = {}
     local idx = 1
-    local length = 10
     local lastTime = getMillis()
-    local historicalTime = 60 * 1 * 5 -- because lua be like that
-    local bucketTime = 5 * 1
-    local bucketCount = historicalTime / bucketTime + 1
-    local startTime = lastTime
-    local usedBucketCount = 1
+    local length = 10
 
     -- Waits 1000ms, then repeats every 750ms until timer:close().
     timer:start(1000, 750, vim.schedule_wrap(function()
+
+        local currentTime = Utils.getMillis()
+        getCurrentBucketIdx(normalBuckets, currentTime)
+        getCurrentBucketIdx(insertBuckets, currentTime)
 
         if localTimerId < timerIdx then
             timer:close()
@@ -192,35 +213,26 @@ local function apm()
         local buckets = normalBuckets
         if mode == INSERT then
             buckets = insertBuckets
+        else
+            lastSeenKeys[idx] = buf
         end
 
-        lastSeenKeys[idx] = buf
+        bucket_idx, bucket =  getCurrentBucketIdx(buckets, currentTime)
 
         idx = idx + 1
         if idx == length then
             idx = 1
         end
 
-        local bucket_idx = math.floor(((currentTime - startTime) % historicalTime) / bucketTime) + 1
-
-        -- Bucketidx sucks right now, if you go insert -> normal it will inc it 2x
-        -- fix this.
-        if buckets[bucket_idx] == nil or (currentTime - buckets[bucket_idx].time_stamp > historicalTime) then
-
-            buckets[bucket_idx] = createApmBucket(currentTime)
-
-            if usedBucketCount < bucketCount then
-                usedBucketCount = usedBucketCount + 1
-            end
-        end
-
-        local bucket = buckets[bucket_idx]
         local score = 1
-        local occurrences = 0
+        local occurrences = 1
 
-        for i = 1, length, 1 do
-            if lastSeenKeys[i] == buf then
-                occurrences = occurrences + 1
+        if mode == NORMAL then
+            occurrences = 0
+            for i = 1, length, 1 do
+                if lastSeenKeys[i] == buf then
+                    occurrences = occurrences + 1
+                end
             end
         end
 
