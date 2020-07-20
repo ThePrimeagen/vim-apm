@@ -4,27 +4,8 @@ local Utils = require("vim-apm.utils")
 -- GLOBALSZ???
 local INSERT = 1
 local NORMAL = 2
-
---[[ Define the Dog class.
-
-Dog = {}
-
-function Dog:new(sound)
-    local newDog = {sound = sound}
-    self.__index = self
-    return setmetatable(newDog, self)
-end
-
-function Dog:sayHi()
-    print(self.sound .. '!')
-end
-
--- Use the Dog class.
-
-kepler = Dog:new('rarf')
-kepler:sayHi()  -- Prints 'rarf!'.
---]]
 local minBucketDuration = 60
+
 local function calculateAPM(buckets, length, bucketTime)
     local scoreSum = 0
     local strokeSum = 0

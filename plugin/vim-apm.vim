@@ -5,7 +5,15 @@ fun! VimApm()
     lua require("vim-apm").apm()
 endfun
 
+fun! VimApmShutdown()
+    lua package.loaded["vim-apm"] = nil
+    lua package.loaded["vim-apm.buckets"] = nil
+    lua package.loaded["vim-apm.utils"] = nil
+    lua require("vim-apm").shutdown()
+endfun
+
 com! VimApm call VimApm()
+com! VimApmShutdown call VimApmShutdown()
 
 "fun! WindowClosed()
 "    lua require("vim-apm").on_winclose(<afile>)
