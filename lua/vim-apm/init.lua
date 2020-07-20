@@ -1,4 +1,5 @@
 local Utils = require("vim-apm.utils")
+local Bucket = require("vim-apm.buckets")
 
 -- written rust two separate moments in my life where I was rock bottom.  But
 -- don't worry, I drank a bottle of coconut oil and crushed it.
@@ -15,31 +16,15 @@ local Utils = require("vim-apm.utils")
 --
 -- To prevent multiple timers from showing up when sourcing over and over again.
 timerIdx = timerIdx or 0
+local INSERT = 1
+local NORMAL = 2
+local COMMAND = 3
+local mode = NORMAL
 
 local function close_window(win_id)
     print("Closing window", win_id)
     vim.fn.nvim_win_close(win_id, true)
 end
-
-local function getMillis()
-    return os.time()
-end
-
-local function createApmBucket(time)
-    local item = {}
-
-    -- We can get way more creative, but for now, lets keep it simple.
-    item.score = 0.0
-    item.strokes = 0.0
-    item.time_stamp = time
-
-    return item
-end
-
-local INSERT = 1
-local NORMAL = 2
-local COMMAND = 3
-local mode = NORMAL
 
 local function on_insert()
     mode = INSERT
@@ -53,7 +38,9 @@ end
 local bufh = vim.fn.nvim_create_buf(false, true)
 local win_id = 0
 
-local function on_winclose(win_id)
+local function on_winclose(closed_id)
+    if win_id == tonumber(closed_id) then
+    end
 end
 
 local function on_resize()
@@ -77,63 +64,6 @@ end
 local function on_command()
     print("on_command")
     mode = COMMAND
-end
-
--- All time is in SECONDS because of LUA
-local minBucketDuration = 60
-local calcCount = 0
-local function calculateAPM(buckets, length, bucketTime)
-    local scoreSum = 0
-    local strokeSum = 0
-    local bucketCount = 0
-
-    for i = 1, length, 1 do
-        local b = buckets[i]
-
-        if b ~= nil then
-            strokeSum = strokeSum + b.strokes
-            scoreSum = scoreSum + b.score
-            bucketCount = bucketCount + 1
-        end
-    end
-
-    local period = bucketTime * bucketCount
-    if period < minBucketDuration then
-        period = minBucketDuration
-    end
-
-    period = period / 60
-    calcCount = calcCount + 1
-
-    -- TODO: Probably should make this more awesome.
-    if strokeSum == 0 or scoreSum == 0 or period == 0 then
-        return 0, 0
-    end
-
-    return strokeSum / period, scoreSum / period
-end
-
-local startTime = Utils.getMillis()
-local historicalTime = 60 * 1 * 5 -- because lua be like that
-local bucketTime = 5 * 1
-local bucketCount = historicalTime / bucketTime + 1
-local usedBucketCount = 1
-
-local function getCurrentBucketIdx(buckets, currentTime)
-    local bucket_idx = math.floor(((currentTime - startTime) % historicalTime) / bucketTime) + 1
-
-    -- Bucketidx sucks right now, if you go insert -> normal it will inc it 2x
-    -- fix this.
-    if buckets[bucket_idx] == nil or (currentTime - buckets[bucket_idx].time_stamp > historicalTime) then
-
-        buckets[bucket_idx] = createApmBucket(currentTime)
-
-        if usedBucketCount < bucketCount then
-            usedBucketCount = usedBucketCount + 1
-        end
-    end
-
-    return bucket_idx, buckets[bucket_idx]
 end
 
 local function apm()
@@ -162,6 +92,7 @@ local function apm()
 
     -- TODO: When would I ever need to do, this?
     local closed = false
+    local buckets = Bucket:new(60 * 5, 5)
 
     --[[
     vim.defer_fn(function()
@@ -175,19 +106,17 @@ local function apm()
 
     -- 5 minutes worth of apm, in 5 second chunks.
     -- That way I can calculate your APM over time
-    local normalBuckets = {}
-    local insertBuckets = {}
     local lastSeenKeys = {}
     local idx = 1
-    local lastTime = getMillis()
     local length = 10
 
     -- Waits 1000ms, then repeats every 750ms until timer:close().
     timer:start(1000, 750, vim.schedule_wrap(function()
 
         local currentTime = Utils.getMillis()
-        getCurrentBucketIdx(normalBuckets, currentTime)
-        getCurrentBucketIdx(insertBuckets, currentTime)
+
+        buckets:getCurrentBucket(NORMAL, currentTime)
+        buckets:getCurrentBucket(INSERT, currentTime)
 
         if localTimerId < timerIdx then
             timer:close()
@@ -195,29 +124,25 @@ local function apm()
         end
 
         -- also consider using insert for apm calculations.
-        local nStroke, nScore = calculateAPM(normalBuckets, usedBucketCount, bucketTime)
-        local iStroke, iScore = calculateAPM(insertBuckets, usedBucketCount, bucketTime)
+        local nStroke, nScore, iStroke, iScore = buckets:calculateAPM()
 
         vim.fn.nvim_buf_set_lines(bufh, 0, 2, false, {
             string.format("n: %s / %s", math.floor(nScore), math.floor(nStroke)),
             string.format("i: %s / %s", math.floor(iScore), math.floor(iStroke)),
-            string.format("t: %s / %s", math.floor(iScore) + math.floor(nScore), math.floor(iStroke) + math.floor(nScore)),
+            string.format("t: %s / %s", math.floor(iScore) + math.floor(nScore), math.floor(iStroke) + math.floor(nStroke)),
         })
 
         -- Print the goods for the apm
     end))
 
     vim.register_keystroke_callback(id, function(buf)
-        local currentTime = getMillis()
+        local currentTime = Utils.getMillis()
 
-        local buckets = normalBuckets
-        if mode == INSERT then
-            buckets = insertBuckets
-        else
+        if mode == NORMAL then
             lastSeenKeys[idx] = buf
         end
 
-        bucket_idx, bucket =  getCurrentBucketIdx(buckets, currentTime)
+        _, bucket = buckets:getCurrentBucket(mode, currentTime)
 
         idx = idx + 1
         if idx == length then

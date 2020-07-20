@@ -1,5 +1,7 @@
 fun! VimApm()
     lua package.loaded["vim-apm"] = nil
+    lua package.loaded["vim-apm.buckets"] = nil
+    lua package.loaded["vim-apm.utils"] = nil
     lua require("vim-apm").apm()
 endfun
 

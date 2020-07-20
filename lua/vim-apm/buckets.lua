@@ -1,4 +1,59 @@
 local Utils = require("vim-apm.utils")
+-- Lua
+
+-- GLOBALSZ???
+local INSERT = 1
+local NORMAL = 2
+
+--[[ Define the Dog class.
+
+Dog = {}
+
+function Dog:new(sound)
+    local newDog = {sound = sound}
+    self.__index = self
+    return setmetatable(newDog, self)
+end
+
+function Dog:sayHi()
+    print(self.sound .. '!')
+end
+
+-- Use the Dog class.
+
+kepler = Dog:new('rarf')
+kepler:sayHi()  -- Prints 'rarf!'.
+--]]
+local minBucketDuration = 60
+local function calculateAPM(buckets, length, bucketTime)
+    local scoreSum = 0
+    local strokeSum = 0
+    local bucketCount = 0
+
+    for i = 1, length, 1 do
+        local b = buckets[i]
+
+        if b ~= nil then
+            strokeSum = strokeSum + b.strokes
+            scoreSum = scoreSum + b.score
+            bucketCount = bucketCount + 1
+        end
+    end
+
+    local period = bucketTime * bucketCount
+    if period < minBucketDuration then
+        period = minBucketDuration
+    end
+
+    period = period / 60
+
+    -- TODO: Probably should make this more awesome.
+    if strokeSum == 0 or scoreSum == 0 or period == 0 then
+        return 0, 0
+    end
+
+    return strokeSum / period, scoreSum / period
+end
 
 local function createApmBucket(time)
     local item = {}
@@ -11,21 +66,51 @@ local function createApmBucket(time)
     return item
 end
 
-local normalBuckets = {}
-local insertBuckets = {}
-local lastSeenKeys = {}
-local idx = 1
-local length = 10
-local historicalTime = 60 * 1 * 5 -- because lua be like that
-local bucketTime = 5 * 1
-local bucketCount = historicalTime / bucketTime + 1
-local usedBucketCount = 1
+local Bucket = {}
+function Bucket:new(totalTime, timePerBucket)
+    local newBucket = {
+        totalTime = totalTime,
+        timePerBucket = timePerBucket,
+        usedBucketCount = 0,
+        totalBuckets = math.ceil(totalTime / timePerBucket),
+        startTime = Utils.getMillis(),
+        normalBuckets = {},
+        insertBuckets = {},
+    }
 
-local function getCurrentBucket(mode)
-
+    self.__index = self
+    return setmetatable(newBucket, self)
 end
 
-return {
-    getCurrentBucket = getCurrentBucket
-}
+function Bucket:calculateAPM()
+    local nStrokes, nScore = calculateAPM(self.normalBuckets, self.usedBucketCount, self.timePerBucket)
+    local iStrokes, iScore = calculateAPM(self.insertBuckets, self.usedBucketCount, self.timePerBucket)
+    return nStrokes, nScore, iStrokes, iScore
+end
 
+function Bucket:getCurrentBucket(mode, timestamp)
+    if timestamp == nil then
+        timestamp = Utils.getMillis()
+    end
+
+    local buckets = self.normalBuckets
+    if mode == INSERT then
+        buckets = self.insertBuckets
+    end
+
+    local timeSinceStart = timestamp - self.startTime
+    local bucketIdx = math.floor(
+        (timeSinceStart % self.totalTime) / self.timePerBucket) + 1
+
+    if buckets[bucketIdx] == nil or (timestamp - buckets[bucketIdx].time_stamp > self.totalTime) then
+        buckets[bucketIdx] = createApmBucket(timestamp)
+
+        if self.usedBucketCount < self.totalBuckets then
+            self.usedBucketCount = self.usedBucketCount + 1
+        end
+    end
+
+    return bucketIdx, buckets[bucketIdx]
+end
+
+return Bucket
