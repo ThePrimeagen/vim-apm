@@ -4,7 +4,7 @@ Vim apm keeps track of your APM by counting keystrokes and determining
 its worth. You will get both your stroke count / time and your score / time.
 The score is based on how frequently you type the same command in normal mode,
 where as insert there is only score. Normal mode only keeps track of the last
-10 strokes so you are not penalized to heavily
+10 strokes so you are not penalized too heavily
 
 ### Example
 
