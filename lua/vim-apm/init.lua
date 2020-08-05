@@ -1,11 +1,13 @@
 local Utils = require("vim-apm.utils")
 local Bucket = require("vim-apm.buckets")
+local KeyStroker = require("vim-apm.keystroker")
 
 timerIdx = timerIdx or 0
 buckets = buckets or Bucket:new(60 * 5, 5)
 bufh = bufh or 0
 win_id = win_id or 0
 active = active or false
+keyStrokes = KeyStroker:new()
 
 local INSERT = 1
 local NORMAL = 2
@@ -15,10 +17,12 @@ local id = "vim-apm"
 
 local function on_insert()
     mode = INSERT
+    keyStrokes:onInsert()
 end
 
 local function on_normal()
     mode = NORMAL
+    keyStrokes:onNormal()
 end
 
 local function shutdown()
@@ -77,6 +81,7 @@ local function create_window_and_buf()
 end
 
 local function apm()
+    keyStrokes:reset()
     active = true
     timerIdx = timerIdx + 1
     local localTimerId = timerIdx
@@ -122,33 +127,41 @@ local function apm()
     end))
 
     vim.register_keystroke_callback(id, function(buf)
-        local currentTime = Utils.getMillis()
+        ok, msg = pcall(function()
+            local currentTime = Utils.getMillis()
+            keyStrokes:onKey(buf)
 
-        if mode == NORMAL then
-            lastSeenKeys[idx] = buf
-        end
+            if mode == NORMAL then
+                lastSeenKeys[idx] = buf
+            end
 
-        _, bucket = buckets:getCurrentBucket(mode, currentTime)
+            _, bucket = buckets:getCurrentBucket(mode, currentTime)
 
-        idx = idx + 1
-        if idx == length then
-            idx = 1
-        end
+            idx = idx + 1
+            if idx == length then
+                idx = 1
+            end
 
-        local score = 1
-        local occurrences = 1
+            local score = 1
+            local occurrences = 1
 
-        if mode == NORMAL then
-            occurrences = 0
-            for i = 1, length, 1 do
-                if lastSeenKeys[i] == buf then
-                    occurrences = occurrences + 1
+            if mode == NORMAL then
+                occurrences = 0
+                for i = 1, length, 1 do
+                    if lastSeenKeys[i] == buf then
+                        occurrences = occurrences + 1
+                    end
                 end
             end
-        end
 
-        bucket.strokes = bucket.strokes + 1
-        bucket.score = bucket.score + 1.0 / occurrences
+            bucket.strokes = bucket.strokes + 1
+            bucket.score = bucket.score + 1.0 / occurrences
+        end)
+
+        if not ok then
+            keyStrokes:reset()
+            print("Error: ", msg)
+        end
     end)
 end
 

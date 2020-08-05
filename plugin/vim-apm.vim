@@ -1,7 +1,5 @@
 fun! VimApm()
-    lua package.loaded["vim-apm"] = nil
-    lua package.loaded["vim-apm.buckets"] = nil
-    lua package.loaded["vim-apm.utils"] = nil
+    lua for k in pairs(package.loaded) do if k:match("^vim%-apm") then package.loaded[k] = nil end end
     lua require("vim-apm").apm()
 endfun
 
