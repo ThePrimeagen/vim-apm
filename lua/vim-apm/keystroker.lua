@@ -16,7 +16,7 @@ local trackedStrokes = {
     "d**",
 }
 
-local file = io.open("/home/mpaulson/apm.log", "a")
+local file = io.open(os.getenv("HOME") .. "/apm.log", "a")
 local function join(arr, sep)
     sep = sep or " "
     if arr == nil then
@@ -30,22 +30,27 @@ local function join(arr, sep)
 
     return str
 end
+
+local log = false
 local function printr(...)
-    -- file:write("\n")
-    -- file:write(join({...}))
-    -- file:flush()
+    if log then
+        file:write("\n")
+        file:write(join({...}))
+        file:flush()
+    end
 end
 
 local KeyStroker = {}
 
 function KeyStroker:new()
+    print("XXX", os.getenv("HOME"))
     local keyStroke = {
         trackedSlotIdx = -1,
         typedItems = {},
         tracked = {},
         trackedTimes = {},
         startTime = vim.fn.reltimefloat(vim.fn.reltime()),
-        file = io.open("/home/mpaulson/apm.csv", "a"),
+        file = io.open(os.getenv("HOME") .. "/apm.csv", "a"),
     }
 
     self.__index = self
