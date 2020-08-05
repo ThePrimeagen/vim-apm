@@ -1,8 +1,8 @@
 local trackedStrokes = {
-    "di*",
-    "df*",
-    "dt*",
-    "da*",
+    "di**",
+    "df**",
+    "dt**",
+    "da**",
     "ci*",
     "cf*",
     "ct*",
@@ -10,18 +10,19 @@ local trackedStrokes = {
     "S",
     "c$",
     "cw",
-    "d*i",
+    "d**",
 }
 
 local file = io.open("/home/mpaulson/apm.log", "a")
-local function join(arr)
+local function join(arr, sep)
+    sep = sep or " "
     if arr == nil then
         return ""
     end
 
     local str = ""
     for idx = 1, #arr do
-        str = str .. " " .. arr[idx]
+        str = str .. sep .. arr[idx]
     end
 
     return str
@@ -39,6 +40,7 @@ function KeyStroker:new()
         trackedSlotIdx = -1,
         typedItems = {},
         tracked = {},
+        trackedTimes = {},
         startTime = vim.fn.reltimefloat(vim.fn.reltime()),
         file = io.open("/home/mpaulson/apm.csv", "a"),
     }
@@ -52,6 +54,7 @@ function KeyStroker:reset()
     self.typedItems = {}
     self.startTime = vim.fn.reltimefloat(vim.fn.reltime())
     self.tracked = {}
+    self.trackedTimes = {}
 
     for idx = 1, #trackedStrokes do
         table.insert(self.tracked, trackedStrokes[idx])
@@ -80,9 +83,21 @@ function KeyStroker:testTracked()
     self.file:write("\n")
     self.file:write(item)
     self.file:write(",")
-    self.file:write(join(self.typedItems))
+    self.file:write(join(self.typedItems, ""))
     self.file:write(",")
     self.file:write(now - self.startTime)
+
+    local timings = {}
+    for idx = 2, #self.trackedTimes do
+        table.insert(timings, self.trackedTimes[idx] - self.trackedTimes[idx - 1])
+    end
+
+    while #timings < 3 do
+        table.insert(timings, 0)
+    end
+    self.file:write(",")
+    self.file:write(join(timings, ","))
+
     self.file:flush()
 end
 
@@ -113,6 +128,7 @@ function KeyStroker:onKey(key)
         printr("success tracked")
         self.trackedSlotIdx = self.trackedSlotIdx + 1
         table.insert(self.typedItems, key)
+        table.insert(self.trackedTimes, vim.fn.reltimefloat(vim.fn.reltime()))
     else
         printr("resetting tracked")
         self:reset()
