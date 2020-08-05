@@ -1,3 +1,10 @@
+### Experimental Branch!!!
+
+This is for people who wish to help me get some data for VimConf.live!
+
+Simply follow the Getting Started instructions. Once you have been using vim
+for a while (longer the better) copy your ~/apm.csv and send it to me!
+
 ### Vim APM
 
 Vim apm keeps track of your APM by counting keystrokes and determining

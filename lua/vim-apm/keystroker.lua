@@ -31,9 +31,9 @@ local function join(arr, sep)
     return str
 end
 local function printr(...)
-    file:write("\n")
-    file:write(join({...}))
-    file:flush()
+    -- file:write("\n")
+    -- file:write(join({...}))
+    -- file:flush()
 end
 
 local KeyStroker = {}
