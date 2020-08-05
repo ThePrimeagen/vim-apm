@@ -43,7 +43,6 @@ end
 local KeyStroker = {}
 
 function KeyStroker:new()
-    print("XXX", os.getenv("HOME"))
     local keyStroke = {
         trackedSlotIdx = -1,
         typedItems = {},
