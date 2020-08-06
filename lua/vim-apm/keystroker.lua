@@ -17,6 +17,12 @@ local trackedStrokes = {
     "cw",
     "d**",
     "VD*",
+    "I",
+    "A",
+    "i",
+    "a",
+    "o",
+    "O",
 }
 
 local file = io.open(os.getenv("HOME") .. "/apm.log", "a")
