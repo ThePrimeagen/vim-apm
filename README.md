@@ -25,7 +25,7 @@ Plug "ThePrimeagen/vim-apm"
 2. Set the keystroke callback to on
 
 ```
-set kscb
+set keystrokecallback
 ```
 
 3. Execute :VimApm. If you use Ctrl-w o to shut other buffers, you can bring
