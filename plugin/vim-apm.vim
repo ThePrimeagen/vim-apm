@@ -1,3 +1,9 @@
+" TODO: Change to `has()` once it recognizes the new feature
+if !exists('&keystrokecallback')
+  echoerr "Feature 'keystrokecallback' not present in current vim installation"
+  finish
+endif
+
 fun! VimApm()
     lua package.loaded["vim-apm"] = nil
     lua package.loaded["vim-apm.buckets"] = nil
