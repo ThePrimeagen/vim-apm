@@ -29,16 +29,10 @@ where as insert there is only score. Normal mode only keeps track of the last
 Plug "ThePrimeagen/vim-apm"
 ```
 
-2. Set the keystroke callback to on
-
-```
-set kscb
-```
-
-3. Execute :VimApm. If you use Ctrl-w o to shut other buffers, you can bring
+2. Execute :VimApm. If you use Ctrl-w o to shut other buffers, you can bring
    back the menu by re-executing :VimApm
 
-4. Execute :VimApmShutdown to stop calculating.
+3. Execute :VimApmShutdown to stop calculating.
 
 ### Values and Meaning
 

@@ -13,7 +13,6 @@ local INSERT = 1
 local NORMAL = 2
 local COMMAND = 3
 local mode = NORMAL
-local id = "vim-apm"
 
 local function on_insert()
     mode = INSERT
@@ -126,7 +125,7 @@ local function apm()
         -- Print the goods for the apm
     end))
 
-    vim.register_keystroke_callback(id, function(buf)
+    vim.register_keystroke_callback(function(buf)
         ok, msg = pcall(function()
             local currentTime = Utils.getMillis()
             keyStrokes:onKey(buf)
@@ -162,7 +161,7 @@ local function apm()
             keyStrokes:reset()
             print("Error: ", msg)
         end
-    end)
+    end, vim.fn.nvim_create_namespace("vim-apm"))
 end
 
 return {
