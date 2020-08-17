@@ -12,16 +12,12 @@ where as insert there is only score. Normal mode only keeps track of the last
 
 ### Getting Started
 
-0. Use your favorite plugin manager.
+0. Use NeoVim Master branch and build that stuff. (sudo make install in root, ez pz)
+
+1. Use your favorite plugin manager.
 
 ```
 Plug "ThePrimeagen/vim-apm", { 'branch': 'timings' }
-```
-
-1. Set the keystroke callback to on
-
-```
-set kscb
 ```
 
 2. Execute :VimApm. If you use Ctrl-w o to shut other buffers, you can bring
