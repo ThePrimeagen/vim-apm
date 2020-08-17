@@ -12,26 +12,22 @@ where as insert there is only score. Normal mode only keeps track of the last
 
 ### Getting Started
 
-0. Must use special version of NeoVim (as of right now until its merged). This
-   has the required callbacks for this feature to work.
-   [This PR](https://github.com/neovim/neovim/pull/12536)
-
-1. Use your favorite plugin manager.
+0. Use your favorite plugin manager.
 
 ```
-Plug "ThePrimeagen/vim-apm"
+Plug "ThePrimeagen/vim-apm", { 'branch': 'timings' }
 ```
 
-2. Set the keystroke callback to on
+1. Set the keystroke callback to on
 
 ```
 set kscb
 ```
 
-3. Execute :VimApm. If you use Ctrl-w o to shut other buffers, you can bring
+2. Execute :VimApm. If you use Ctrl-w o to shut other buffers, you can bring
    back the menu by re-executing :VimApm
 
-4. Execute :VimApmShutdown to stop calculating.
+3. Execute :VimApmShutdown to stop calculating.
 
 ### Values and Meaning
 
