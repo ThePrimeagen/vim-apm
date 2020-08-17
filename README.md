@@ -1,17 +1,10 @@
-### Experimental Branch!!!
-
-This is for people who wish to help me get some data for VimConf.live!
-
-Simply follow the Getting Started instructions. Once you have been using vim
-for a while (longer the better) copy your ~/apm.csv and send it to me!
-
 ### Vim APM
 
 Vim apm keeps track of your APM by counting keystrokes and determining
 its worth. You will get both your stroke count / time and your score / time.
 The score is based on how frequently you type the same command in normal mode,
 where as insert there is only score. Normal mode only keeps track of the last
-10 strokes so you are not penalized to heavily
+10 strokes so you are not penalized too heavily
 
 ### Example
 
@@ -19,11 +12,9 @@ where as insert there is only score. Normal mode only keeps track of the last
 
 ### Getting Started
 
-0. Must use special version of NeoVim (as of right now until its merged). This
-   has the required callbacks for this feature to work.
-   [This PR](https://github.com/neovim/neovim/pull/12536)
+0.  FILL THIS IS
 
-1. Use your favorite plugin manager.
+1.  Use your favorite plugin manager.
 
 ```
 Plug "ThePrimeagen/vim-apm"
