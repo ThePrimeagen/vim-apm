@@ -12,7 +12,8 @@ where as insert there is only score. Normal mode only keeps track of the last
 
 ### Getting Started
 
-0.  FILL THIS IS
+0.  You must use a master build of NeoVim. The latest master has everything
+    that you need.
 
 1.  Use your favorite plugin manager.
 
@@ -24,6 +25,8 @@ Plug "ThePrimeagen/vim-apm"
    back the menu by re-executing :VimApm
 
 3. Execute :VimApmShutdown to stop calculating.
+
+4. Check out your timings csv file at ~/apm.csv
 
 ### Values and Meaning
 
