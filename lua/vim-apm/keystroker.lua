@@ -145,6 +145,10 @@ function KeyStroker:onKey(key)
         self.trackedSlotIdx = self.trackedSlotIdx + 1
         table.insert(self.typedItems, key)
         table.insert(self.trackedTimes, vim.fn.reltimefloat(vim.fn.reltime()))
+
+        if #self.typedItems == 1 then
+            self.startTime = vim.fn.reltimefloat(vim.fn.reltime())
+        end
     else
         printr("resetting tracked")
         self:reset()
