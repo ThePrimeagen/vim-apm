@@ -25,7 +25,7 @@ local trackedStrokes = {
     "O",
 }
 
-local file = io.open(os.getenv("HOME") .. "/apm.log", "a")
+local file = false
 local function join(arr, sep)
     sep = sep or " "
     if arr == nil then
@@ -41,11 +41,19 @@ local function join(arr, sep)
 end
 
 local log = false
+local function loggr()
+    if log and not file then
+        file = io.open(os.getenv("HOME") .. "/apm.log", "a")
+    end
+
+    return file
+end
+
 local function printr(...)
     if log then
-        file:write("\n")
-        file:write(join({...}))
-        file:flush()
+        loggr():write("\n")
+        loggr():write(join({...}))
+        loggr():flush()
     end
 end
 
