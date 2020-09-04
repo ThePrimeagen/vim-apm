@@ -1,4 +1,6 @@
 local trackedStrokes = {
+    "bcw",
+    "bdw*",
     "di**",
     "df**",
     "dt**",
@@ -40,7 +42,7 @@ local function join(arr, sep)
     return str
 end
 
-local log = false
+local log = true
 local function printr(...)
     if log then
         file:write("\n")
@@ -123,6 +125,7 @@ end
 
 function KeyStroker:onKey(key)
     if self.mode == "insert" and self.trackedIdx ~= -1 then
+        printr("Testing onKey#Insert", key)
         self:testTracked()
         self:reset()
         return
