@@ -37,7 +37,11 @@ local function shutdown()
     timerIdx = timerIdx + 1
     bufh = 0
     win_id = 0
-    vim.remove_keystroke_callback(id)
+    
+    -- get namespace id for "vim-apm" & clear keystroke callback function.
+    namespace_id = vim.fn.nvim_create_namespace("vim-apm")
+    vim.register_keystroke_callback(nil, namespace_id)
+    
     active = false
 end
 
