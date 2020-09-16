@@ -37,7 +37,7 @@ local function shutdown()
     timerIdx = timerIdx + 1
     bufh = 0
     win_id = 0
-    vim.remove_keystroke_callback(id)
+    vim.register_keystroke_callback(id)
     active = false
 end
 
