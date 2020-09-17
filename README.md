@@ -3,7 +3,7 @@
 Vim apm keeps track of your APM by counting keystrokes and determining
 its worth. You will get both your stroke count / time and your score / time.
 The score is based on how frequently you type the same command in normal mode,
-where as insert there is only score. Normal mode only keeps track of the last
+whereas insert there is only score. Normal mode only keeps track of the last
 10 strokes so you are not penalized too heavily
 
 ### Example
@@ -32,7 +32,7 @@ Plug "ThePrimeagen/vim-apm"
 
 you will see 3 values, n:, i:, and t:. n = normal mode, i = insert, t = total.
 
-There are two numbers Score / Strokes. Score is determined by how repeative the
+There are two numbers Score / Strokes. Score is determined by how repetitive the
 last 10 commands are in normal mode, not applicable to insert mode. So an
 ideal score would be ~1 ratio for normal mode.
 
