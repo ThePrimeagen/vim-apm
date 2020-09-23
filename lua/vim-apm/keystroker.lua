@@ -42,7 +42,7 @@ local function join(arr, sep)
     return str
 end
 
-local log = true
+local log = vim.g["vim_apm_log"] or false
 local function printr(...)
     if log then
         file:write("\n")
