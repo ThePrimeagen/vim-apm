@@ -27,7 +27,13 @@ local trackedStrokes = {
     "O",
 }
 
-local file = io.open(os.getenv("HOME") .. "/apm.log", "a")
+local log = vim.g["vim_apm_log"] or false
+
+local file = nil
+if log then
+    file = io.open(os.getenv("HOME") .. "/apm.log", "a")
+end
+
 local function join(arr, sep)
     sep = sep or " "
     if arr == nil then
@@ -42,7 +48,6 @@ local function join(arr, sep)
     return str
 end
 
-local log = true
 local function printr(...)
     if log then
         file:write("\n")
