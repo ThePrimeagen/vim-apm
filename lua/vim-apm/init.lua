@@ -26,7 +26,7 @@ end
 
 local function shutdown()
     if win_id ~= 0 then
-        vim.fn.nvim_win_close(win_id, true)
+        vim.api.nvim_win_close(win_id, true)
     end
 
     if bufh ~= 0 then
@@ -37,11 +37,11 @@ local function shutdown()
     timerIdx = timerIdx + 1
     bufh = 0
     win_id = 0
-    
+
     -- get namespace id for "vim-apm" & clear keystroke callback function.
-    namespace_id = vim.fn.nvim_create_namespace("vim-apm")
+    namespace_id = vim.api.nvim_create_namespace("vim-apm")
     vim.register_keystroke_callback(nil, namespace_id)
-    
+
     active = false
 end
 
@@ -56,8 +56,8 @@ local function on_resize()
         return
     end
 
-    local w = vim.fn.nvim_win_get_width(0)
-    local h = vim.fn.nvim_win_get_height(0)
+    local w = vim.api.nvim_win_get_width(0)
+    local h = vim.api.nvim_win_get_height(0)
 
     local width = 14
     local row = 1
@@ -65,7 +65,7 @@ local function on_resize()
     local config = {style="minimal", relative='win', row=row, col=col, width=width, height=3}
 
     if bufh == 0 then
-        bufh = vim.fn.nvim_create_buf(false, true)
+        bufh = vim.api.nvim_create_buf(false, true)
     end
 
     if win_id == 0 then
@@ -120,7 +120,7 @@ local function apm()
         -- also consider using insert for apm calculations.
         local nStroke, nScore, iStroke, iScore = buckets:calculateAPM()
 
-        vim.fn.nvim_buf_set_lines(bufh, 0, 2, false, {
+        vim.api.nvim_buf_set_lines(bufh, 0, 2, false, {
             string.format("n: %s / %s", math.floor(nScore), math.floor(nStroke)),
             string.format("i: %s", math.floor(iScore)),
             string.format("t: %s / %s", math.floor(iScore) + math.floor(nScore), math.floor(iStroke) + math.floor(nStroke)),
@@ -165,7 +165,7 @@ local function apm()
             keyStrokes:reset()
             print("Error: ", msg)
         end
-    end, vim.fn.nvim_create_namespace("vim-apm"))
+    end, vim.api.nvim_create_namespace("vim-apm"))
 end
 
 return {
