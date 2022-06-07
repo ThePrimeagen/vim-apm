@@ -18,7 +18,7 @@ whereas insert there is only score. Normal mode only keeps track of the last
 1.  Use your favorite plugin manager.
 
 ```
-Plug "ThePrimeagen/vim-apm"
+Plug 'ThePrimeagen/vim-apm'
 ```
 
 2. Execute :VimApm. If you use Ctrl-w o to shut other buffers, you can bring
