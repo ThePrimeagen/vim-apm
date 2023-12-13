@@ -2,7 +2,6 @@
 ---@field apm_state ApmState
 ---@field buf_id number
 ---@field win_id number
----@field namespace number
 local ApmFloat = {}
 ApmFloat.__index = ApmFloat
 
