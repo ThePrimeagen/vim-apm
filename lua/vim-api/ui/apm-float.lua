@@ -1,16 +1,19 @@
+local utils = require("vim-api.utils")
+
 ---@class ApmFloat
 ---@field apm_state ApmState
 ---@field buf_id number
 ---@field win_id number
+---@field closing boolean
 local ApmFloat = {}
 ApmFloat.__index = ApmFloat
 
 local function close_window(win_id, buf_id)
-    if vim.api.nvim_win_is_valid(win_id) then
+    if win_id ~= nil and vim.api.nvim_win_is_valid(win_id) then
         vim.api.nvim_win_close(win_id, true)
     end
 
-    if vim.api.nvim_buf_is_valid(buf_id) then
+    if buf_id ~= nil and vim.api.nvim_buf_is_valid(buf_id) then
         vim.api.nvim_buf_delete(buf_id, { force = true })
     end
 end
@@ -44,6 +47,7 @@ function ApmFloat.new(apm_state)
         apm_state = apm_state,
         buf_id = nil,
         win_id = nil,
+        closing = false,
     }, ApmFloat)
     return self
 end
@@ -53,10 +57,25 @@ function ApmFloat:toggle()
         local buf_id, win_id = create_window()
         self.buf_id = buf_id
         self.win_id = win_id
+
+        utils.on_close(buf_id, function()
+            if self.closing then
+                return
+            end
+
+            -- TODO: Probablly refuctorc
+            close_window(self.win_id, nil)
+            self.buf_id = nil
+            self.win_id = nil
+
+        end)
     else
+
+        self.closing = true
         close_window(self.win_id, self.buf_id)
         self.buf_id = nil
         self.win_id = nil
+        self.closing = false
     end
 end
 
