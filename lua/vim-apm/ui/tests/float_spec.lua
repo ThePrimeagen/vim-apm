@@ -1,11 +1,11 @@
 local eq = assert.are.same
 local utils = require("vim-api.tests.utils")
-local float = require("vim-api.ui.apm-float")
+local float = require("vim-api.ui.float")
 
 describe("harpoon", function()
     before_each(function()
         utils.clear_memory()
-        float = require("vim-api.ui.apm-float")
+        float = require("vim-api.ui.float")
     end)
 
     it("ensure toggle works with float", function()

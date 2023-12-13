@@ -1,4 +1,4 @@
-local float = require("vim-api.ui.apm-float")
+local float = require("vim-api.ui.float")
 
 local M = {}
 
