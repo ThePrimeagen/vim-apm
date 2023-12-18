@@ -1,4 +1,4 @@
-local utils = require("vim-api.utils")
+local utils = require("vim-apm.utils")
 
 ---@class ApmFloat
 ---@field apm_state ApmState
@@ -18,16 +18,15 @@ local function close_window(win_id, buf_id)
     end
 end
 
-local function create_window()
-    local buf_id = vim.api.nvim_create_buf(false, true)
+local function create_window_config()
     local ui = vim.api.nvim_list_uis()[1]
     local col = 12
     if ui ~= nil then
         col = math.max(ui.width - 13, 0)
     end
 
-    local win_id = vim.api.nvim_open_win(buf_id, false, {
-        relative='win',
+    return {
+        relative="editor",
         anchor="NW",
         row=1,
         col=col,
@@ -37,7 +36,13 @@ local function create_window()
         title="apm",
         title_pos="center",
         style="minimal",
-    })
+    }
+end
+
+local function create_window()
+    local buf_id = vim.api.nvim_create_buf(false, true)
+    local config = create_window_config()
+    local win_id = vim.api.nvim_open_win(buf_id, false, config)
 
     return buf_id, win_id
 end
@@ -50,6 +55,15 @@ function ApmFloat.new(apm_state)
         closing = false,
     }, ApmFloat)
     return self
+end
+
+function ApmFloat:resize()
+    if self.win_id == nil then
+        return
+    end
+
+    local config = create_window_config()
+    vim.api.nvim_win_set_config(self.win_id, config)
 end
 
 function ApmFloat:toggle()
@@ -79,5 +93,5 @@ function ApmFloat:toggle()
     end
 end
 
-return ApmFloat:new()
+return ApmFloat
 

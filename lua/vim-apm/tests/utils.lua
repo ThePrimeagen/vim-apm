@@ -1,4 +1,4 @@
-local float = require("vim-api.ui.float")
+local float = require("vim-apm.ui.float")
 
 local M = {}
 
@@ -7,7 +7,7 @@ function M.clear_memory()
         float:toggle()
     end
 
-    require("plenary").reload.reload_module("vim-api")
+    require("plenary").reload.reload_module("vim-apm")
 end
 
 return M
