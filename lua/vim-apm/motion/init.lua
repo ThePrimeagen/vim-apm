@@ -31,7 +31,7 @@ local function create_key_motions(letters)
     return out
 end
 
-local key_motions = OrMotion.new({
+local key_motions = AndMotion.new({
     NumberMotion.new(),
     -- single letter terminal motions
     -- double letter terminal motions

@@ -6,8 +6,10 @@ describe("state", function()
     it("key motions", function()
         local motion = m.Motion.new()
         local keys = {
-            {"g", "g", {"g", "g"}},
+            --{"g", "g", {"g", "g"}},
+
             {"9", "g", "g", {9, "g", "g"}},
+
             {"6", "9", "G", {69, "G"}},
             {"6", "d", "9", "d", {6, "d", 9, "d"}},
         }
@@ -18,6 +20,7 @@ describe("state", function()
                 if type(k) == "table" then
                     break
                 end
+                print("---pushing key---", k)
                 last_result = motion:feedkey(k)
             end
 

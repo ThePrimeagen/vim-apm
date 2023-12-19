@@ -6,6 +6,7 @@
 ---@class MotionInterface
 ---@field test fun(self: MotionInterface, key: string): MotionResult | nil
 ---@field reset fun(self: MotionInterface): nil
+---@field to_string fun(): string
 
 ---@class MotionResult
 ---@field done boolean
@@ -42,6 +43,7 @@ end
 
 ---@return MotionResult | nil
 function NumberMotion:test(key)
+    print("NumberMotion#test", key, key:match("%d"))
     if key:match("%d") then
         self.numbers = self.numbers .. key
         return {
@@ -58,6 +60,10 @@ function NumberMotion:test(key)
             context = number,
         }
     }
+end
+
+function NumberMotion:to_string()
+    return "NumberMotion(" .. self.numbers .. ")"
 end
 
 function NumberMotion:reset()
@@ -83,6 +89,7 @@ end
 ---@param key string
 ---@return MotionResult | nil
 function KeyMotion:test(key)
+    print("KeyMotion#test", key, self.str)
     if key == self.str then
         return {
             done = true,
@@ -99,6 +106,10 @@ function KeyMotion:reset()
     self.index = 1
 end
 
+function KeyMotion:to_string()
+    return "KeyMotion(" .. self.str .. ")"
+end
+
 ---@class OrMotion : MotionInterface
 ---@field sub_motions MotionInterface[]
 ---@field active_motion nil | MotionInterface
@@ -112,10 +123,20 @@ function OrMotion.new(sub_motions)
     }, OrMotion)
 end
 
+function OrMotion:to_string()
+    local out = {}
+    for _, motion in ipairs(self.sub_motions) do
+        table.insert(out, motion:to_string())
+    end
+    return "OrMotion(" .. #self.sub_motions .. "): {" .. table.concat(out, ", ") .. "}"
+end
+
 function OrMotion:test(key)
+
     if self.active_motion == nil then
         for _, motion in ipairs(self.sub_motions) do
             local result = motion:test(key)
+            print("OrMotion#test#for", key, motion:to_string(), vim.inspect(result))
             if result == nil or empty_no_consume(result) then
                 goto continue
             elseif result.done then
@@ -130,6 +151,7 @@ function OrMotion:test(key)
     end
 
     local result = self.active_motion:test(key)
+    print("OrMotion#test#active_motion", key, self.active_motion:to_string(), vim.inspect(result))
     if result == nil or result.done then
         self.active_motion = nil
     end
@@ -159,9 +181,18 @@ function AndMotion.new(sub_motions)
     }, AndMotion)
 end
 
+function AndMotion:to_string()
+    local out = {}
+    for _, motion in ipairs(self.sub_motions) do
+        table.insert(out, motion:to_string())
+    end
+    return "AndMotion(" .. #self.sub_motions .. "): {" .. table.concat(out, ", ") .. "}"
+end
+
 function AndMotion:test(key)
 
     while true do
+        print("AndMotion#test", key, self.index, vim.inspect(self.out))
         local motion = self.sub_motions[self.index]
         local result = motion:test(key)
 
@@ -172,12 +203,14 @@ function AndMotion:test(key)
 
         if result.done then
             if result.result.context ~= nil then
+                print("   AndMotion#test#add_context ", vim.inspect(result.result.context), vim.inspect(self.out))
                 table.insert(self.out, result.result.context)
             end
 
             self.index = self.index + 1
 
             if result.result.type == "no-consume" then
+                print("   AndMotion#test no-consume, next")
                 goto continue
             end
 
