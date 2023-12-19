@@ -32,7 +32,6 @@ end
 
 function VimApm:setup()
 
-    print("setup");
     vim.api.nvim_create_autocmd('ModeChanged', {
         group = utils.vim_apm_group_id,
         pattern = '*',

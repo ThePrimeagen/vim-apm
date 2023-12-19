@@ -1,3 +1,7 @@
+---TODO: There is an optimization that can be done here
+---Instead of having a large OrMotion key map, instead we could
+---have a table lookup.  A KeyMapMotion
+
 ---@class MotionInterface
 ---@field test fun(self: MotionInterface, key: string): MotionResult | nil
 ---@field reset fun(self: MotionInterface): nil
@@ -5,10 +9,27 @@
 ---@class MotionResult
 ---@field done boolean
 ---@field result? {
----    type: "complex" | "fixed-motion" | "no-consume",
+---    type: "complex" | "consume" | "no-consume",
 ---    context: any
 ---}
 
+---@param result MotionResult | nil
+local function empty_no_consume(result)
+    if result == nil then
+        return false
+    end
+
+    if result.done == false then
+        return false
+    end
+
+    if result.result.context ~= nil then
+        return false
+    end
+
+    return true
+end
+---@class NumberMotion : MotionInterface
 local NumberMotion = {}
 NumberMotion.__index = NumberMotion
 
@@ -42,40 +63,34 @@ function NumberMotion:reset()
     self.numbers = ""
 end
 
----@class KeyMotion
+---@class KeyMotion : MotionInterface
 ---@field str string
----@field index number
 local KeyMotion = { }
 KeyMotion.__index = KeyMotion
 
 ---@return MotionInterface
 function KeyMotion.new(str)
+    if #str ~= 1 then
+        error("KeyMotion only accepts a single character")
+    end
+
     return setmetatable({
         str = str,
-        index = 1,
     }, KeyMotion)
 end
 
 ---@param key string
 ---@return MotionResult | nil
 function KeyMotion:test(key)
-    if self.str:sub(self.index, self.index) == key then
-        self.index = self.index + 1
-
-        if self.index > #self.str then
-            self.index = 1
-            return { done = true, result = {
-                type = "fixed-motion",
-                context = self.str,
-            }}
-        end
-
+    if key == self.str then
         return {
-            done = false
+            done = true,
+            result = {
+                type = "consume",
+                context = self.str,
+            }
         }
     end
-
-    self.index = 1
     return nil
 end
 
@@ -83,34 +98,82 @@ function KeyMotion:reset()
     self.index = 1
 end
 
----@class ComplexMotion
+---@class OrMotion : MotionInterface
+---@field sub_motions MotionInterface[]
+---@field active_motion nil | MotionInterface
+local OrMotion = {}
+OrMotion.__index = OrMotion
+
+function OrMotion.new(sub_motions)
+    return setmetatable({
+        sub_motions = sub_motions,
+        active_motion = nil,
+    }, OrMotion)
+end
+
+function OrMotion:test(key)
+    if self.active_motion == nil then
+        for _, motion in ipairs(self.sub_motions) do
+            local result = motion:test(key)
+            if result == nil or empty_no_consume(result) then
+                goto continue
+            elseif result.done then
+                return result
+            else
+                self.active_motion = motion
+                return result
+            end
+            ::continue::
+        end
+        return nil
+    end
+
+    local result = self.active_motion:test(key)
+    if result == nil or result.done then
+        self.active_motion = nil
+    end
+    return result
+end
+
+function OrMotion:reset()
+    if self.active_motion ~= nil then
+        self.active_motion:reset()
+    end
+    self.active_motion = nil
+end
+
+---@class AndMotion : MotionInterface
 ---@field sub_motions MotionInterface[]
 ---@field out any[]
 ---@field index number
-local ComplexMotion = {}
-ComplexMotion.__index = ComplexMotion
+local AndMotion = {}
+AndMotion.__index = AndMotion
 
 ---@param sub_motions MotionInterface[]
-function ComplexMotion.new(sub_motions)
+function AndMotion.new(sub_motions)
     return setmetatable({
         sub_motions = sub_motions,
         out = {},
         index = 1,
-    }, ComplexMotion)
+    }, AndMotion)
 end
 
-function ComplexMotion:test(key)
+function AndMotion:test(key)
 
     while true do
         local motion = self.sub_motions[self.index]
         local result = motion:test(key)
 
         if result == nil then
+            self:reset()
             return nil
         end
 
         if result.done then
-            table.insert(self.out, result.result.context)
+            if result.result.context ~= nil then
+                table.insert(self.out, result.result.context)
+            end
+
             self.index = self.index + 1
 
             if result.result.type == "no-consume" then
@@ -123,7 +186,7 @@ function ComplexMotion:test(key)
                 return {
                     done = true,
                     result = {
-                        type = "complex",
+                        type = "consume",
                         context = out,
                     }
                 }
@@ -143,25 +206,31 @@ function ComplexMotion:test(key)
     }
 end
 
-function ComplexMotion:reset()
-    for _, motion in ipairs(self.sub_motions) do
-        motion:reset()
+function AndMotion:reset()
+    if self.index <= #self.sub_motions then
+        self.sub_motions[self.index]:reset()
     end
     self.index = 1
     self.out = {}
 end
 
 
-local key_motions = {
-    KeyMotion.new("x"),
-    KeyMotion.new("X"),
-    KeyMotion.new("s"),
-    KeyMotion.new("S"),
-    ComplexMotion.new({
-        NumberMotion.new(),
-        KeyMotion.new("gg"),
-    }),
-}
+---@param letter string
+---@return MotionInterface
+local function create_command_motion(letter)
+    return AndMotion.new({
+        KeyMotion.new(letter),
+        OrMotion.new({
+            -- TODO: i need to do all the movement motions here
+            -- such as dt<letter>
+            AndMotion.new({
+                NumberMotion.new(),
+                KeyMotion.new(letter),
+            }),
+            KeyMotion.new(letter),
+        })
+    });
+end
 
 ---@class VimMotion
 ---@field motions KeyMotion[]
@@ -171,7 +240,7 @@ Motion.__index = Motion
 
 function Motion.new()
     return setmetatable({
-        motions = key_motions,
+        motions = {},
     }, Motion)
 end
 
@@ -209,4 +278,14 @@ function Motion:reset()
     end)
 end
 
-return Motion
+local M = {
+    Motion = Motion,
+    KeyMotion = KeyMotion,
+    NumberMotion = NumberMotion,
+    AndMotion = AndMotion,
+    OrMotion = OrMotion,
+}
+
+return M
+
+
