@@ -9,14 +9,14 @@ describe("state", function()
             done = true,
             result = {
                 type = "consume",
-                context = "f",
+                context = {"f"},
             }
         }, key:test("f"))
         eq({
             done = true,
             result = {
                 type = "consume",
-                context = "f",
+                context = {"f"},
             }
         }, key:test("f"))
 
@@ -26,7 +26,7 @@ describe("state", function()
             done = true,
             result = {
                 type = "consume",
-                context = "f",
+                context = {"f"},
             }
         }, key:test("f"))
     end)
@@ -46,7 +46,7 @@ describe("state", function()
             done = true,
             result = {
                 type = "no-consume",
-                context = 10,
+                context = {10},
             }
         }, number:test("x"))
 
@@ -77,7 +77,7 @@ describe("state", function()
             done = true,
             result = {
                 type = "no-consume",
-                context = 10,
+                context = {10},
             }
         }, number:test("x"))
 
@@ -87,7 +87,7 @@ describe("state", function()
             done = true,
             result = {
                 type = "consume",
-                context = "f",
+                context = {"f"},
             }
         }, number:test("f"))
 
@@ -131,31 +131,28 @@ describe("state", function()
         }, number:test("f"))
     end)
 
+    it("nested And and Ors", function()
+        -- double letter terminal motions
+        -- TODO: Missing gUiw
+        local m = motion.AndMotion.new({
+            motion.KeyMotion.new("g"),
+            motion.OrMotion.new({
+                motion.KeyMotion.new("g"),
+                motion.KeyMotion.new("q"),
+            }),
+        });
+
+        eq({
+            done = false,
+        }, m:test("g"))
+
+        eq({
+            done = true,
+            result = {
+                type = "consume",
+                context = {"g", "g"},
+            }
+        }, m:test("g"))
+    end)
+
 end)
-
---[[
-        local keys = {
-            {"g", "g", {"gg"}},
-            {"9", "g", "g", {9, "gg"}},
-            {"6", "9", "G", {69, "G"}},
-            {"6", "d", "9", "d", {6, "d", 9, "d"}},
-        }
-
-        for _, v in ipairs(keys) do
-            local last_result = nil
-            for _, k in ipairs(v) do
-                if type(k) == "table" then
-                    break
-                end
-                last_result = motion:feedkey(k)
-            end
-
-            local expected = v[#v]
-
-            eq({
-                type = "complex",
-                context = expected,
-            }, last_result)
-
-        end
-        --]]

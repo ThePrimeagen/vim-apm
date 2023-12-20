@@ -1,3 +1,4 @@
+local logger = require("vim-apm.logger")
 local Motions = require("vim-apm.motion.motions")
 local KeyMotion = Motions.KeyMotion
 local NumberMotion = Motions.NumberMotion
@@ -37,6 +38,7 @@ local key_motions = AndMotion.new({
     -- double letter terminal motions
     -- command motions
     OrMotion.new({
+
         -- single letter terminal motions
         OrMotion.new(create_key_motions("xXsSG~U")),
 
@@ -66,7 +68,12 @@ end
 ---@param key string
 ---@return MotionResult | nil
 function Motion:feedkey(key)
-    return self.motions:test(key)
+
+    logger:reset()
+    local res = self.motions:test(key)
+    logger:log("Motion#feedkey", key, res)
+
+    return res
 end
 
 function Motion:reset()
