@@ -1,158 +1,51 @@
 local eq = assert.are.same
-local motion = require("vim-apm.motion")
+local motions = require("vim-apm.motion.motions")
 
 describe("state", function()
-
     it("key motions", function()
-        local key = motion.KeyMotion.new("f")
-        eq({
-            done = true,
-            result = {
-                type = "consume",
-                context = {"f"},
-            }
-        }, key:test("f"))
-        eq({
-            done = true,
-            result = {
-                type = "consume",
-                context = {"f"},
-            }
-        }, key:test("f"))
+        local key = motions.make_key("a")
+        local res, next = key("a")
 
-        eq(nil, key:test("g"))
+        eq({ done = true, consume = true }, res)
+        eq(nil, next)
 
-        eq({
-            done = true,
-            result = {
-                type = "consume",
-                context = {"f"},
-            }
-        }, key:test("f"))
+        res, next = key("x")
+
+        eq(nil, res)
+        eq(nil, next)
     end)
 
     it("number motions", function()
-        local number = motion.NumberMotion.new()
+        local number = motions.make_number()
+        local res, next = number("a")
 
-        eq({
-            done = false,
-        }, number:test("1"))
+        eq({ done = true, consume = false }, res)
+        eq(nil, next)
 
-        eq({
-            done = false,
-        }, number:test("0"))
+        res, next = number("1")
 
-        eq({
-            done = true,
-            result = {
-                type = "no-consume",
-                context = {10},
-            }
-        }, number:test("x"))
-
-        eq({
-            done = true,
-            result = {
-                type = "no-consume",
-            }
-        }, number:test("x"))
-
+        eq({ done = false, consume = true }, res)
+        eq(nil, next)
     end)
 
-    it("OrMotion", function()
-        local number = motion.OrMotion.new({
-            motion.NumberMotion.new(),
-            motion.KeyMotion.new("f"),
+    it("or motions", function()
+        local number = motions.make_number()
+        local a = motions.make_key("a")
+        local motion = motions.make_or({
+            number,
+            a
         })
 
-        eq({
-            done = false,
-        }, number:test("1"))
+        local res, next = motion("a")
+        eq({ done = true, consume = true }, res)
+        eq(nil, next)
 
-        eq({
-            done = false,
-        }, number:test("0"))
+        res, next = motion("1")
+        eq({ done = false, consume = true }, res)
+        eq(nil, next)
 
-        eq({
-            done = true,
-            result = {
-                type = "no-consume",
-                context = {10},
-            }
-        }, number:test("x"))
-
-        eq(nil, number:test("x"))
-
-        eq({
-            done = true,
-            result = {
-                type = "consume",
-                context = {"f"},
-            }
-        }, number:test("f"))
-
+        res, next = motion("x")
+        eq(nil, res)
+        eq(nil, next)
     end)
-
-    it("AndMotion", function()
-        local number = motion.AndMotion.new({
-            motion.NumberMotion.new(),
-            motion.KeyMotion.new("f"),
-        })
-
-        eq({
-            done = false,
-        }, number:test("1"))
-
-        eq({
-            done = false,
-        }, number:test("0"))
-
-        eq(nil, number:test("x"))
-
-        eq(nil, number:test("x"))
-
-        eq({
-            done = true,
-            result = {
-                type = "consume",
-                context = {"f"},
-            }
-        }, number:test("f"))
-
-        eq({
-            done = false,
-        }, number:test("1"))
-        eq({
-            done = true,
-            result = {
-                type = "consume",
-                context = {1, "f"},
-            }
-        }, number:test("f"))
-    end)
-
-    it("nested And and Ors", function()
-        -- double letter terminal motions
-        -- TODO: Missing gUiw
-        local m = motion.AndMotion.new({
-            motion.KeyMotion.new("g"),
-            motion.OrMotion.new({
-                motion.KeyMotion.new("g"),
-                motion.KeyMotion.new("q"),
-            }),
-        });
-
-        eq({
-            done = false,
-        }, m:test("g"))
-
-        eq({
-            done = true,
-            result = {
-                type = "consume",
-                context = {"g", "g"},
-            }
-        }, m:test("g"))
-    end)
-
 end)
