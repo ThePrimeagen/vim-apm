@@ -43,7 +43,12 @@ function M.make_key(key, next)
 end
 
 function M.make_or(...)
-    local motions = ...
+    local motions = {}
+    for i = 1, select("#", ...) do
+        local fn = select(i, ...)
+        table.insert(motions, fn)
+    end
+
     ---@param arg string
     ---@return MotionResult | nil, MotionFunction | nil
     return function(arg)
