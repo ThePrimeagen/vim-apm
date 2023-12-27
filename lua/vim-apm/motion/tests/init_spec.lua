@@ -1,6 +1,8 @@
 local eq = assert.are.same
 local Motion = require("vim-apm.motion")
 local Motions = require("vim-apm.motion.motions")
+local MotionTree = require("vim-apm.motion.motion_tree")
+
 local make_key = Motions.make_key
 local make_number = Motions.make_number
 local make_or = Motions.make_or
@@ -61,6 +63,26 @@ describe("state", function()
         play(motion, {
             {4, 2, 0, "g", "x", {nil}},
         })
+    end)
+
+    it("all_motions test [positive]", function()
+        local motion = Motion.new(MotionTree.all_motions)
+        local motions = {
+            {"j"},
+            {"k"},
+            {"6", "9", "j"},
+            {"6", "9", "k"},
+            {"d", "6", "9", "k"},
+            {"c", "6", "9", "j"},
+        }
+
+        for _, list in ipairs(motions) do
+            local last_result = nil;
+            for _, key in ipairs(list) do
+                last_result = motion:feedkey(key)
+            end
+            eq(table.concat(list, ""), last_result)
+        end
     end)
 
 end)

@@ -3,6 +3,7 @@
 ---@class MotionResult
 ---@field done boolean
 ---@field consume boolean
+---
 
 local DONE_CONSUME = {
     done = true,
@@ -19,7 +20,13 @@ local NO_DONE_CONSUME = {
     consume = true,
 }
 
-local M = {}
+local M = {
+    State = {
+        DONE_CONSUME = DONE_CONSUME,
+        DONE_NO_CONSUME = DONE_NO_CONSUME,
+        NO_DONE_CONSUME = NO_DONE_CONSUME,
+    }
+}
 
 function M.make_number(next)
     ---@type MotionFunction
@@ -28,6 +35,14 @@ function M.make_number(next)
             return DONE_NO_CONSUME, next
         end
         return NO_DONE_CONSUME, nil
+    end
+end
+
+function M.make_any_key(next)
+    ---@param _ string
+    ---@return MotionResult | nil, MotionFunction | nil
+    return function(_)
+        return DONE_CONSUME, next
     end
 end
 
@@ -56,9 +71,7 @@ function M.make_or(...)
             local res, next = motion(arg)
             if res == nil then
                 goto continue
-            end
-
-            if res.consume then
+            else
                 return res, next
             end
 

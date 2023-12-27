@@ -1,5 +1,6 @@
 local eq = assert.are.same
 local motions = require("vim-apm.motion.motions")
+local State = motions.State
 
 describe("state", function()
     it("key motions", function()
@@ -28,24 +29,21 @@ describe("state", function()
         eq(nil, next)
     end)
 
-    it("or motions", function()
-        local number = motions.make_number()
-        local a = motions.make_key("a")
-        local motion = motions.make_or({
-            number,
-            a
-        })
+    it("or motions with number combo", function()
+        local j = motions.make_key("j")
+        local number = motions.make_number(j)
+        local motion = motions.make_or(number)
 
-        local res, next = motion("a")
-        eq({ done = true, consume = true }, res)
-        eq(nil, next)
-
-        res, next = motion("1")
+        local res, next = motion("1")
         eq({ done = false, consume = true }, res)
         eq(nil, next)
 
-        res, next = motion("x")
-        eq(nil, res)
+        res, next = motion("j")
+
+        eq(State.DONE_NO_CONSUME, res)
+
+        res, next = next("j")
+        eq(State.DONE_CONSUME, res)
         eq(nil, next)
     end)
 end)
