@@ -29,6 +29,7 @@ function ApmStateEmitter:handle_mode_changed(from, to)
     self:_emit(nil)
 end
 
+---@param listener ApmStateEmitterListener
 function ApmStateEmitter:listener(listener)
     table.insert(self.listeners, listener)
 end

@@ -2,20 +2,91 @@ local Motions = require("vim-apm.motion.motions")
 
 local j = Motions.make_key("j")
 local k = Motions.make_key("k")
-local simple_motions = Motions.make_or(j, k)
-local numbered_simple_motions = Motions.make_number(simple_motions)
+local x = Motions.make_key("x")
+local X = Motions.make_key("X")
+local w = Motions.make_key("w")
+local b = Motions.make_key("b")
+local W = Motions.make_key("W")
+local B = Motions.make_key("B")
+local tilde = Motions.make_key("~")
+local underscore = Motions.make_key("_")
+local e = Motions.make_key("e")
+local E = Motions.make_key("E")
 
-local delete = Motions.make_key("d", numbered_simple_motions)
-local cut = Motions.make_key("c", numbered_simple_motions)
+local simple_motions = Motions.make_or(
+    j, k,
+    x, X,
+    w, b,
+    W, B,
+    tilde,
+    underscore,
+    e, E
+)
 
-local all_motions = Motions.make_or(delete, cut, numbered_simple_motions)
+local p = Motions.make_key("p")
+local b = Motions.make_key("b")
+local bracket = Motions.make_key("[")
+local paren = Motions.make_key("(")
+local squirly = Motions.make_key("{")
+local c_bracket = Motions.make_key("]")
+local c_paren = Motions.make_key(")")
+local c_squirly = Motions.make_key("}")
+
+local complex_motion_set = Motions.make_or(
+    p,
+    b,
+    bracket,
+    paren,
+    squirly,
+    c_bracket,
+    c_paren,
+    c_squirly,
+    w,
+    W
+)
+
+local in_motion = Motions.make_key("i", complex_motion_set)
+local around = Motions.make_key("a", complex_motion_set)
+
+local complex_motion = Motions.make_or(
+    in_motion,
+    around
+)
+
+-- yes!
+local numbered = Motions.make_number(
+    Motions.make_or(
+        simple_motions,
+        complex_motion
+    )
+)
+
+local delete = Motions.make_key("d", numbered)
+local yank = Motions.make_key("y", numbered)
+local cut = Motions.make_key("c", numbered)
+local visual = Motions.make_key("v", numbered)
+
+local command_motions = Motions.make_or(
+    yank, delete, cut, numbered
+)
+local numbered_command_motions = Motions.make_number(
+    command_motions
+)
+
+-- Ok i think i have built the entire tree
+local all_motions = Motions.make_or(
+    -- visual motions must start with a v, there is no motion that starts with a number then a visual command
+    visual,
+    numbered_command_motions
+)
 
 return {
     j = j,
     k = k,
     simple_motions = simple_motions,
-    numbered_simple_motions = numbered_simple_motions,
+    numbered_simple_motions = numbered,
     delete = delete,
     cut = cut,
     all_motions = all_motions,
 }
+
