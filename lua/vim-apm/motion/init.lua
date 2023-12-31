@@ -1,7 +1,16 @@
+---The motion item that represents a vim motion will contain N - 1 timings.
+---The timings will be relative to the first keypress and in ms
+---@class VimMotionItem
+---@field chars string
+---@field timings number[]
+
+function get_char(item) return item.chars end
+
 ---@class VimMotion
 ---@field head MotionFunction
 ---@field curr MotionFunction | nil
 ---@field chars string
+---@field timings number[]
 local Motion = {}
 Motion.__index = Motion
 
@@ -10,15 +19,16 @@ function Motion.new(head)
         head = head,
         curr = nil,
         chars = "",
+        timings = {},
     }, Motion)
 end
 
 ---@param key string
----@return string | nil
+---@return VimMotionItem | nil
 function Motion:feedkey(key)
-
     if self.curr == nil then
         self.curr = self.head
+        self.timings = {}
         self.chars = ""
     end
 
@@ -26,6 +36,8 @@ function Motion:feedkey(key)
         if self.curr == nil then
             error("infalible: curr is nil")
         end
+
+        -- how the hell do i convert that?
 
         local res, next = self.curr(key)
 
@@ -36,11 +48,13 @@ function Motion:feedkey(key)
 
         if res.consume then
             self.chars = self.chars .. key
+            table.insert(self.timings, vim.fn.reltimefloat(vim.fn.reltime()))
         end
 
         if res.done and next == nil then
             self.curr = nil
-            return self.chars
+            -- that should be good...?
+            return self:create_motion_item()
         end
 
         if res.done then
@@ -50,7 +64,6 @@ function Motion:feedkey(key)
         if res.consume then
             break
         end
-
     end
 
     return nil
@@ -62,6 +75,24 @@ function Motion:reset()
     end)
 end
 
-return Motion
+---@return VimMotionItem
+function Motion:create_motion_item()
+    local start = self.timings[1]
+    local timings = {}
 
+    for i = 2, #self.timings do
+        table.insert(timings, math.floor(
+            (self.timings[i] - start) * 1000
+        ))
+    end
 
+    return {
+        chars = self.chars,
+        timings = timings,
+    }
+end
+
+return {
+    Motion = Motion,
+    get_char = get_char,
+}
