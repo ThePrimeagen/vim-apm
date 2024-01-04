@@ -1,3 +1,5 @@
+local utils = require("vim-apm.utils")
+
 ---The motion item that represents a vim motion will contain N - 1 timings.
 ---The timings will be relative to the first keypress and in ms
 ---@class APMMotionItem
@@ -48,7 +50,7 @@ function Motion:feedkey(key)
 
         if res.consume then
             self.chars = self.chars .. key
-            table.insert(self.timings, vim.fn.reltimefloat(vim.fn.reltime()))
+            table.insert(self.timings, utils.now())
         end
 
         if res.done and next == nil then

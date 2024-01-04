@@ -10,7 +10,6 @@ function Logger.new()
     }, Logger)
 end
 
-
 function Logger:log(...)
     local args = { ... }
     for i = 1, #args do

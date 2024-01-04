@@ -1,9 +1,11 @@
 local utils = require("vim-apm.utils")
 local APMBussin = require("vim-apm.bus")
+local CALCULATOR_MOTION = require("vim-apm.calculator").CALCULATED_MOTION
 
 ---@class APMFloat
 ---@field buf_id number
 ---@field win_id number
+---@field _display table<string>
 ---@field closing boolean
 local APMFloat = {}
 APMFloat.__index = APMFloat
@@ -26,16 +28,16 @@ local function create_window_config()
     end
 
     return {
-        relative="editor",
-        anchor="NW",
-        row=1,
-        col=col,
-        width=12,
-        height=3,
-        border="rounded",
-        title="apm",
-        title_pos="center",
-        style="minimal",
+        relative = "editor",
+        anchor = "NW",
+        row = 1,
+        col = col,
+        width = 12,
+        height = 3,
+        border = "rounded",
+        title = "apm",
+        title_pos = "center",
+        style = "minimal",
     }
 end
 
@@ -52,8 +54,26 @@ function APMFloat.new()
         buf_id = nil,
         win_id = nil,
         closing = false,
+        _display = { "NONE YET" },
     }, APMFloat)
+
+    APMBussin:listen(CALCULATOR_MOTION, function(event)
+        self:_display_contents(event)
+    end)
+
     return self
+end
+
+--- TODO: This rubs me the wrong way
+function APMFloat:_display_contents(calc_event)
+    if calc_event ~= nil and calc_event.apm ~= nil then
+        local contents = utils.lineify(calc_event)
+        self._display = contents
+    end
+
+    if self.buf_id ~= nil then
+        vim.api.nvim_buf_set_lines(self.buf_id, 0, -1, false, self._display)
+    end
 end
 
 function APMFloat:resize()
@@ -71,6 +91,8 @@ function APMFloat:toggle()
         self.buf_id = buf_id
         self.win_id = win_id
 
+        self:_display_contents()
+
         utils.on_close(buf_id, function()
             if self.closing then
                 return
@@ -80,10 +102,8 @@ function APMFloat:toggle()
             close_window(self.win_id, nil)
             self.buf_id = nil
             self.win_id = nil
-
         end)
     else
-
         self.closing = true
         close_window(self.win_id, self.buf_id)
         self.buf_id = nil
@@ -93,4 +113,3 @@ function APMFloat:toggle()
 end
 
 return APMFloat
-

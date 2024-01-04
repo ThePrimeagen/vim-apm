@@ -1,6 +1,7 @@
 local utils = require("vim-apm.utils")
 local APM = require("vim-apm.apm")
--- local float = require("vim-apm.ui.float")
+local APMCalculator = require("vim-apm.calculator")
+local float = require("vim-apm.ui.float")
 
 ---@class Event
 ---@field buf number
@@ -8,6 +9,7 @@ local APM = require("vim-apm.apm")
 
 ---@class VimApm
 ---@field apm APM
+---@field calc APMCalculator
 ---@field monitor APMFloat
 local VimApm = {}
 
@@ -15,9 +17,16 @@ VimApm.__index = VimApm
 
 ---@return VimApm
 function VimApm.new()
+    local apm = APM.APM.new()
+    local calculator = APMCalculator.Calculator.new()
+    local monitor = float.new()
+
     local self = setmetatable({
-        apm = APM.APM.new(),
+        apm = apm,
+        calculator = calculator,
+        monitor = monitor,
     }, VimApm)
+
     return self
 end
 
@@ -46,6 +55,10 @@ function VimApm:setup()
         end
     })
 
+end
+
+function VimApm:toggle_monitor()
+    self.monitor:toggle()
 end
 
 return VimApm.new()

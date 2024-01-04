@@ -1,8 +1,6 @@
 ---@alias APMBussinListener fun(event: APMBussinEvent): nil
 
----@class APMBussinEvent
----@field type string
----@field context any
+---@class APMBussinEvent any
 
 ---@class APMBussin
 ---@field listeners table<string, APMBussinListener[]>
@@ -38,14 +36,18 @@ function APMBussin:remove(event_type, listener)
     end
 end
 
-function APMBussin:emit(event)
-    if self.listeners[event.type] == nil then
+function APMBussin:emit(type, event)
+    if self.listeners[type] == nil then
         return
     end
 
-    for _, listener in ipairs(self.listeners[event.type]) do
+    for _, listener in ipairs(self.listeners[type]) do
         listener(event)
     end
+end
+
+function APMBussin:clear()
+    self.listeners = {}
 end
 
 return APMBussin.new()

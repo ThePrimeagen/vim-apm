@@ -20,7 +20,6 @@ end
 
 function M.key(k)
     k = vim.api.nvim_replace_termcodes(k, true, false, true)
-    print("key?", k)
     vim.api.nvim_feedkeys(k, "m", false)
 end
 

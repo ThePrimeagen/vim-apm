@@ -17,11 +17,12 @@ local APM = {}
 APM.__index = APM
 
 function APM.new()
-    local motion = Motion.new(MotionTree.all_motions)
-    return setmetatable({
+    local motion = Motion.Motion.new(MotionTree.all_motions)
+    local self = setmetatable({
         motion = motion,
         mode = NORMAL,
-    });
+    }, APM);
+    return self
 end
 
 ---@param key string
@@ -33,10 +34,7 @@ function APM:feedkey(key)
         return
     end
 
-    APMBussin:emit({
-        type = "motion",
-        context = motion_item,
-    })
+    APMBussin:emit(MOTION_ITEM, motion_item)
 end
 
 ---@param from string
