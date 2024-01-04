@@ -1,12 +1,12 @@
 ---The motion item that represents a vim motion will contain N - 1 timings.
 ---The timings will be relative to the first keypress and in ms
----@class VimMotionItem
+---@class APMMotionItem
 ---@field chars string
 ---@field timings number[]
 
-function get_char(item) return item.chars end
+local function get_char(item) return item.chars end
 
----@class VimMotion
+---@class APMMotion
 ---@field head MotionFunction
 ---@field curr MotionFunction | nil
 ---@field chars string
@@ -24,7 +24,7 @@ function Motion.new(head)
 end
 
 ---@param key string
----@return VimMotionItem | nil
+---@return APMMotionItem | nil
 function Motion:feedkey(key)
     if self.curr == nil then
         self.curr = self.head
@@ -75,7 +75,8 @@ function Motion:reset()
     end)
 end
 
----@return VimMotionItem
+--- TODO: consider reusing the memories here
+---@return APMMotionItem
 function Motion:create_motion_item()
     local start = self.timings[1]
     local timings = {}

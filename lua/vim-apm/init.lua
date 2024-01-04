@@ -1,31 +1,22 @@
 local utils = require("vim-apm.utils")
-local float = require("vim-apm.ui.float")
-local State = require("vim-apm.state")
-local Emitter = require("vim-apm.state-emitter")
+local APM = require("vim-apm.apm")
+-- local float = require("vim-apm.ui.float")
 
 ---@class Event
 ---@field buf number
----@field event string
+---@field match string
 
 ---@class VimApm
----@field monitor ApmFloat
----@field state ApmState
----@field emitter ApmStateEmitter
+---@field apm APM
+---@field monitor APMFloat
 local VimApm = {}
 
 VimApm.__index = VimApm
 
 ---@return VimApm
 function VimApm.new()
-    local state = State.new()
-    local emitter = Emitter.new()
-
-    emitter:listener(state)
-
     local self = setmetatable({
-        state = state,
-        emitter = emitter,
-        monitor = float.new(state),
+        apm = APM.APM.new(),
     }, VimApm)
     return self
 end
@@ -39,13 +30,13 @@ function VimApm:setup()
         ---@param event Event
         callback = function(event)
             local mode = utils.split(event.match, ":")
-            self.emitter:handle_mode_changed(mode[1], mode[2])
+            self.apm:handle_mode_changed(mode[1], mode[2])
         end,
     })
 
     ---@param key string
     vim.on_key(function(key)
-        self.emitter:handle_key(key)
+        self.apm:feedkey(key)
     end)
 
     vim.api.nvim_create_autocmd("WinResized", {

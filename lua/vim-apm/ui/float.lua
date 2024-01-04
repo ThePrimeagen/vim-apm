@@ -1,12 +1,12 @@
 local utils = require("vim-apm.utils")
+local APMBussin = require("vim-apm.bus")
 
----@class ApmFloat
----@field apm_state ApmState
+---@class APMFloat
 ---@field buf_id number
 ---@field win_id number
 ---@field closing boolean
-local ApmFloat = {}
-ApmFloat.__index = ApmFloat
+local APMFloat = {}
+APMFloat.__index = APMFloat
 
 local function close_window(win_id, buf_id)
     if win_id ~= nil and vim.api.nvim_win_is_valid(win_id) then
@@ -47,17 +47,16 @@ local function create_window()
     return buf_id, win_id
 end
 
-function ApmFloat.new(apm_state)
+function APMFloat.new()
     local self = setmetatable({
-        apm_state = apm_state,
         buf_id = nil,
         win_id = nil,
         closing = false,
-    }, ApmFloat)
+    }, APMFloat)
     return self
 end
 
-function ApmFloat:resize()
+function APMFloat:resize()
     if self.win_id == nil then
         return
     end
@@ -66,7 +65,7 @@ function ApmFloat:resize()
     vim.api.nvim_win_set_config(self.win_id, config)
 end
 
-function ApmFloat:toggle()
+function APMFloat:toggle()
     if self.buf_id == nil then
         local buf_id, win_id = create_window()
         self.buf_id = buf_id
@@ -93,5 +92,5 @@ function ApmFloat:toggle()
     end
 end
 
-return ApmFloat
+return APMFloat
 

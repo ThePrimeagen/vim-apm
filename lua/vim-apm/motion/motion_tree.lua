@@ -24,7 +24,6 @@ local simple_motions = Motions.make_or(
 )
 
 local p = Motions.make_key("p")
-local b = Motions.make_key("b")
 local bracket = Motions.make_key("[")
 local paren = Motions.make_key("(")
 local squirly = Motions.make_key("{")
