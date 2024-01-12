@@ -72,6 +72,9 @@ function APMFloat:_display_contents(calc_event)
     end
 
     if self.buf_id ~= nil then
+        if self._display == nil then
+            self._display = { "NONE YET" }
+        end
         vim.api.nvim_buf_set_lines(self.buf_id, 0, -1, false, self._display)
     end
 end

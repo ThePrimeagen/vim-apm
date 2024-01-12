@@ -23,13 +23,21 @@ describe("state", function()
         eq(next("k"), Motions.State.DONE_CONSUME)
 
         done, next = MotionTree.all_motions("d")
+        eq(done, Motions.State.DONE_NO_CONSUME)
+
+        done, next = next("d")
         eq(done, Motions.State.DONE_CONSUME)
+
         eq(next("9"), Motions.State.NO_DONE_CONSUME)
         eq(next("9"), Motions.State.NO_DONE_CONSUME)
         eq(next("9"), Motions.State.NO_DONE_CONSUME)
 
         done, next = next("j")
-        eq(Motions.State.DONE_CONSUME, next("j"))
+        eq(done, Motions.State.DONE_NO_CONSUME)
+
+        done, next = next("j")
+        eq(Motions.State.DONE_CONSUME, done)
+        eq(nil, next)
     end)
 
 end)
