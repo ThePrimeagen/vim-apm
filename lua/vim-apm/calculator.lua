@@ -36,8 +36,10 @@ function APMCalculator:_calculate(motion)
     local apm = self.key_presses / (
         (utils.now() - self.start_time) / 60000.0
     )
+
     APMBussin:emit(CALCULATED_MOTION, {
         apm = apm,
+        chars = motion.chars,
     })
 end
 

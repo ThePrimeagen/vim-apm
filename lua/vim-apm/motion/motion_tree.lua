@@ -60,9 +60,19 @@ local numbered = Motions.make_number(
     )
 )
 
-local delete = Motions.make_key("d", numbered)
-local yank = Motions.make_key("y", numbered)
-local cut = Motions.make_key("c", numbered)
+local function make_numbered_command_motion(key)
+    return Motions.make_number(
+        Motions.make_or(
+            simple_motions,
+            complex_motion,
+            Motions.make_key(key)
+        )
+    )
+end
+
+local delete = Motions.make_key("d", make_numbered_command_motion("d"))
+local yank = Motions.make_key("y", make_numbered_command_motion("y"))
+local cut = Motions.make_key("c", make_numbered_command_motion("c"))
 local visual = Motions.make_key("v", numbered)
 
 local command_motions = Motions.make_or(

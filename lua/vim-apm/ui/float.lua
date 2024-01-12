@@ -84,6 +84,14 @@ function APMFloat:resize()
         return
     end
 
+    if not vim.api.nvim_win_is_valid(self.win_id) then
+        close_window(nil, self.buf_id)
+        self.win_id = nil
+        self.buf_id = nil
+        self.closing = false
+        return
+    end
+
     local config = create_window_config()
     vim.api.nvim_win_set_config(self.win_id, config)
 end
