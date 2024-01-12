@@ -1,10 +1,8 @@
-package motion
+package motions
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
-	"strings"
 	"unicode"
 )
 
@@ -63,9 +61,9 @@ func isCommand(s string) bool {
 	}
 
 	switch first {
-	case 'd':
-	case 'y':
-	case 'c':
+	case 'd': fallthrough
+	case 'y': fallthrough
+	case 'c': fallthrough
 	case 'v':
 		return true
 	}
@@ -108,36 +106,36 @@ func parseDigit(s string) (int, string) {
 
 func parseSimpleMotion(s string, count int) (Motion, error) {
 	switch s[0:1] {
-	case "w":
-	case "W":
-	case "e":
-	case "E":
-	case "b":
-	case "B":
-	case "0":
-	case "^":
-	case "~":
-	case "$":
-	case "h":
-	case "H":
-	case "j":
-	case "J":
-	case "k":
-	case "l":
-	case "L":
+	case "w": fallthrough
+	case "W": fallthrough
+	case "e": fallthrough
+	case "E": fallthrough
+	case "b": fallthrough
+	case "B": fallthrough
+	case "0": fallthrough
+	case "^": fallthrough
+	case "~": fallthrough
+	case "$": fallthrough
+	case "h": fallthrough
+	case "H": fallthrough
+	case "j": fallthrough
+	case "J": fallthrough
+	case "k": fallthrough
+	case "l": fallthrough
+	case "L": fallthrough
 	case "G":
 		return &SimpleMotion{Count: count, Motion: s}, nil
 
 	case "g":
 		return nil, MotionNotImplemented
 
-	case "a":
+	case "a": fallthrough
 	case "i":
 		return nil, MotionNotImplemented
 
-	case "f":
-	case "F":
-	case "t":
+	case "f": fallthrough
+	case "F": fallthrough
+	case "t": fallthrough
 	case "T":
 		return nil, MotionNotImplemented
 	}
@@ -145,31 +143,12 @@ func parseSimpleMotion(s string, count int) (Motion, error) {
 	return nil, InvalidMotion
 }
 
-func parse(s string) (Motion, error) {
+func Parse(s string) (Motion, error) {
 	count, s := parseDigit(s)
+
 	if isCommand(s) {
 		return parseCommand(s, count)
 	}
+
 	return parseSimpleMotion(s, count)
-}
-
-func Next(motion string) (Motion, string, error) {
-	leftStr, right, found := strings.Cut(motion, ":")
-
-	if !found {
-		return nil, motion, nil
-	}
-
-	left, err := strconv.Atoi(leftStr)
-
-	if err != nil {
-		return nil, motion, fmt.Errorf("Invalid count: %s %w", leftStr, err)
-	}
-
-	if len(right) < left {
-		return nil, motion, nil
-	}
-
-	m, err := parse(right[:left])
-	return m, right[left:], err
 }
