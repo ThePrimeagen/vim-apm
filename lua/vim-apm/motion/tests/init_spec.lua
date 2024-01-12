@@ -38,5 +38,22 @@ describe("state", function()
         end
     end)
 
+    it("all_motions test [negative]", function()
+        local motion = Motion.new(MotionTree.all_motions)
+        local motions = {
+            {"d", "y"},
+            {"y", "d"},
+            {"c", "d"},
+        }
+
+        for _, list in ipairs(motions) do
+            local last_result = nil;
+            for _, key in ipairs(list) do
+                last_result = motion:feedkey(key)
+            end
+            eq(nil, last_result)
+        end
+    end)
+
 end)
 
