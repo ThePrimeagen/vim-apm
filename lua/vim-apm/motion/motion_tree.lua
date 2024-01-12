@@ -1,5 +1,12 @@
 local Motions = require("vim-apm.motion.motions")
 
+------------------------------------------------
+--- Simple motions                           ---
+--- There are plenty of missing motions,     ---
+--- will fix at some point and if you find   ---
+--- something that is missing, file a ticket ---
+------------------------------------------------
+--- TODO: FINISH THESE
 local j = Motions.make_key("j")
 local k = Motions.make_key("k")
 local x = Motions.make_key("x")
@@ -82,12 +89,33 @@ local numbered_command_motions = Motions.make_number(
     command_motions
 )
 
+local o = Motions.make_key("o")
+local O = Motions.make_key("O")
+local I = Motions.make_key("I")
+local A = Motions.make_key("A")
+local a = Motions.make_key("a")
+local i = Motions.make_key("i")
+
+local insert_motions = Motions.make_or(
+    o, O, I, A, a, i
+)
+
+local Cd = Motions.make_key("")
+local Cu = Motions.make_key("")
+
+local page_motions = Motions.make_or(
+    Cd, Cu
+)
+
 -- Ok i think i have built the entire tree
 local all_motions = Motions.make_or(
     -- visual motions must start with a v, there is no motion that starts with a number then a visual command
     visual,
+    insert_motions,
+    page_motions,
     numbered_command_motions
 )
+
 
 return {
     j = j,
