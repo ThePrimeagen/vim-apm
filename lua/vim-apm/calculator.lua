@@ -3,6 +3,11 @@ local APMBussin = require("vim-apm.bus")
 
 local CALCULATED_MOTION = "cmotion"
 
+---@class APMCalculatedMotion
+---@field apm number
+---@field chars string
+---@field timings number[]
+
 ---@class APMCalculator
 ---@field start_time number
 ---@field key_presses number
@@ -40,6 +45,7 @@ function APMCalculator:_calculate(motion)
     APMBussin:emit(CALCULATED_MOTION, {
         apm = apm,
         chars = motion.chars,
+        timings = motion.timings,
     })
 end
 
