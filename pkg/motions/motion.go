@@ -112,13 +112,8 @@ func isCommand(s string) bool {
 	}
 
 	switch first {
-	case 'd':
-		fallthrough
-	case 'y':
-		fallthrough
-	case 'c':
-		fallthrough
-	case 'v':
+
+    case 'd', 'y', 'c', 'v':
 		return true
 	}
 
@@ -161,41 +156,8 @@ func parseDigit(s string) (int, string) {
 
 func parseSimpleMotion(s string, count int) (Motion, error) {
 	switch s[0:1] {
-	case "w":
-		fallthrough
-	case "W":
-		fallthrough
-	case "e":
-		fallthrough
-	case "E":
-		fallthrough
-	case "b":
-		fallthrough
-	case "B":
-		fallthrough
-	case "0":
-		fallthrough
-	case "^":
-		fallthrough
-	case "~":
-		fallthrough
-	case "$":
-		fallthrough
-	case "h":
-		fallthrough
-	case "H":
-		fallthrough
-	case "j":
-		fallthrough
-	case "J":
-		fallthrough
-	case "k":
-		fallthrough
-	case "l":
-		fallthrough
-	case "L":
-		fallthrough
-	case "G":
+
+	case "w", "G", "L", "l", "k", "J", "j", "H", "h", "$", "~", "^", "0", "B", "b", "E", "e", "W":
 		return &SimpleMotion{
 			Count:   count,
 			Motion:  s,
@@ -205,32 +167,14 @@ func parseSimpleMotion(s string, count int) (Motion, error) {
 	case "g":
 		return nil, MotionNotImplemented
 
-	case "a":
-		fallthrough
-	case "i":
+	case "a", "i":
+
 		if len(s) != 2 {
 			return nil, InvalidMotion
 		}
+
 		switch s[1:2] {
-		case "p":
-			fallthrough
-		case "b":
-			fallthrough
-		case "w":
-			fallthrough
-		case "W":
-			fallthrough
-		case "{":
-			fallthrough
-		case "}":
-			fallthrough
-		case "(":
-			fallthrough
-		case ")":
-			fallthrough
-		case "[":
-			fallthrough
-		case "]":
+		case "p", "]", "[", ")", "(", "}", "{", "W", "w", "b":
             return &SimpleMotion{
                 Count:   count,
                 Motion:  s,
@@ -240,13 +184,7 @@ func parseSimpleMotion(s string, count int) (Motion, error) {
 
 		return nil, InvalidMotion
 
-	case "f":
-		fallthrough
-	case "F":
-		fallthrough
-	case "t":
-		fallthrough
-	case "T":
+	case "f" , "F", "t", "T":
 		return nil, MotionNotImplemented
 	}
 
@@ -269,6 +207,10 @@ func Parse(s string) (Motion, error) {
 	if err != nil {
 		return nil, err
 	}
+
+    if len(s) == motion_len + 1 {
+        return motion, nil
+    }
 
 	err = motion.parseTimings(s[motion_len+1:])
 	if err != nil {

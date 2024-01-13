@@ -52,7 +52,8 @@ func handleConnection(conn net.Conn) {
             }
 
             if parsed != nil {
-                fmt.Println(parsed)
+                motion, _ := parsed.AsMotion()
+                fmt.Printf("Parsed: %v -- %v\n", parsed, motion)
                 str = str[n:]
             } else {
                 break

@@ -7,6 +7,18 @@ import (
 	"vim-apm.theprimeagen.tv/pkg/motions"
 )
 
+func TestParseSimpleMotionNoTimings(t *testing.T) {
+	m, err := motions.Parse("1j")
+	assert.Nil(t, err)
+
+	count, motion := m.GetMotion()
+	assert.Equal(t, 1, count)
+	assert.Equal(t, "j", motion)
+
+    timings := m.GetTimings()
+	assert.Equal(t, []int{}, timings)
+}
+
 func TestParseSimpleMotion(t *testing.T) {
 	m, err := motions.Parse("342j69,420")
 	assert.Nil(t, err)
