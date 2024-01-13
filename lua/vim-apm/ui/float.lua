@@ -1,6 +1,5 @@
 local utils = require("vim-apm.utils")
 local APMBussin = require("vim-apm.bus")
-local CALCULATOR_MOTION = require("vim-apm.calculator").CALCULATED_MOTION
 
 ---@class APMFloat
 ---@field buf_id number
@@ -61,9 +60,11 @@ function APMFloat.new()
 end
 
 function APMFloat:enable()
+    --[[
     APMBussin:listen(CALCULATOR_MOTION, function(event)
         self:_display_contents(event)
     end)
+    --]]
 end
 
 --- TODO: This rubs me the wrong way

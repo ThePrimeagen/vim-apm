@@ -1,5 +1,5 @@
 local eq = assert.are.same
-local motion_parser = require("vim-apm.calculator.motion_parser")
+local motion_parser = require("vim-apm.reporter.motion_parser")
 
 describe("Motion Parser", function()
     it("disnumber motions", function()

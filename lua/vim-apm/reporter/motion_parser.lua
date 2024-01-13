@@ -1,4 +1,3 @@
-
 local M = {}
 
 ---@param chars string
@@ -15,4 +14,3 @@ function M.disnumber_motion(chars)
 end
 
 return M
-

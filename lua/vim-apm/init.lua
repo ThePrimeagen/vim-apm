@@ -1,7 +1,6 @@
 VimAPMRequired = true
 
 local APM = require("vim-apm.apm")
-local APMCalculator = require("vim-apm.calculator")
 local float = require("vim-apm.ui.float")
 local Reporter = require("vim-apm.reporter")
 local ActionsModule = require("vim-apm.actions")
@@ -10,6 +9,7 @@ local APMBussin = require("vim-apm.bus")
 local Actions = ActionsModule.APMActions
 
 ---@class APMOptions
+---@field reporter? APMReporterOptions
 
 ---@class Event
 ---@field buf number
@@ -17,10 +17,9 @@ local Actions = ActionsModule.APMActions
 
 ---@class VimApm
 ---@field apm APM
----@field calculator APMCalculator
 ---@field monitor APMFloat
 ---@field actions APMActions
----@field reporter APMReporter
+---@field reporter APMReporter | nil
 local VimApm = {}
 
 VimApm.__index = VimApm
@@ -29,16 +28,12 @@ VimApm.__index = VimApm
 function VimApm.new()
     local apm = APM.APM.new()
 
-    local calculator = APMCalculator.Calculator.new()
     local monitor = float.new()
-    local reporter = Reporter.new()
     local actions = Actions.new()
 
     local self = setmetatable({
         apm = apm,
-        calculator = calculator,
         monitor = monitor,
-        reporter = reporter,
         actions = actions,
     }, VimApm)
 
@@ -47,12 +42,18 @@ end
 
 ---@param opts APMOptions
 function VimApm:setup(opts)
+    opts = vim.tbl_extend("force", {}, {
+        reporter = Reporter.default_options(),
+    }, opts)
+
     self:clear()
 
     self.actions:enable()
-    self.calculator:enable()
     self.monitor:enable()
     self.apm:enable()
+
+    self.reporter = Reporter.create_reporter(opts.reporter)
+    self.reporter:enable()
 
     APMBussin:listen(ActionsModule.MODE, function(mode)
         self.apm:handle_mode_changed(mode[1], mode[2])
@@ -69,8 +70,12 @@ function VimApm:clear()
     APMBussin:clear()
     self.monitor:close()
     self.actions:clear()
-    self.calculator:clear()
     self.apm:clear()
+
+    if self.reporter ~= nil then
+        self.reporter:clear()
+        self.reporter = nil
+    end
 end
 
 function VimApm:toggle_monitor()

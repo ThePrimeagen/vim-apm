@@ -1,43 +1,51 @@
-local network_utils = require("vim-apm.reporter.network-utils")
-local bussin = require("vim-apm.bus")
-local Apm = require("vim-apm.apm")
-local MOTION = Apm.Events.MotionItem
+local Network = require("vim-apm.reporter.network-reporter");
+local File = require("vim-apm.reporter.file-reporter");
+
+---@class APMReporterOptions
+---@field type "network" | "file"
+---@field uri string
+---@field interval number | nil
 
 ---@class APMReporter
----@field error boolean
----@field messages string[]
-local APMReporter = {}
-APMReporter.__index = APMReporter
+---@field clear fun(self: APMReporter): nil
+---@field enable fun(self: APMReporter): nil
 
---- TODO: Think about reconnecting / understanding the current socket connection state
-function APMReporter.new()
-    local self = {
-        error = false,
-        messages = {}
+--- TODO: F yo windows
+local data_path = vim.fn.stdpath("data")
+local default_data_path = string.format("%s/vim-apm.json", data_path)
+
+local function default_options()
+    return {
+        type = "file",
+        uri = default_data_path,
     }
-
-    local uv = vim.loop
-    local client = uv.new_tcp()
-    client:connect("127.0.0.1", 6112, function (err)
-        if err ~= nil then
-            error("vim-apm failed to connect to the APM server: " .. err)
-            self.error = true
-            return
-        end
-    end)
-
-    --- @param motion APMMotionItem
-    bussin:listen(MOTION, function(motion)
-        if self.error then
-            return
-        end
-
-        local packet = network_utils.encode_motion(motion)
-        client:write(packet)
-        -- table.insert(self.messages, motion)
-    end)
-
-    return setmetatable(self, APMReporter)
 end
 
-return APMReporter
+---@param opts APMReporterOptions
+---@return APMReporter
+local function create_reporter(opts)
+    if opts.type == "file" then
+        return File.new(opts.uri, opts.interval)
+    end
+    return Network.new(opts.uri, opts.interval)
+end
+
+return {
+    default_options = default_options,
+    file_options = function(path, interval)
+        return {
+            type = "file",
+            interval = interval,
+            uri = path,
+        }
+    end,
+    network_options = function(uri, interval)
+        return {
+            type = "network",
+            interval = interval,
+            uri = uri,
+        }
+    end,
+    create_reporter = create_reporter,
+}
+

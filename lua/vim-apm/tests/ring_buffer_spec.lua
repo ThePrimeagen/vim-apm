@@ -1,5 +1,5 @@
 local eq = assert.are.same
-local RingBuffer = require("vim-apm.calculator.ring_buffer")
+local RingBuffer = require("vim-apm.ring_buffer")
 
 describe("RingBuffer", function()
     it("non wrap operations", function()
