@@ -25,6 +25,12 @@ function Motion.new(head)
     }, Motion)
 end
 
+function Motion:clear()
+    self.curr = nil
+    self.chars = ""
+    self.timings = {}
+end
+
 ---@param key string
 ---@return APMMotionItem | nil
 function Motion:feedkey(key)

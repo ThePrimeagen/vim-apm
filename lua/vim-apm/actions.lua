@@ -6,6 +6,7 @@ local ON_KEY = "on_key"
 local RESIZE = "resize"
 local WRITE = "write"
 local IDLE = "idle"
+local BUSY = "busy"
 
 ---@class APMActions
 ---@field enabled boolean
@@ -79,6 +80,9 @@ function APMActions:enable()
     ---@param key string
     local on_key_id = vim.on_key(function(key)
         last_key_pressed = utils.now()
+        if idle_evented then
+            APMBussin:emit(BUSY)
+        end
         idle_evented = false
 
         APMBussin:emit(ON_KEY, key)
@@ -109,4 +113,6 @@ return {
     ON_KEY = ON_KEY,
     RESIZE = RESIZE,
     WRITE = WRITE,
+    BUSY = BUSY,
+    IDLE = IDLE,
 }

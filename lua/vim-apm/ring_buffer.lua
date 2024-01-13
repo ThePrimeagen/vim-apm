@@ -7,6 +7,7 @@
 ---@field _size number
 ---@field _buffer any[]
 ---@field len number
+---@field original_size number
 local APMRingBuffer = {}
 APMRingBuffer.__index = APMRingBuffer
 
@@ -18,6 +19,7 @@ function APMRingBuffer.new(size)
         _stop = 1,
         _size = size or 1000,
         len = 0,
+        original_size = size or 1000,
     }, APMRingBuffer)
 end
 
@@ -77,6 +79,14 @@ function APMRingBuffer:_resize()
     self._start = 1
     self._stop = self._size
     self._size = next_size
+end
+
+function APMRingBuffer:clear()
+    self._buffer = {}
+    self._start = 1
+    self._stop = 1
+    self.len = 0
+    self.size = self.original_size
 end
 
 return APMRingBuffer

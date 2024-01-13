@@ -42,6 +42,7 @@ function APMCalculator:enable()
     APMBussin:listen("motion", function(event)
         self:_calculate(event)
     end)
+
     APMBussin:listen(Actions.WRITE, function()
         self.save_count = self.save_count + 1
     end)
@@ -49,6 +50,7 @@ end
 
 ---@param motion APMMotion
 function APMCalculator:_calculate(motion)
+    local now = utils.now()
     if self.start_time == nil then
         self.start_time = utils.now()
     end

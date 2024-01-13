@@ -52,6 +52,7 @@ function VimApm:setup(opts)
     self.actions:enable()
     self.calculator:enable()
     self.monitor:enable()
+    self.apm:enable()
 
     APMBussin:listen(ActionsModule.MODE, function(mode)
         self.apm:handle_mode_changed(mode[1], mode[2])
@@ -69,6 +70,7 @@ function VimApm:clear()
     self.monitor:close()
     self.actions:clear()
     self.calculator:clear()
+    self.apm:clear()
 end
 
 function VimApm:toggle_monitor()
