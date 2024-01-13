@@ -1,8 +1,13 @@
+VimAPMRequired = true
+
 local APM = require("vim-apm.apm")
 local APMCalculator = require("vim-apm.calculator")
 local float = require("vim-apm.ui.float")
 local Reporter = require("vim-apm.reporter")
-local Actions = require("vim-apm.actions")
+local ActionsModule = require("vim-apm.actions")
+local APMBussin = require("vim-apm.bus")
+
+local Actions = ActionsModule.APMActions
 
 ---@class APMOptions
 
@@ -42,12 +47,24 @@ end
 
 ---@param opts APMOptions
 function VimApm:setup(opts)
+    self:clear()
     self.actions:enable()
+
+    APMBussin:listen(ActionsModule.MODE, function(mode)
+        self.apm:handle_mode_changed(mode[1], mode[2])
+    end)
+    APMBussin:listen(ActionsModule.ON_KEY, function(key)
+        self.apm:feedkey(key)
+    end)
+    APMBussin:listen(ActionsModule.RESIZE, function()
+        self.monitor:resize()
+    end)
 end
 
 function VimApm:clear()
+    APMBussin:clear()
     self.monitor:close()
-    self.actions:disable()
+    self.actions:clear()
 end
 
 function VimApm:toggle_monitor()

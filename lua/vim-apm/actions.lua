@@ -21,7 +21,7 @@ function APMActions.new()
     }, APMActions)
 end
 
-function APMActions:disable()
+function APMActions:clear()
     if self.enabled == false then
         return
     end
@@ -36,9 +36,10 @@ function APMActions:disable()
     self.enabled = false
 end
 
+---@return boolean
 function APMActions:enable()
     if self.enabled then
-        return
+        return false
     end
 
     self.enabled = true
@@ -68,6 +69,7 @@ function APMActions:enable()
         end
     })
 
+    return true
 end
 
 return {
