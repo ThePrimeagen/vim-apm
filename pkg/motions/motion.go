@@ -3,7 +3,10 @@ package motions
 import (
 	"errors"
 	"strconv"
+	"strings"
 	"unicode"
+
+	networkutils "vim-apm.theprimeagen.tv/pkg/network_utils"
 )
 
 // Anatomy of a motion
@@ -12,19 +15,39 @@ import (
 // <num>cmd<num>text_objct_motions
 
 type SimpleMotion struct {
-	Count  int
-	Motion string
+	Count   int
+	Motion  string
+	Timings []int
 }
 
 type CommandMotion struct {
 	Count   int
 	Command string
 	Motion  *SimpleMotion
+	Timings []int
 }
 
 type Motion interface {
+	parseTimings(s string) error
 	GetMotion() (int, string)
 	GetCommand() (int, string)
+	GetTimings() []int
+}
+
+func parseTimings(s string) ([]int, error) {
+	timings := strings.SplitN(s, ",", -1)
+	int_timings := []int{}
+	for _, t := range timings {
+		int_value, err := strconv.Atoi(t)
+		if err != nil {
+			// what do we do here?
+			return nil, errors.New("Invalid Timing")
+		}
+
+		int_timings = append(int_timings, int_value)
+	}
+
+	return int_timings, nil
 }
 
 var InvalidMotion = errors.New("Invalid Motion")
@@ -32,6 +55,34 @@ var MotionNotImplemented = errors.New("Motion Not Implemented")
 
 func (m *SimpleMotion) GetMotion() (int, string) {
 	return m.Count, m.Motion
+}
+
+func (m *SimpleMotion) GetTimings() []int {
+	return m.Timings
+}
+
+func (m *CommandMotion) GetTimings() []int {
+	return m.Timings
+}
+
+func (m *SimpleMotion) parseTimings(s string) error {
+	int_timings, err := parseTimings(s)
+	if err != nil {
+		return err
+	}
+
+	m.Timings = int_timings
+	return nil
+}
+
+func (m *CommandMotion) parseTimings(s string) error {
+	int_timings, err := parseTimings(s)
+	if err != nil {
+		return err
+	}
+
+	m.Timings = int_timings
+	return nil
 }
 
 func (m *CommandMotion) GetMotion() (int, string) {
@@ -86,6 +137,7 @@ func parseCommand(s string, count int) (Motion, error) {
 		Count:   count,
 		Command: cmd,
 		Motion:  motion.(*SimpleMotion),
+		Timings: []int{},
 	}, nil
 }
 
@@ -144,7 +196,11 @@ func parseSimpleMotion(s string, count int) (Motion, error) {
 	case "L":
 		fallthrough
 	case "G":
-		return &SimpleMotion{Count: count, Motion: s}, nil
+		return &SimpleMotion{
+			Count:   count,
+			Motion:  s,
+			Timings: []int{},
+		}, nil
 
 	case "g":
 		return nil, MotionNotImplemented
@@ -152,7 +208,37 @@ func parseSimpleMotion(s string, count int) (Motion, error) {
 	case "a":
 		fallthrough
 	case "i":
-		return nil, MotionNotImplemented
+		if len(s) != 2 {
+			return nil, InvalidMotion
+		}
+		switch s[1:2] {
+		case "p":
+			fallthrough
+		case "b":
+			fallthrough
+		case "w":
+			fallthrough
+		case "W":
+			fallthrough
+		case "{":
+			fallthrough
+		case "}":
+			fallthrough
+		case "(":
+			fallthrough
+		case ")":
+			fallthrough
+		case "[":
+			fallthrough
+		case "]":
+            return &SimpleMotion{
+                Count:   count,
+                Motion:  s,
+                Timings: []int{},
+            }, nil
+		}
+
+		return nil, InvalidMotion
 
 	case "f":
 		fallthrough
@@ -167,7 +253,7 @@ func parseSimpleMotion(s string, count int) (Motion, error) {
 	return nil, InvalidMotion
 }
 
-func Parse(s string) (Motion, error) {
+func parse(s string) (Motion, error) {
 	count, s := parseDigit(s)
 
 	if isCommand(s) {
@@ -175,4 +261,19 @@ func Parse(s string) (Motion, error) {
 	}
 
 	return parseSimpleMotion(s, count)
+}
+
+func Parse(s string) (Motion, error) {
+	motion_len := networkutils.ToInteger(s[0:1])
+	motion, err := parse(s[1 : motion_len+1])
+	if err != nil {
+		return nil, err
+	}
+
+	err = motion.parseTimings(s[motion_len+1:])
+	if err != nil {
+		return nil, err
+	}
+
+	return motion, nil
 }

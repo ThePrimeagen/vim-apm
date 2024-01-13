@@ -8,16 +8,19 @@ import (
 )
 
 func TestParseSimpleMotion(t *testing.T) {
-	m, err := motions.Parse("9j")
+	m, err := motions.Parse("342j69,420")
 	assert.Nil(t, err)
 
 	count, motion := m.GetMotion()
-	assert.Equal(t, 9, count)
+	assert.Equal(t, 42, count)
 	assert.Equal(t, "j", motion)
+
+    timings := m.GetTimings()
+	assert.Equal(t, []int{69, 420}, timings)
 }
 
 func TestParseComplexMotion(t *testing.T) {
-	m, err := motions.Parse("6d9j")
+	m, err := motions.Parse("46d9j777,1337")
 	assert.Nil(t, err)
 
 	count, motion := m.GetCommand()
@@ -28,4 +31,7 @@ func TestParseComplexMotion(t *testing.T) {
 	count, motion = m.GetMotion()
 	assert.Equal(t, 9, count)
 	assert.Equal(t, "j", motion)
+
+    timings := m.GetTimings()
+	assert.Equal(t, []int{777, 1337}, timings)
 }

@@ -32,7 +32,7 @@ function APMReporter.new()
             return
         end
 
-        local packet = network_utils.encode_motion(motion.chars)
+        local packet = network_utils.encode_motion(motion)
         client:write(packet)
         -- table.insert(self.messages, motion)
     end)

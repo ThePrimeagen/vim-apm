@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"vim-apm.theprimeagen.tv/pkg/motions"
+	networkutils "vim-apm.theprimeagen.tv/pkg/network_utils"
 )
 
 // Weekday - Custom type to hold value for weekday ranging from 1-7
@@ -33,27 +34,20 @@ var counts = map[Type]bool{
     Motion: true,
 }
 
-func toInteger(s string) int {
-    zero := int('0')
-    value := int(s[0])
-
-    return value - zero
-}
-
 var HEADER_LENGTH = 3
 func Next(s string) (*Parsed, int, error) {
     if len(s) < HEADER_LENGTH {
         return nil, 0, nil
     }
 
-    version := toInteger(s[0:1])
+    version := networkutils.ToInteger(s[0:1])
 
     if version != VERSION {
         return nil, 0, errors.New("Invalid Version")
     }
 
-    _type := Type(toInteger(s[1:2]))
-    length := toInteger(s[2:3])
+    _type := Type(networkutils.ToInteger(s[1:2]))
+    length := networkutils.ToInteger(s[2:3])
 
     if len(s) < HEADER_LENGTH + length {
         return nil, 0, nil
