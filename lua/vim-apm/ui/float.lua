@@ -57,11 +57,13 @@ function APMFloat.new()
         _display = { "NONE YET" },
     }, APMFloat)
 
+    return self
+end
+
+function APMFloat:enable()
     APMBussin:listen(CALCULATOR_MOTION, function(event)
         self:_display_contents(event)
     end)
-
-    return self
 end
 
 --- TODO: This rubs me the wrong way

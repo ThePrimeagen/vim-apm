@@ -22,11 +22,19 @@ function APMCalculator.new()
         start_time = nil,
     }, APMCalculator)
 
+    return self
+end
+
+function APMCalculator:clear()
+    self.key_presses = 0
+    self.motion_count = 0
+    self.start_time = nil
+end
+
+function APMCalculator:enable()
     APMBussin:listen("motion", function(event)
         self:_calculate(event)
     end)
-
-    return self
 end
 
 ---@param motion APMMotion

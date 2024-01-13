@@ -17,7 +17,7 @@ local Actions = ActionsModule.APMActions
 
 ---@class VimApm
 ---@field apm APM
----@field calc APMCalculator
+---@field calculator APMCalculator
 ---@field monitor APMFloat
 ---@field actions APMActions
 ---@field reporter APMReporter
@@ -48,7 +48,10 @@ end
 ---@param opts APMOptions
 function VimApm:setup(opts)
     self:clear()
+
     self.actions:enable()
+    self.calculator:enable()
+    self.monitor:enable()
 
     APMBussin:listen(ActionsModule.MODE, function(mode)
         self.apm:handle_mode_changed(mode[1], mode[2])
@@ -65,10 +68,11 @@ function VimApm:clear()
     APMBussin:clear()
     self.monitor:close()
     self.actions:clear()
+    self.calculator:clear()
 end
 
 function VimApm:toggle_monitor()
-    self.monitor:close()
+    self.monitor:toggle()
 end
 
 return VimApm.new()
