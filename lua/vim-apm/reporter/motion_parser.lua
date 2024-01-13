@@ -13,4 +13,34 @@ function M.disnumber_motion(chars)
     return table.concat(out)
 end
 
+---@param motion string
+---@param motion_parts (string | number)[] | nil
+---@return (string | number)[]
+function M.parse_motion_parts(motion, motion_parts)
+    local start_idx = 1
+    for j = 1, #motion do
+        local char = motion:sub(j, j)
+        if char:match("%d") == nil then
+            start_idx = j
+            break
+        end
+    end
+
+    motion_parts = motion_parts or {}
+    if start_idx > 1 then
+        local disnumbered = motion:sub(1, start_idx - 1)
+        table.insert(motion_parts, tonumber(disnumbered))
+    else
+        table.insert(motion_parts, 1)
+    end
+
+    local command = motion:sub(start_idx, start_idx)
+    if command == "d" or command == "c" or command == "y" or command == "v" then
+        table.insert(motion_parts, command)
+        return M.parse_motion_parts(motion:sub(start_idx + 1, #motion), motion_parts)
+    end
+    table.insert(motion_parts, motion:sub(start_idx, #motion))
+    return motion_parts
+end
+
 return M
