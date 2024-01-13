@@ -4,6 +4,8 @@ local APMBussin = require("vim-apm.bus")
 local MODE = "mode"
 local ON_KEY = "on_key"
 local RESIZE = "resize"
+local WRITE = "write"
+local IDLE = "idle"
 
 ---@class APMActions
 ---@field enabled boolean
@@ -41,8 +43,27 @@ function APMActions:enable()
     if self.enabled then
         return false
     end
-
     self.enabled = true
+
+    local last_key_pressed = utils.now()
+    local idle_evented = false
+
+    local function idle_check()
+        vim.defer_fn(function()
+            if not self.enabled then
+                return
+            end
+
+            local now = utils.now()
+            if now - last_key_pressed > 2000 and not idle_evented then
+                APMBussin:emit(IDLE)
+                idle_evented = true
+            end
+
+            idle_check()
+        end, 1000)
+    end
+    idle_check()
 
     vim.api.nvim_create_autocmd('ModeChanged', {
         group = utils.vim_apm_group_id(),
@@ -57,6 +78,9 @@ function APMActions:enable()
 
     ---@param key string
     local on_key_id = vim.on_key(function(key)
+        last_key_pressed = utils.now()
+        idle_evented = false
+
         APMBussin:emit(ON_KEY, key)
     end, utils.vim_apm_group_id())
 
@@ -69,6 +93,13 @@ function APMActions:enable()
         end
     })
 
+    vim.api.nvim_create_autocmd("BufWrite", {
+        group = utils.vim_apm_group_id(),
+        callback = function()
+            APMBussin:emit(WRITE)
+        end
+    })
+
     return true
 end
 
@@ -77,4 +108,5 @@ return {
     MODE = MODE,
     ON_KEY = ON_KEY,
     RESIZE = RESIZE,
+    WRITE = WRITE,
 }

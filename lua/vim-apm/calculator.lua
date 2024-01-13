@@ -1,5 +1,6 @@
 local utils = require("vim-apm.utils")
 local APMBussin = require("vim-apm.bus")
+local Actions = require("vim-apm.actions")
 
 local CALCULATED_MOTION = "cmotion"
 
@@ -12,6 +13,7 @@ local CALCULATED_MOTION = "cmotion"
 ---@field start_time number
 ---@field key_presses number
 ---@field motion_count number
+---@field save_count number
 local APMCalculator = {}
 APMCalculator.__index = APMCalculator
 
@@ -20,6 +22,7 @@ function APMCalculator.new()
         key_presses = 0,
         motion_count = 0,
         start_time = nil,
+        save_count = 0,
     }, APMCalculator)
 
     return self
@@ -28,12 +31,16 @@ end
 function APMCalculator:clear()
     self.key_presses = 0
     self.motion_count = 0
+    self.save_count = 0
     self.start_time = nil
 end
 
 function APMCalculator:enable()
     APMBussin:listen("motion", function(event)
         self:_calculate(event)
+    end)
+    APMBussin:listen(Actions.WRITE, function()
+        self.save_count = self.save_count + 1
     end)
 end
 
