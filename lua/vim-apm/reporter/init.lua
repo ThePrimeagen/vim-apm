@@ -1,6 +1,7 @@
 local network_utils = require("vim-apm.reporter.network-utils")
 local bussin = require("vim-apm.bus")
-local Calc = require("vim-apm.calculator")
+local Apm = require("vim-apm.apm")
+local MOTION = Apm.Events.MotionItem
 
 ---@class APMReporter
 ---@field error boolean
@@ -25,8 +26,8 @@ function APMReporter.new()
         end
     end)
 
-    --- @param motion APMCalculatedMotion
-    bussin:listen(Calc.CALCULATED_MOTION, function(motion)
+    --- @param motion APMMotionItem
+    bussin:listen(MOTION, function(motion)
         if self.error then
             return
         end
