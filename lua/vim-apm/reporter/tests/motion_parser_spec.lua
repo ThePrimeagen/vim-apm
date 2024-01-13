@@ -8,6 +8,12 @@ describe("Motion Parser", function()
         eq(motion_parser.disnumber_motion("dap69"), "dap")
     end)
 
+    it("motion_key generator", function()
+        eq("<n>", motion_parser.generate_motion_key("1"))
+        eq("<n>d<n>ap", motion_parser.generate_motion_key("6d9ap"))
+        eq("dap<n>", motion_parser.generate_motion_key("dap69"))
+    end)
+
     it("motion parts", function()
         eq({6, "d", 9, "ap"}, motion_parser.parse_motion_parts("6d9ap"))
         eq({6, "j"}, motion_parser.parse_motion_parts("6j"))

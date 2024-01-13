@@ -13,6 +13,25 @@ function M.disnumber_motion(chars)
     return table.concat(out)
 end
 
+---@param chars string
+---@return string
+function M.generate_motion_key(chars)
+    local out = {}
+    local added_number_key = false
+    for i = 1, #chars do
+        local char = chars:sub(i, i)
+        if char:match("%d") == nil then
+            table.insert(out, char)
+            added_number_key = false
+        elseif not added_number_key then
+            table.insert(out, "<n>")
+            added_number_key = true
+        end
+    end
+    return table.concat(out)
+end
+
+
 ---@param motion string
 ---@param motion_parts (string | number)[] | nil
 ---@return (string | number)[]
