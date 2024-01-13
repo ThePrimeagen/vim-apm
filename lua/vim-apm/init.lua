@@ -1,9 +1,10 @@
-local utils = require("vim-apm.utils")
 local APM = require("vim-apm.apm")
 local APMCalculator = require("vim-apm.calculator")
 local float = require("vim-apm.ui.float")
 local Reporter = require("vim-apm.reporter")
 local Actions = require("vim-apm.actions")
+
+---@class APMOptions
 
 ---@class Event
 ---@field buf number
@@ -39,12 +40,18 @@ function VimApm.new()
     return self
 end
 
-function VimApm:setup()
+---@param opts APMOptions
+function VimApm:setup(opts)
     self.actions:enable()
 end
 
+function VimApm:clear()
+    self.monitor:close()
+    self.actions:disable()
+end
+
 function VimApm:toggle_monitor()
-    self.monitor:toggle()
+    self.monitor:close()
 end
 
 return VimApm.new()

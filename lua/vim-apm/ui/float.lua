@@ -96,6 +96,16 @@ function APMFloat:resize()
     vim.api.nvim_win_set_config(self.win_id, config)
 end
 
+function APMFloat:close()
+    if self.buf_id ~= nil then
+        self.closing = true
+        close_window(self.win_id, self.buf_id)
+        self.buf_id = nil
+        self.win_id = nil
+        self.closing = false
+    end
+end
+
 function APMFloat:toggle()
     if self.buf_id == nil then
         local buf_id, win_id = create_window()
@@ -115,11 +125,7 @@ function APMFloat:toggle()
             self.win_id = nil
         end)
     else
-        self.closing = true
-        close_window(self.win_id, self.buf_id)
-        self.buf_id = nil
-        self.win_id = nil
-        self.closing = false
+        self:close()
     end
 end
 

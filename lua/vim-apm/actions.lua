@@ -1,4 +1,9 @@
 local utils = require("vim-apm.utils")
+local APMBussin = require("vim-apm.bus")
+
+local MODE = "mode"
+local ON_KEY = "on_key"
+local RESIZE = "resize"
 
 ---@class APMActions
 ---@field enabled boolean
@@ -45,13 +50,13 @@ function APMActions:enable()
         ---@param event Event
         callback = function(event)
             local mode = utils.split(event.match, ":")
-            -- self.apm:handle_mode_changed(mode[1], mode[2])
+            APMBussin:emit(MODE, mode)
         end,
     })
 
     ---@param key string
     local on_key_id = vim.on_key(function(key)
-        -- self.apm:feedkey(key)
+        APMBussin:emit(ON_KEY, key)
     end, utils.vim_apm_group_id())
 
     self._on_key_id = on_key_id
@@ -59,10 +64,15 @@ function APMActions:enable()
     vim.api.nvim_create_autocmd("WinResized", {
         group = utils.vim_apm_group_id(),
         callback = function()
-            --self.monitor:resize()
+            APMBussin:emit(RESIZE)
         end
     })
 
 end
 
-return APMActions
+return {
+    APMActions = APMActions,
+    MODE = MODE,
+    ON_KEY = ON_KEY,
+    RESIZE = RESIZE,
+}
