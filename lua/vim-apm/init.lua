@@ -51,7 +51,6 @@ function VimApm:setup()
     ---@param key string
     vim.on_key(function(key)
         count = count + 1
-        print("key", key, count)
         self.apm:feedkey(key)
     end)
 

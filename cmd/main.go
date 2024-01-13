@@ -1,8 +1,11 @@
 package main
 
 import (
-    "fmt"
-    "net"
+	"fmt"
+	"log"
+	"net"
+
+	"vim-apm.theprimeagen.tv/pkg/parser"
 )
 
 func main() {
@@ -33,14 +36,28 @@ func handleConnection(conn net.Conn) {
     for {
         // Read incoming data
         buf := make([]byte, 1024)
-        _, err := conn.Read(buf)
+        n, err := conn.Read(buf)
         if err != nil {
             fmt.Println(err)
             return
         }
 
-        // Print the incoming data
-        fmt.Printf("Received: %s", buf)
+        str := string(buf[:n])
+        for {
+            fmt.Printf("current string: %s\n", str)
+
+            parsed, n, err := parser.Next(str)
+            if err != nil {
+                log.Fatal(err)
+            }
+
+            if parsed != nil {
+                fmt.Println(parsed)
+                str = str[n:]
+            } else {
+                break
+            }
+        }
     }
 }
 

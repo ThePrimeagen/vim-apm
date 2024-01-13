@@ -61,9 +61,12 @@ func isCommand(s string) bool {
 	}
 
 	switch first {
-	case 'd': fallthrough
-	case 'y': fallthrough
-	case 'c': fallthrough
+	case 'd':
+		fallthrough
+	case 'y':
+		fallthrough
+	case 'c':
+		fallthrough
 	case 'v':
 		return true
 	}
@@ -106,36 +109,57 @@ func parseDigit(s string) (int, string) {
 
 func parseSimpleMotion(s string, count int) (Motion, error) {
 	switch s[0:1] {
-	case "w": fallthrough
-	case "W": fallthrough
-	case "e": fallthrough
-	case "E": fallthrough
-	case "b": fallthrough
-	case "B": fallthrough
-	case "0": fallthrough
-	case "^": fallthrough
-	case "~": fallthrough
-	case "$": fallthrough
-	case "h": fallthrough
-	case "H": fallthrough
-	case "j": fallthrough
-	case "J": fallthrough
-	case "k": fallthrough
-	case "l": fallthrough
-	case "L": fallthrough
+	case "w":
+		fallthrough
+	case "W":
+		fallthrough
+	case "e":
+		fallthrough
+	case "E":
+		fallthrough
+	case "b":
+		fallthrough
+	case "B":
+		fallthrough
+	case "0":
+		fallthrough
+	case "^":
+		fallthrough
+	case "~":
+		fallthrough
+	case "$":
+		fallthrough
+	case "h":
+		fallthrough
+	case "H":
+		fallthrough
+	case "j":
+		fallthrough
+	case "J":
+		fallthrough
+	case "k":
+		fallthrough
+	case "l":
+		fallthrough
+	case "L":
+		fallthrough
 	case "G":
 		return &SimpleMotion{Count: count, Motion: s}, nil
 
 	case "g":
 		return nil, MotionNotImplemented
 
-	case "a": fallthrough
+	case "a":
+		fallthrough
 	case "i":
 		return nil, MotionNotImplemented
 
-	case "f": fallthrough
-	case "F": fallthrough
-	case "t": fallthrough
+	case "f":
+		fallthrough
+	case "F":
+		fallthrough
+	case "t":
+		fallthrough
 	case "T":
 		return nil, MotionNotImplemented
 	}

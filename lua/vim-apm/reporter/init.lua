@@ -1,3 +1,4 @@
+local network_utils = require("vim-apm.reporter.network-utils")
 local bussin = require("vim-apm.bus")
 local Calc = require("vim-apm.calculator")
 
@@ -30,7 +31,8 @@ function APMReporter.new()
             return
         end
 
-        client:write(tostring(#motion.chars) .. ":" .. motion.chars)
+        local packet = network_utils.encode_motion(motion.chars)
+        client:write(packet)
         -- table.insert(self.messages, motion)
     end)
 
