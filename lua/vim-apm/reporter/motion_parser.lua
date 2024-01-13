@@ -31,6 +31,22 @@ function M.generate_motion_key(chars)
     return table.concat(out)
 end
 
+---@param motion string
+---@return boolean
+function M.is_command(motion)
+    local start_idx = 1
+    for j = 1, #motion do
+        local char = motion:sub(j, j)
+        if char:match("%d") == nil then
+            start_idx = j
+            break
+        end
+    end
+
+    local command = motion:sub(start_idx, start_idx)
+    return command == "d" or command == "c" or command == "y" or command == "v"
+end
+
 
 ---@param motion string
 ---@param motion_parts (string | number)[] | nil

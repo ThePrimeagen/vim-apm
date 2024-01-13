@@ -18,5 +18,13 @@ describe("Motion Parser", function()
         eq({6, "d", 9, "ap"}, motion_parser.parse_motion_parts("6d9ap"))
         eq({6, "j"}, motion_parser.parse_motion_parts("6j"))
     end)
+
+    it("motion parts", function()
+        eq(true, motion_parser.is_command("6d9ap"))
+        eq(true, motion_parser.is_command("6969d9ap"))
+        eq(false, motion_parser.is_command("6j"))
+        eq(false, motion_parser.is_command("k"))
+    end)
+
 end)
 
