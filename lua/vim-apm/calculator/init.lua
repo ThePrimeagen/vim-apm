@@ -1,3 +1,6 @@
+--- NOTE: If we get complaints about performance, we can move the calculation
+--- work to the idle event
+
 local utils = require("vim-apm.utils")
 local APMBussin = require("vim-apm.bus")
 local Actions = require("vim-apm.actions")
