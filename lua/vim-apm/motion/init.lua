@@ -26,6 +26,10 @@ function Motion.new(head)
 end
 
 function Motion:clear()
+    if self.curr == nil then
+        return
+    end
+
     self.curr = nil
     self.chars = ""
     self.timings = {}

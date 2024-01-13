@@ -5,6 +5,7 @@ local MODE = "mode"
 local ON_KEY = "on_key"
 local RESIZE = "resize"
 local WRITE = "write"
+local BUF_ENTER = "buf_enter"
 local IDLE = "idle"
 local BUSY = "busy"
 
@@ -104,6 +105,13 @@ function APMActions:enable()
         end
     })
 
+    vim.api.nvim_create_autocmd("BufEnter", {
+        group = utils.vim_apm_group_id(),
+        callback = function()
+            APMBussin:emit(BUF_ENTER)
+        end
+    })
+
     return true
 end
 
@@ -115,4 +123,5 @@ return {
     WRITE = WRITE,
     BUSY = BUSY,
     IDLE = IDLE,
+    BUF_ENTER = BUF_ENTER,
 }
