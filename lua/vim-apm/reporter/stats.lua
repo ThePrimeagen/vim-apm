@@ -31,6 +31,7 @@ function APMCalculator.new(apm_repeat_count, apm_period)
 end
 
 ---@param motion APMMotionItem
+---@return number
 function APMCalculator:push(motion)
     local key = motion_parser.disnumber_motion(motion.chars)
     local now = utils.now()
@@ -63,6 +64,8 @@ function APMCalculator:push(motion)
             break
         end
     end
+
+    return apm_score
 end
 
 ---@class APMAggregateMotionValue

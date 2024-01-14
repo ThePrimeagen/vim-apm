@@ -61,6 +61,22 @@ describe("Stats", function()
         })
 
         eq(score(calc.apm_sum), score(.5 + 1))
+
+    end)
+
+    it("calculator -- repeat count test", function()
+        local calc = Stats.APMCalculator.new(5, 5)
+
+        for i = 1, 5 do
+            calc:push({ chars = "dap", timings = {5, 10}, })
+        end
+
+        eq(0.16, calc:push({ chars = "dap", timings = {5, 10}, }))
+        eq(1, calc:push({ chars = "j", timings = {5, 10}, }))
+        eq(0.5, calc:push({ chars = "7j", timings = {5, 10}, }))
+
+        -- there are 3 daps left in the previous
+        eq(0.25, calc:push({ chars = "7d4ap", timings = {5, 10}, }))
     end)
 end)
 

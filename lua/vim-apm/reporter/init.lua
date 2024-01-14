@@ -3,6 +3,7 @@ local File = require("vim-apm.reporter.file-reporter");
 
 ---@class APMReporterIntervalOptions
 ---@field report_interval? number
+---@field apm_repeat_count? number
 ---@field apm_period? number
 ---@field apm_report_period? number
 

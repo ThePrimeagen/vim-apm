@@ -20,6 +20,7 @@ function FileReporter.new(path, opts)
 
     opts = vim.tbl_extend("force", {
         report_interval = 5 * 60 * 1000,
+        apm_repeat_count = 10,
         apm_period = 60 * 1000,
         apm_report_period = 5 * 1000,
     }, opts)
@@ -27,7 +28,7 @@ function FileReporter.new(path, opts)
     return setmetatable({
         path = path,
         enabled = false,
-        calc = Stats.APMCalculator.new(10, opts.apm_period),
+        calc = Stats.APMCalculator.new(opts.apm_repeat_count, opts.apm_period),
         stats = Stats.Stats.new(),
         opts = opts,
         apms = {},
