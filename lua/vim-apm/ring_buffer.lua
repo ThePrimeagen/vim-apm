@@ -23,6 +23,11 @@ function APMRingBuffer.new(size)
     }, APMRingBuffer)
 end
 
+---@return any | nil
+function APMRingBuffer:peek()
+    return self._buffer[self._start]
+end
+
 ---@param item any
 function APMRingBuffer:push(item)
     self._buffer[self._stop] = item

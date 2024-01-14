@@ -1,67 +1,67 @@
 local utils = require("vim-apm.utils")
 local motion_parser = require("vim-apm.reporter.motion_parser")
+local RingBuffer = require("vim-apm.ring_buffer")
+
+local function norm(x)
+    return math.floor(x * 100) / 100
+end
 
 ---@class APMCalculator
----@field motions table<number, string>
----@field index number
+---@field motions APMRingBuffer
+---@field motions_count table<string>
+---@field index_count number
 ---@field max number
 ---@field apms number[][]
 ---@field apm_sum number
 ---@field apm_period number
+---@field apm_repeat_count number
 local APMCalculator = {}
 APMCalculator.__index = APMCalculator
 
-function APMCalculator.new(max, apm_period)
+function APMCalculator.new(apm_repeat_count, apm_period)
     return setmetatable({
-        motions = {},
-        index = 1,
-        max = max or 10,
+        motions = RingBuffer.new(),
+        motions_count = {},
+        index_count = 1,
         apm_sum = 0,
         apms = {},
         apm_period = apm_period,
+        apm_repeat_count = apm_repeat_count,
     }, APMCalculator)
 end
 
 ---@param motion APMMotionItem
 function APMCalculator:push(motion)
     local key = motion_parser.disnumber_motion(motion.chars)
-    local apm_score = 0
-
-    if self.motions[self.index] then
-        local count
-        for _, other_motion in ipairs(self.motions) do
-            if other_motion == key then
-                count = count + 1
-            end
-        end
-
-        apm_score = 1 / count
-    end
-
-    self.motions[self.index] = key
-    self.index = self.index + 1
-    if self.index > self.max then
-        self.index = 1
-    end
-
     local now = utils.now()
-    local expired = now - self.apm_period
-    local idx = 0
-    for i, score in ipairs(self.apms) do
-        if score[1] < expired then
-            if idx == 0 then
-                idx = i
-            end
-            self.apm_sum = self.apm_sum - score[2]
-            self.apms[i] = nil
+
+    local count = 1
+    for i = 1, self.apm_repeat_count do
+        local other_motion = self.motions_count[i]
+        if other_motion == key then
+            count = count + 1
         end
     end
+    self.motions_count[self.index_count] = key
+    self.index_count = self.index_count + 1
+    if self.index_count > self.apm_repeat_count then
+        self.index_count = 1
+    end
 
+    local apm_score = norm(1 / count)
+    local expired = now - self.apm_period
+
+    self.motions:push({now, apm_score})
     self.apm_sum = self.apm_sum + apm_score
-    if idx == 0 then
-        table.insert(self.apms, apm_score)
-    else
-        self.apms[idx] = {now, apm_score}
+
+    while self.motions:peek() ~= nil do
+        local item = self.motions:peek()
+        if item[1] < expired then
+            self.motions:pop()
+            self.apm_sum = self.apm_sum - item[2]
+        else
+            break
+        end
     end
 end
 
