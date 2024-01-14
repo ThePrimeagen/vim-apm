@@ -1,10 +1,15 @@
 local Network = require("vim-apm.reporter.network-reporter");
 local File = require("vim-apm.reporter.file-reporter");
 
+---@class APMReporterIntervalOptions
+---@field report_interval? number
+---@field apm_period? number
+---@field apm_report_period? number
+
 ---@class APMReporterOptions
 ---@field type "network" | "file"
 ---@field uri string
----@field interval number | nil
+---@field interval_options? APMReporterIntervalOptions
 
 ---@class APMReporter
 ---@field clear fun(self: APMReporter): nil
@@ -25,9 +30,9 @@ end
 ---@return APMReporter
 local function create_reporter(opts)
     if opts.type == "file" then
-        return File.new(opts.uri, opts.interval)
+        return File.new(opts.uri, opts.interval_options)
     end
-    return Network.new(opts.uri, opts.interval)
+    return Network.new(opts.uri, opts.interval_options)
 end
 
 return {
