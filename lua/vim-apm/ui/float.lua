@@ -1,3 +1,4 @@
+local Events = require("vim-apm.event_names")
 local utils = require("vim-apm.utils")
 local APMBussin = require("vim-apm.bus")
 
@@ -91,10 +92,15 @@ function APMFloat:enable()
         self._display[2] = utils.fit_string("w:", tostring(count), 7)
     end)
 
-    APMBussin:listen("buf_enter_count", function(count)
+    APMBussin:listen(Events.STATS, function(count)
         bufs(self._display, count)
         self._display[3] = utils.fit_string("b:", tostring(count), 7)
     end)
+
+    APMBussin:listen(Events.RESIZE, function()
+        self:resize()
+    end)
+
 end
 
 --- TODO: This rubs me the wrong way

@@ -39,6 +39,16 @@ function APM.new()
     return self
 end
 
+function APM:enable()
+    APMBussin:listen(Events.MODE_CHANGED, function(mode)
+        self:handle_mode_changed(mode[1], mode[2])
+    end)
+
+    APMBussin:listen(Events.ON_KEY, function(key)
+        self:feedkey(key)
+    end)
+end
+
 ---@param key string
 function APM:_normal(key)
     -- TODO: handle mode changes

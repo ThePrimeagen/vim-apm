@@ -18,7 +18,7 @@ local APMBussin = require("vim-apm.bus")
 ---@class VimApm
 ---@field apm APM | nil
 ---@field monitor APMFloat | nil
----@field actions APMActions | nil
+---@field actions APMActions
 ---@field reporter APMReporter | nil
 local VimApm = {}
 
@@ -29,6 +29,9 @@ function VimApm.new()
 
     local self = setmetatable({
         enabled = false,
+        actions = Actions.new(),
+        monitor = float.new(),
+        apm = APM.new(),
     }, VimApm)
 
     return self
@@ -45,18 +48,9 @@ function VimApm:setup(opts)
 
     self.reporter = Reporter.create_reporter(opts.reporter)
     self.reporter:enable()
-
-    self.apm = APM.new()
-    self.monitor = float.new()
-    self.actions = Actions.new()
-
-    APMBussin:listen(Events.MODE_CHANGED, function(mode)
-        self.apm:handle_mode_changed(mode[1], mode[2])
-    end)
-
-    APMBussin:listen(Events.ON_KEY, function(key)
-        self.apm:feedkey(key)
-    end)
+    self.actions:enable()
+    self.monitor:enable()
+    self.apm:enable()
 
     APMBussin:listen(Events.RESIZE, function()
         self.monitor:resize()
@@ -66,10 +60,11 @@ end
 
 function VimApm:clear()
     APMBussin:clear()
+    self.actions:clear()
+
     self.reporter = nil
     self.apm = nil
     self.monitor = nil
-    self.actions = nil
     self.enabled = false
 end
 
