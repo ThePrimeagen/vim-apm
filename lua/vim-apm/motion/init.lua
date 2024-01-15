@@ -95,7 +95,7 @@ function Motion:create_motion_item()
 
     for i = 2, #self.timings do
         table.insert(timings, math.floor(
-            (self.timings[i] - start) * 1000
+            (self.timings[i] - start)
         ))
     end
 

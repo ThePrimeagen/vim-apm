@@ -18,7 +18,7 @@ FileReporter.__index = FileReporter
 function FileReporter.new(path, opts)
 
     opts = vim.tbl_extend("force", {
-        report_interval = 1 * 60 * 1000,
+        report_interval = 1 * 5 * 1000,
         apm_repeat_count = 10,
         apm_period = 60 * 1000,
         apm_report_period = 5 * 1000,
@@ -38,13 +38,6 @@ end
 ---@param path string
 ---@return APMStatsJson
 local function read_json_from_file(path)
-    --local fh = vim.loop.fs_open(path, "r")
-    --while true do
-    --    local n, bytes = vim.loop.fs_read(fh, 1024)
-    --    print("n", n, "bytes", bytes)
-    --    break
-    --end
-
     local list_why_oh_why = vim.fn.readfile(path)
     return vim.fn.json_decode(list_why_oh_why[1])
 end
@@ -65,7 +58,7 @@ function FileReporter:enable()
 
             local merged = self.stats:merge(json)
 
-            local file = vim.loop.fs_open(self.path, "w", 755)
+            local file = vim.loop.fs_open(self.path, "w", 493)
             local out_json = vim.fn.json_encode(merged)
             local ok2, res = pcall(vim.loop.fs_write, file, out_json)
 

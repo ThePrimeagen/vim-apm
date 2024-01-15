@@ -74,10 +74,10 @@ function APMCalculator:push(motion)
         self.index_count = 1
     end
 
-    local apm_score = utils.normalize_number(1 / count)
+    local apm_score = 1 / count
 
     self.motions:push({now, apm_score})
-    self.apm_sum = self.apm_sum + apm_score
+    self.apm_sum = utils.normalize_number(self.apm_sum + apm_score)
     self:trim()
 
     return apm_score
