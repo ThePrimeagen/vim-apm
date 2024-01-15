@@ -1,4 +1,3 @@
-local utils = require("vim-apm.utils")
 local APMBussin = require("vim-apm.bus")
 local APM = require("vim-apm.apm")
 local Actions = require("vim-apm.actions")
@@ -19,7 +18,7 @@ FileReporter.__index = FileReporter
 function FileReporter.new(path, opts)
 
     opts = vim.tbl_extend("force", {
-        report_interval = 5 * 60 * 1000,
+        report_interval = 15 * 60 * 1000,
         apm_repeat_count = 10,
         apm_period = 60 * 1000,
         apm_report_period = 5 * 1000,
@@ -40,9 +39,16 @@ function FileReporter:enable()
     self.enabled = true
 
     local function write()
+        print("writing interval started", self.opts.report_interval)
         vim.defer_fn(function()
+            print("WRITING...")
             if not self.enabled then
                 return
+            end
+            local file = io.open(self.path, "r")
+            local ok, res = pcall(io.write, self.path, vim.fn.json_encode(self.stats:to_json()))
+            if not ok then
+                print("vim-apm: error writing to file: " .. res)
             end
             write()
         end, self.opts.report_interval)
@@ -55,12 +61,9 @@ function FileReporter:enable()
                 return
             end
             self.calc:trim()
-            local per_minute = (60 * 1000) / self.opts.apm_period
-            local apm = self.calc.apm_sum * per_minute
 
-            APMBussin:emit("apm", utils.normalize_number(apm))
-            APMBussin:emit("write_count", self.stats.write_count)
-            APMBussin:emit("buf_enter_count", self.stats.buf_enter_count)
+            APMBussin:emit("apm", self.calc:apm())
+            APMBussin:emit("stats", self.stats:to_json())
 
             apm_report()
         end, self.opts.apm_report_period)
@@ -74,7 +77,7 @@ function FileReporter:enable()
     end)
 
     APMBussin:listen(APM.Events.InsertTime, function(insert_time)
-        self.stats:insert_time(insert_time)
+        self.stats:time_to_insert(insert_time)
     end)
     APMBussin:listen(Actions.WRITE, function()
         self.stats:write()

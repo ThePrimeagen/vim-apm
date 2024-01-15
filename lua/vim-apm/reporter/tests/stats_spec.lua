@@ -79,7 +79,64 @@ describe("Stats", function()
         eq(0.25, calc:push({ chars = "7d4ap", timings = {5, 10}, }))
     end)
 
-    it("stats", function()
+    it("stats merge", function()
+        local stats = Stats.Stats.new()
+        stats.modes = {
+            n = 69,
+            v = 420,
+            i = 1337,
+        }
+
+        stats.motions = {
+            dap = {count = 1, timings_total = 3},
+            ["<n>dap"] = {count = 2, timings_total = 4},
+        }
+
+        stats.write_count = 10
+        stats.buf_enter_count = 20
+        stats._time_to_insert = 30
+        stats._time_to_insert_count = 40
+        stats._time_in_insert = 50
+        stats._time_in_insert_count = 60
+
+        local json = {
+            motions = {
+                dap = {count = 5, timings_total = 7},
+                j = {count = 6, timings_total = 8},
+            },
+            modes = {
+                c = 42,
+                v = 1,
+                i = 2,
+            },
+            write_count = 1,
+            buf_enter_count = 2,
+            time_to_insert = 3,
+            time_to_insert_count = 4,
+            time_in_insert = 5,
+            time_in_insert_count = 6,
+        }
+
+        local new_json = stats:merge(json)
+        eq({
+            motions = {
+                dap = {count = 6, timings_total = 10},
+                ["<n>dap"] = {count = 2, timings_total = 4},
+                j = {count = 6, timings_total = 8},
+            },
+            modes = {
+                c = 42,
+                n = 69,
+                v = 421,
+                i = 1339,
+            },
+            write_count = 11,
+            buf_enter_count = 22,
+            time_to_insert = 33,
+            time_to_insert_count = 44,
+            time_in_insert = 55,
+            time_in_insert_count = 66,
+        }, new_json)
     end)
 end)
 
