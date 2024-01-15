@@ -80,6 +80,10 @@ function APMActions:enable()
 
     ---@param key string
     local on_key_id = vim.on_key(function(key)
+        if #key > 1 and string.byte(key, 1) == 128 and string.byte(key, 2) == 253 then
+            return
+        end
+
         last_key_pressed = utils.now()
         if idle_evented then
             APMBussin:emit(BUSY)

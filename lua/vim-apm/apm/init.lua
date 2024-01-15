@@ -74,7 +74,6 @@ function APM:_insert(_)
     if self.insert_time_event_emitted == false then
         local now = utils.now()
         local time = now - self.insert_enter_time
-        print("now", now, "then", self.insert_enter_time, "time", time)
         APMBussin:emit(INSERT_TIME, time)
         self.insert_time_event_emitted = true
     end
@@ -84,24 +83,6 @@ end
 
 ---@param key string
 function APM:feedkey(key)
-    if #key > 1 and string.byte(key, 1) == 128 and string.byte(key, 2) == 253 then
-        return
-        -- TODO: Revisit this later
-        -- no idea how to handle this generally as i am sure there will be TONS of edge cases
-        -- this all spawned from <80><fd>h after insert mode change
-        --[[
-        print("MULTI BYTE", key)
-        local bytes = {}
-        for i = 1, #key do
-            bytes[i] = string.byte(key, i)
-        end
-        if bytes[1] == 128 and bytes[2] == 253 and bytes[3] == 104 then
-            print("BAD BAD")
-            return
-        end
-        --]]
-    end
-
     if self.mode == NORMAL then
         self:_normal(key)
     elseif self.mode == INSERT then
@@ -112,7 +93,6 @@ end
 ---@param _ string
 ---@param to string
 function APM:handle_mode_changed(_, to)
-    print("MODECHANGED", to)
     if to ~= NORMAL and to ~= VISUAL then
         self.motion:clear()
     end
@@ -126,7 +106,6 @@ function APM:handle_mode_changed(_, to)
 
     if to == INSERT then
         self.insert_enter_time = utils.now()
-        print("NEW INSERT TIME", self.insert_enter_time)
         self.insert_time_event_emitted = false
         self.insert_char_count = 0
     end
