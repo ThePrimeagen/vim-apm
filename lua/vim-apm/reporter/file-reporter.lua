@@ -18,7 +18,7 @@ FileReporter.__index = FileReporter
 function FileReporter.new(path, opts)
 
     opts = vim.tbl_extend("force", {
-        report_interval = 1 * 10 * 1000,
+        report_interval = 1 * 60 * 1000,
         apm_repeat_count = 10,
         apm_period = 60 * 1000,
         apm_report_period = 5 * 1000,
