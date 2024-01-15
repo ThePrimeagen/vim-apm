@@ -68,4 +68,16 @@ function M.lineify(item)
     return M.split(item, "\n")
 end
 
+function M.fit_string(left, right, max_len)
+    local remaining = max_len - #left
+    local white_space = remaining - #right
+
+    local out = left
+    for i = 1, white_space do
+        out = out .. " "
+    end
+
+    return out .. right
+end
+
 return M

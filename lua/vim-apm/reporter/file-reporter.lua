@@ -57,7 +57,11 @@ function FileReporter:enable()
             self.calc:trim()
             local per_minute = (60 * 1000) / self.opts.apm_period
             local apm = self.calc.apm_sum * per_minute
+
             APMBussin:emit("apm", utils.normalize_number(apm))
+            APMBussin:emit("write_count", self.stats.write_count)
+            APMBussin:emit("buf_enter_count", self.stats.buf_enter_count)
+
             apm_report()
         end, self.opts.apm_report_period)
     end

@@ -29,13 +29,12 @@ local function create_window_config()
     return {
         relative = "editor",
         anchor = "NW",
-        row = 1,
+        row = 0,
         col = col,
-        width = 12,
-        height = 3,
-        border = "rounded",
-        title = "apm",
-        title_pos = "center",
+        width = 40,
+        height = 1,
+        border = "none",
+        title = "",
         style = "minimal",
     }
 end
@@ -48,36 +47,47 @@ local function create_window()
     return buf_id, win_id
 end
 
+local function create_display()
+    return {
+        utils.fit_string("m:", "0", 5), -- 0 - 5
+        utils.fit_string("w:", "0", 7), -- 6 - 13
+        utils.fit_string("b:", "0", 7), -- 14 - 20
+    }
+end
+
 function APMFloat.new()
     local self = setmetatable({
         buf_id = nil,
         win_id = nil,
         closing = false,
-        _display = { "NONE YET" },
+        _display = create_display(),
     }, APMFloat)
-
     return self
 end
 
+-- TODO: Fix teh hard codedness
 function APMFloat:enable()
     APMBussin:listen("apm", function(event)
-        print("hello", event)
-        self:_display_contents("apm: " .. event)
+        self._display[1] = utils.fit_string("m:", tostring(math.floor(event)), 5)
+        self:_display_contents()
+    end)
+
+    APMBussin:listen("write_count", function(count)
+        self._display[2] = utils.fit_string("w:", tostring(count), 7)
+    end)
+
+    APMBussin:listen("buf_enter_count", function(count)
+        self._display[3] = utils.fit_string("b:", tostring(count), 7)
     end)
 end
 
 --- TODO: This rubs me the wrong way
-function APMFloat:_display_contents(calc_event)
-    if calc_event ~= nil then
-        local contents = utils.lineify(calc_event)
-        self._display = contents
-    end
-
+function APMFloat:_display_contents()
     if self.buf_id ~= nil then
         if self._display == nil then
-            self._display = { "NONE YET" }
+            self._display = create_display()
         end
-        vim.api.nvim_buf_set_lines(self.buf_id, 0, -1, false, self._display)
+        vim.api.nvim_buf_set_lines(self.buf_id, 0, -1, false, {table.concat(self._display, " ")})
     end
 end
 
