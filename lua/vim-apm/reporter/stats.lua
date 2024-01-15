@@ -198,7 +198,7 @@ function Stats:mode(mode)
     local time_in_last_mode = now - self.last_mode_start_time
     local last_mode = self.last_mode
 
-    self.modes[last_mode] = self.modes[last_mode] + time_in_last_mode
+    self.modes[last_mode] = (self.modes[last_mode] or 0) + time_in_last_mode
     self.last_mode_start_time = now
     self.last_mode = mode
 end
@@ -250,7 +250,23 @@ function Stats:to_json()
     }
 end
 
+local function empty_stats_json()
+    return {
+        time_in_insert = 0,
+        time_in_insert_count = 0,
+        time_to_insert = 0,
+        time_to_insert_count = 0,
+
+        motions = {},
+        write_count = 0,
+        buf_enter_count = 0,
+
+        modes = {},
+    }
+end
+
 return {
+    empty_stats_json = empty_stats_json,
     Stats = Stats,
     APMCalculator = APMCalculator,
 }

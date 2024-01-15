@@ -18,7 +18,7 @@ function M.del_group_id()
 end
 
 function M.now()
-    return vim.loop.now()
+    return vim.loop.now() / 1000
 end
 
 function M.on_close(buf_id, cb)
