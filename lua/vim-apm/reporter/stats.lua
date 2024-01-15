@@ -2,10 +2,6 @@ local utils = require("vim-apm.utils")
 local motion_parser = require("vim-apm.reporter.motion_parser")
 local RingBuffer = require("vim-apm.ring_buffer")
 
-local function norm(x)
-    return math.floor(x * 100) / 100
-end
-
 ---@class APMCalculator
 ---@field motions APMRingBuffer
 ---@field motions_count table<string>
@@ -30,6 +26,19 @@ function APMCalculator.new(apm_repeat_count, apm_period)
     }, APMCalculator)
 end
 
+function APMCalculator:trim()
+    local expired = utils.now() - self.apm_period
+    while self.motions:peek() ~= nil do
+        local item = self.motions:peek()
+        if item[1] < expired then
+            self.motions:pop()
+            self.apm_sum = utils.normalize_number(self.apm_sum - item[2])
+        else
+            break
+        end
+    end
+end
+
 ---@param motion APMMotionItem
 ---@return number
 function APMCalculator:push(motion)
@@ -49,21 +58,11 @@ function APMCalculator:push(motion)
         self.index_count = 1
     end
 
-    local apm_score = norm(1 / count)
-    local expired = now - self.apm_period
+    local apm_score = utils.normalize_number(1 / count)
 
     self.motions:push({now, apm_score})
     self.apm_sum = self.apm_sum + apm_score
-
-    while self.motions:peek() ~= nil do
-        local item = self.motions:peek()
-        if item[1] < expired then
-            self.motions:pop()
-            self.apm_sum = self.apm_sum - item[2]
-        else
-            break
-        end
-    end
+    self:trim()
 
     return apm_score
 end

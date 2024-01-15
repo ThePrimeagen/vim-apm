@@ -78,5 +78,8 @@ describe("Stats", function()
         -- there are 3 daps left in the previous
         eq(0.25, calc:push({ chars = "7d4ap", timings = {5, 10}, }))
     end)
+
+    it("stats", function()
+    end)
 end)
 

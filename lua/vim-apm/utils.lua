@@ -31,6 +31,11 @@ function M.on_close(buf_id, cb)
     })
 end
 
+function M.normalize_number(x, precision)
+    precision = precision or 100
+    return math.floor(x * precision) / precision
+end
+
 function M.split(inputstr, sep)
     if sep == nil then
         sep = "%s"

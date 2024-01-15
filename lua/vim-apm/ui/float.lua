@@ -60,16 +60,15 @@ function APMFloat.new()
 end
 
 function APMFloat:enable()
-    --[[
-    APMBussin:listen(CALCULATOR_MOTION, function(event)
-        self:_display_contents(event)
+    APMBussin:listen("apm", function(event)
+        print("hello", event)
+        self:_display_contents("apm: " .. event)
     end)
-    --]]
 end
 
 --- TODO: This rubs me the wrong way
 function APMFloat:_display_contents(calc_event)
-    if calc_event ~= nil and calc_event.apm ~= nil then
+    if calc_event ~= nil then
         local contents = utils.lineify(calc_event)
         self._display = contents
     end

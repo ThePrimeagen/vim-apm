@@ -23,7 +23,7 @@ function FileReporter.new(path, opts)
         apm_repeat_count = 10,
         apm_period = 60 * 1000,
         apm_report_period = 5 * 1000,
-    }, opts)
+    }, opts or {})
 
     return setmetatable({
         path = path,
@@ -54,7 +54,10 @@ function FileReporter:enable()
             if not self.enabled then
                 return
             end
-            APMBussin:emit("apm", self.calc.apm_sum)
+            self.calc:trim()
+            local per_minute = (60 * 1000) / self.opts.apm_period
+            local apm = self.calc.apm_sum * per_minute
+            APMBussin:emit("apm", utils.normalize_number(apm))
             apm_report()
         end, self.opts.apm_report_period)
     end
@@ -63,6 +66,7 @@ function FileReporter:enable()
     ---@param motion APMMotionItem
     APMBussin:listen(APM.Events.MotionItem, function(motion)
         self.stats:motion(motion)
+        self.calc:push(motion)
     end)
 
     APMBussin:listen(APM.Events.InsertTime, function(insert_time)
@@ -79,3 +83,5 @@ end
 function FileReporter:clear()
     self.enabled = false
 end
+
+return FileReporter
