@@ -93,13 +93,21 @@ function FileReporter:enable()
     end)
 
     APMBussin:listen(APM.Events.InsertTime, function(insert_time)
+        print("HELLO INSERT TO TIME", vim.inspect(insert_time))
         self.stats:time_to_insert(insert_time)
     end)
+
     APMBussin:listen(Actions.WRITE, function()
         self.stats:write()
     end)
     APMBussin:listen(Actions.BUF_ENTER, function()
         self.stats:buf_enter()
+    end)
+
+    ---@param event APMInsertTimeEvent
+    APMBussin:listen("insert_times", function(event)
+        print("HELLO INSERT IN TIME", vim.inspect(event))
+        self.stats:time_in_insert(event.insert_time, event.insert_char_count)
     end)
 end
 
