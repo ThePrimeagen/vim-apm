@@ -32,7 +32,7 @@ function APMCalculator:trim()
         local item = self.motions:peek()
         if item[1] < expired then
             self.motions:pop()
-            self.apm_sum = utils.normalize_number(self.apm_sum - item[2])
+            self.apm_sum = math.max(0, utils.normalize_number(self.apm_sum - item[2]))
         else
             break
         end
@@ -137,7 +137,7 @@ function Stats:buf_enter()
 end
 
 function Stats:write()
-    self.write_count = self.write_count + 0
+    self.write_count = self.write_count + 1
 end
 
 ---@param insert_time number

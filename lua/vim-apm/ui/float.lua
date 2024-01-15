@@ -86,6 +86,7 @@ function APMFloat:enable()
     end)
 
     APMBussin:listen("write_count", function(count)
+        print("write_count", count)
         writes(self._display, count)
         self._display[2] = utils.fit_string("w:", tostring(count), 7)
     end)

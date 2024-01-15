@@ -20,6 +20,11 @@ local underscore = Motions.make_key("_")
 local e = Motions.make_key("e")
 local E = Motions.make_key("E")
 
+local open_squirle = Motions.make_key("{")
+local closed_squirle = Motions.make_key("}")
+local open_paren = Motions.make_key("(")
+local closed_paren = Motions.make_key(")")
+
 local simple_motions = Motions.make_or(
     j, k,
     x, X,
@@ -27,26 +32,24 @@ local simple_motions = Motions.make_or(
     W, B,
     tilde,
     underscore,
-    e, E
+    e, E,
+    open_squirle, closed_squirle,
+    open_paren, closed_paren
 )
 
 local p = Motions.make_key("p")
-local bracket = Motions.make_key("[")
-local paren = Motions.make_key("(")
-local squirly = Motions.make_key("{")
-local c_bracket = Motions.make_key("]")
-local c_paren = Motions.make_key(")")
-local c_squirly = Motions.make_key("}")
+local open_bracket = Motions.make_key("[")
+local closed_bracket = Motions.make_key("]")
 
 local complex_motion_set = Motions.make_or(
     p,
     b,
-    bracket,
-    paren,
-    squirly,
-    c_bracket,
-    c_paren,
-    c_squirly,
+    open_bracket,
+    open_paren,
+    open_squirle,
+    closed_bracket,
+    closed_paren,
+    closed_squirle,
     w,
     W
 )
@@ -81,12 +84,17 @@ local delete = Motions.make_key("d", make_numbered_command_motion("d"))
 local yank = Motions.make_key("y", make_numbered_command_motion("y"))
 local cut = Motions.make_key("c", make_numbered_command_motion("c"))
 local visual = Motions.make_key("v", numbered)
+local z = Motions.make_key("z")
+local zz = Motions.make_key("z", z)
 
 local command_motions = Motions.make_or(
     yank, delete, cut, numbered
 )
 local numbered_command_motions = Motions.make_number(
-    command_motions
+    Motions.make_or(
+        command_motions,
+        zz
+    )
 )
 
 local o = Motions.make_key("o")
