@@ -1,13 +1,6 @@
 local utils = require("vim-apm.utils")
 local APMBussin = require("vim-apm.bus")
-
-local MODE = "mode"
-local ON_KEY = "on_key"
-local RESIZE = "resize"
-local WRITE = "write"
-local BUF_ENTER = "buf_enter"
-local IDLE = "idle"
-local BUSY = "busy"
+local Events = require("vim-apm.event_names")
 
 ---@class APMActions
 ---@field enabled boolean
@@ -58,7 +51,7 @@ function APMActions:enable()
 
             local now = utils.now()
             if now - last_key_pressed > 2000 and not idle_evented then
-                APMBussin:emit(IDLE)
+                APMBussin:emit(Events.IDLE_WORK)
                 idle_evented = true
             end
 
@@ -74,7 +67,7 @@ function APMActions:enable()
         ---@param event Event
         callback = function(event)
             local mode = utils.split(event.match, ":")
-            APMBussin:emit(MODE, mode)
+            APMBussin:emit(Events.MODE_CHANGED, mode)
         end,
     })
 
@@ -86,11 +79,11 @@ function APMActions:enable()
 
         last_key_pressed = utils.now()
         if idle_evented then
-            APMBussin:emit(BUSY)
+            APMBussin:emit(Events.BUSY_WORK)
         end
         idle_evented = false
 
-        APMBussin:emit(ON_KEY, key)
+        APMBussin:emit(Events.ON_KEY, key)
     end, utils.vim_apm_group_id())
 
     self._on_key_id = on_key_id
@@ -98,34 +91,25 @@ function APMActions:enable()
     vim.api.nvim_create_autocmd("WinResized", {
         group = utils.vim_apm_group_id(),
         callback = function()
-            APMBussin:emit(RESIZE)
+            APMBussin:emit(Events.RESIZE)
         end
     })
 
     vim.api.nvim_create_autocmd("BufWrite", {
         group = utils.vim_apm_group_id(),
         callback = function()
-            APMBussin:emit(WRITE)
+            APMBussin:emit(Events.WRITE)
         end
     })
 
     vim.api.nvim_create_autocmd("BufEnter", {
         group = utils.vim_apm_group_id(),
         callback = function()
-            APMBussin:emit(BUF_ENTER)
+            APMBussin:emit(Events.BUF_ENTER)
         end
     })
 
     return true
 end
 
-return {
-    APMActions = APMActions,
-    MODE = MODE,
-    ON_KEY = ON_KEY,
-    RESIZE = RESIZE,
-    WRITE = WRITE,
-    BUSY = BUSY,
-    IDLE = IDLE,
-    BUF_ENTER = BUF_ENTER,
-}
+return APMActions

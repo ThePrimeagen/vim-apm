@@ -33,7 +33,11 @@ end
 
 function M.normalize_number(x, precision)
     precision = precision or 100
-    return math.floor(x * precision) / precision
+    local y = x * precision
+    if y % 10 >= 5 then
+        return math.ceil(y) / precision
+    end
+    return math.floor(y) / precision
 end
 
 function M.split(inputstr, sep)

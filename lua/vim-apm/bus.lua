@@ -14,6 +14,9 @@ function APMBussin.new()
 end
 
 function APMBussin:listen(event_type, listener)
+    if event_type == nil then
+        error('event_type is nil -- ' .. tostring(event_type))
+    end
     if self.listeners[event_type] == nil then
         self.listeners[event_type] = {}
     end

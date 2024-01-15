@@ -2,14 +2,14 @@ local eq = assert.are.same
 local Stats = require("vim-apm.reporter.stats")
 local utils = require("vim-apm.utils")
 
-function score(s)
+local function score(s)
     return math.floor(s * 100)
 end
 
 describe("Stats", function()
     local old_now = utils.now
     local now = 0
-    function spoof_now()
+    local function spoof_now()
         return now
     end
 
@@ -36,7 +36,7 @@ describe("Stats", function()
             timings = {5, 10},
         })
 
-        eq(score(calc.apm_sum), score(1.5))
+        eq(1.5, utils.normalize_number(calc.apm_sum))
 
         now = 2
         calc:push({
@@ -44,7 +44,7 @@ describe("Stats", function()
             timings = {5, 10},
         })
 
-        eq(score(calc.apm_sum), score(1.5 + 1/3))
+        eq(score(utils.normalize_number(calc.apm_sum)), score(1.5 + 1/3))
 
         now = 6
         calc:push({
@@ -52,7 +52,7 @@ describe("Stats", function()
             timings = {5, 10},
         })
 
-        eq(score(calc.apm_sum), score(.5 + 1/3 + 1))
+        eq(score(utils.normalize_number(calc.apm_sum)), score(.5 + 1/3 + 1))
 
         now = 8
         calc:push({
@@ -60,18 +60,18 @@ describe("Stats", function()
             timings = {5, 10},
         })
 
-        eq(score(calc.apm_sum), score(.5 + 1))
-
+        print("score", utils.normalize_number(calc.apm_sum))
+        eq(score(utils.normalize_number(calc.apm_sum)), score(.5 + 1))
     end)
 
     it("calculator -- repeat count test", function()
         local calc = Stats.APMCalculator.new(5, 5)
 
-        for i = 1, 5 do
+        for _ = 1, 5 do
             calc:push({ chars = "dap", timings = {5, 10}, })
         end
 
-        eq(0.16, calc:push({ chars = "dap", timings = {5, 10}, }))
+        eq(utils.normalize_number(0.16666666), calc:push({ chars = "dap", timings = {5, 10}, }))
         eq(1, calc:push({ chars = "j", timings = {5, 10}, }))
         eq(0.5, calc:push({ chars = "7j", timings = {5, 10}, }))
 

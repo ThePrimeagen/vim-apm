@@ -1,7 +1,6 @@
 local APMBussin = require("vim-apm.bus")
-local APM = require("vim-apm.apm")
-local Actions = require("vim-apm.actions")
 local Stats = require("vim-apm.reporter.stats")
+local Events = require("vim-apm.event_names")
 
 ---@class APMFileReporter : APMReporter
 ---@field path string
@@ -87,26 +86,24 @@ function FileReporter:enable()
     apm_report()
 
     ---@param motion APMMotionItem
-    APMBussin:listen(APM.Events.MotionItem, function(motion)
+    APMBussin:listen(Events.MOTION, function(motion)
         self.stats:motion(motion)
         self.calc:push(motion)
     end)
 
-    APMBussin:listen(APM.Events.InsertTime, function(insert_time)
-        print("HELLO INSERT TO TIME", vim.inspect(insert_time))
+    APMBussin:listen(Events.INSERT_TO_TIME, function(insert_time)
         self.stats:time_to_insert(insert_time)
     end)
 
-    APMBussin:listen(Actions.WRITE, function()
+    APMBussin:listen(Events.WRITE, function()
         self.stats:write()
     end)
-    APMBussin:listen(Actions.BUF_ENTER, function()
+    APMBussin:listen(Events.BUF_ENTER, function()
         self.stats:buf_enter()
     end)
 
     ---@param event APMInsertTimeEvent
-    APMBussin:listen("insert_times", function(event)
-        print("HELLO INSERT IN TIME", vim.inspect(event))
+    APMBussin:listen(Events.INSERT_IN_TIME, function(event)
         self.stats:time_in_insert(event.insert_time, event.insert_char_count)
     end)
 end

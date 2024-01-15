@@ -1,16 +1,15 @@
+local Events = require("vim-apm.event_names")
 local utils = require("vim-apm.utils")
 local Motion = require("vim-apm.motion")
 local MotionTree = require("vim-apm.motion.motion_tree")
 local APMBussin = require("vim-apm.bus")
 local APMRingBuffer = require("vim-apm.ring_buffer")
 
-local MOTION_ITEM = "motion"
-local INSERT_TIME = "insert_time"
-
 local NORMAL = "n"
 local INSERT = "i"
 local COMMAND = "c"
 local VISUAL = "v"
+
 -- TODO fill out anything else?
 
 ---@class APMInsertTimeEvent
@@ -40,22 +39,6 @@ function APM.new()
     return self
 end
 
-function APM:clear()
-    self.motion_buffer:clear()
-end
-
-function APM:enable()
-    --- TODO: If i see any lag, here is a spot i could wait until idle before
-    --- sending out events
-    --[[
-    APMBussin:listen(Actions.IDLE, function()
-    end)
-
-    APMBussin:listen(Actions.BUSY, function()
-    end)
-    --]]
-end
-
 ---@param key string
 function APM:_normal(key)
     -- TODO: handle mode changes
@@ -66,7 +49,7 @@ function APM:_normal(key)
     end
 
     --- TODO: See note on enable
-    APMBussin:emit(MOTION_ITEM, motion_item)
+    APMBussin:emit(Events.MOTION, motion_item)
 end
 
 ---@param _ string
@@ -74,7 +57,7 @@ function APM:_insert(_)
     if self.insert_time_event_emitted == false then
         local now = utils.now()
         local time = now - self.insert_enter_time
-        APMBussin:emit(INSERT_TIME, time)
+        APMBussin:emit(Events.INSERT_TO_TIME, time)
         self.insert_time_event_emitted = true
     end
     self.insert_char_count = self.insert_char_count + 1
@@ -98,7 +81,7 @@ function APM:handle_mode_changed(_, to)
     end
 
     if self.mode == INSERT and to ~= INSERT then
-        APMBussin:emit("insert_times", {
+        APMBussin:emit(Events.INSERT_IN_TIME, {
             insert_char_count = self.insert_char_count,
             insert_time = utils.now() - self.insert_enter_time,
         })
@@ -113,11 +96,5 @@ function APM:handle_mode_changed(_, to)
     self.mode = to
 end
 
-return {
-    APM = APM,
-    Events = {
-        MotionItem = MOTION_ITEM,
-        InsertTime = INSERT_TIME,
-    }
-}
+return APM
 

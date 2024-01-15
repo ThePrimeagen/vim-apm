@@ -38,7 +38,7 @@ end
 function APMCalculator:apm()
     local per_minute = (60 * 1000) / self.apm_period
     local apm = self.apm_sum * per_minute
-    return apm
+    return utils.normalize_number(apm)
 end
 
 function APMCalculator:trim()
@@ -47,7 +47,7 @@ function APMCalculator:trim()
         local item = self.motions:peek()
         if item[1] < expired then
             self.motions:pop()
-            self.apm_sum = math.max(0, utils.normalize_number(self.apm_sum - item[2]))
+            self.apm_sum = math.max(0, self.apm_sum - item[2])
         else
             break
         end
@@ -77,10 +77,11 @@ function APMCalculator:push(motion)
     local apm_score = 1 / count
 
     self.motions:push({now, apm_score})
-    self.apm_sum = utils.normalize_number(self.apm_sum + apm_score)
+    self.apm_sum = self.apm_sum + apm_score
+
     self:trim()
 
-    return apm_score
+    return utils.normalize_number(apm_score)
 end
 
 ---@class APMAggregateMotionValue

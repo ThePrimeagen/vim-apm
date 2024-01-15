@@ -1,3 +1,5 @@
+
+--[[
 local network_utils = require("vim-apm.reporter.network-utils")
 local bussin = require("vim-apm.bus")
 local Apm = require("vim-apm.apm")
@@ -39,3 +41,4 @@ end
 
 return APMReporter
 
+    ---]]
