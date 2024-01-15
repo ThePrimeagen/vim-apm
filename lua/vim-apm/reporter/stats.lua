@@ -2,12 +2,21 @@ local utils = require("vim-apm.utils")
 local motion_parser = require("vim-apm.reporter.motion_parser")
 local RingBuffer = require("vim-apm.ring_buffer")
 
+---@class APMStatsJson
+---@field time_in_insert number
+---@field time_in_insert_count number
+---@field time_to_insert number
+---@field time_to_insert_count number
+---@field motions number
+---@field write_count number
+---@field buf_enter_count number
+---@field mode_times number
+
 ---@class APMCalculator
 ---@field motions APMRingBuffer
 ---@field motions_count table<string>
 ---@field index_count number
 ---@field max number
----@field apms number[][]
 ---@field apm_sum number
 ---@field apm_period number
 ---@field apm_repeat_count number
@@ -20,7 +29,6 @@ function APMCalculator.new(apm_repeat_count, apm_period)
         motions_count = {},
         index_count = 1,
         apm_sum = 0,
-        apms = {},
         apm_period = apm_period,
         apm_repeat_count = apm_repeat_count,
     }, APMCalculator)
@@ -52,6 +60,7 @@ function APMCalculator:push(motion)
             count = count + 1
         end
     end
+
     self.motions_count[self.index_count] = key
     self.index_count = self.index_count + 1
     if self.index_count > self.apm_repeat_count then
@@ -72,28 +81,50 @@ end
 ---@field timings_total number
 
 ---@class APMStats
----@field apms table<table<number>>,
 ---@field motions table<string, APMAggregateMotionValue>
----@field commands table<string, APMAggregateMotionValue>
 ---@field write_count number
----@field insert_times number
----@field insert_times_count number
+---@field _time_to_insert number
+---@field _time_to_insert_count number
+---@field _time_in_insert number
+---@field _time_in_insert_count number
 ---@field buf_enter_count number
 ---@field mode_times table<string, number>
+---@field last_mode string
+---@field last_mode_start_time number
 ---@field state string
 local Stats = {}
 Stats.__index = Stats
 
 function Stats.new()
     return setmetatable({
-        apms = {},
         motions = {},
-        commands = {},
         write_count = 0,
-        insert_times = 0,
-        insert_times_count = 0,
+        time_to_insert = 0,
+        time_to_insert_count = 0,
+        time_in_insert = 0,
+        time_in_insert_count = 0,
         buf_enter_count = 0,
         mode_times = {},
+        last_mode = "n",
+        last_mode_start_time = utils.now(),
+        state = "",
+    }, Stats)
+end
+
+---@param json APMStatsJson
+---@return APMStats
+function Stats.from_json(json)
+    return setmetatable({
+        motions = {},
+        write_count = 0,
+        time_to_insert = 0,
+        time_to_insert_count = 0,
+        time_in_insert = 0,
+        time_in_insert_count = 0,
+        buf_enter_count = 0,
+        mode_times = {},
+        last_mode = "n",
+        last_mode_start_time = utils.now(),
         state = "",
     }, Stats)
 end
@@ -103,11 +134,12 @@ end
 
 function Stats:clear()
     self.motions = {}
-    self.commands = {}
     self.write_count = 0
-    self.insert_times = 0
-    self.insert_times_count = 0
     self.buf_enter_count = 0
+    self._time_to_insert = 0
+    self._time_to_insert_count = 0
+    self._time_in_insert = 0
+    self._time_in_insert_count = 0
     self.mode = {}
 end
 
@@ -129,7 +161,13 @@ end
 
 ---@param mode string
 function Stats:mode(mode)
-    self.mode_times[mode] = (self.mode_times[mode] or 0) + 1
+    local now = utils.now()
+    local time_in_last_mode = now - self.last_mode_start_time
+    local last_mode = self.last_mode
+
+    self.mode_times[last_mode] = time_in_last_mode
+    self.last_mode_start_time = now
+    self.last_mode = mode
 end
 
 function Stats:buf_enter()
@@ -141,15 +179,17 @@ function Stats:write()
 end
 
 ---@param insert_time number
-function Stats:insert_time(insert_time)
-    self.insert_times = self.insert_times + insert_time
-    self.insert_times_count = self.insert_times_count + 1
+function Stats:time_to_insert(insert_time)
+    self.time_to_insert = self.time_to_insert + insert_time
+    self.time_to_insert_count = self.time_to_insert_count + 1
 end
 
 --- Another placeholder for when i try to calculate the wpm
----@param insert_time number time spent in insert mode
----@param insert_chars_typed number
-function Stats:insert(insert_time, insert_chars_typed)
+---@param time_in_insert number time spent in insert mode
+---@param count number
+function Stats:time_in_insert(time_in_insert, count)
+    self._time_in_insert = self._time_in_insert + time_in_insert
+    self._time_in_insert_count = self._time_in_insert_count + count
 end
 
 --- this is a placeholder for when i have navigating / editing / idle states
@@ -157,6 +197,24 @@ end
 ---@param state string
 function Stats:apm_state(state)
     self.state = state
+end
+
+---@returns APMStatsJson
+function Stats:to_json()
+    self:mode(self.last_mode)
+
+    return {
+        time_in_insert = self._time_in_insert,
+        time_in_insert_count = self._time_in_insert_count,
+        time_to_insert = self.time_to_insert,
+        time_to_insert_count = self.time_to_insert_count,
+
+        motions = self.motions,
+        write_count = self.write_count,
+        buf_enter_count = self.buf_enter_count,
+
+        mode_times = self.mode_times,
+    }
 end
 
 return {
