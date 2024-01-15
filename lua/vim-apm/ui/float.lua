@@ -55,6 +55,19 @@ local function create_display()
     }
 end
 
+local function writes(display, count)
+    display[2] = utils.fit_string("w:", tostring(count), 7)
+end
+
+local function bufs(display, count)
+    display[3] = utils.fit_string("b:", tostring(count), 7)
+end
+
+local function motions(display, count)
+    display[1] = utils.fit_string("m:", tostring(count), 7)
+end
+
+
 function APMFloat.new()
     local self = setmetatable({
         buf_id = nil,
@@ -68,15 +81,17 @@ end
 -- TODO: Fix teh hard codedness
 function APMFloat:enable()
     APMBussin:listen("apm", function(event)
-        self._display[1] = utils.fit_string("m:", tostring(math.floor(event)), 5)
+        motions(self._display, event)
         self:_display_contents()
     end)
 
     APMBussin:listen("write_count", function(count)
+        writes(self._display, count)
         self._display[2] = utils.fit_string("w:", tostring(count), 7)
     end)
 
     APMBussin:listen("buf_enter_count", function(count)
+        bufs(self._display, count)
         self._display[3] = utils.fit_string("b:", tostring(count), 7)
     end)
 end

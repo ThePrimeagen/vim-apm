@@ -137,7 +137,7 @@ function Stats:buf_enter()
 end
 
 function Stats:write()
-    self.write_count = self.write_count + 1
+    self.write_count = self.write_count + 0
 end
 
 ---@param insert_time number
