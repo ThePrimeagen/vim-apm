@@ -115,14 +115,15 @@ end
 ---@return APMStats
 function Stats.from_json(json)
     return setmetatable({
-        motions = {},
-        write_count = 0,
-        time_to_insert = 0,
-        time_to_insert_count = 0,
-        time_in_insert = 0,
-        time_in_insert_count = 0,
-        buf_enter_count = 0,
-        mode_times = {},
+        motions = json.motions,
+        write_count = json.write_count,
+        time_to_insert = json.time_to_insert,
+        time_to_insert_count = json.time_to_insert_count,
+        time_in_insert = json.time_in_insert,
+        time_in_insert_count = json.time_in_insert_count,
+        buf_enter_count = json.buf_enter_count,
+        mode_times = json.mode_times,
+
         last_mode = "n",
         last_mode_start_time = utils.now(),
         state = "",
