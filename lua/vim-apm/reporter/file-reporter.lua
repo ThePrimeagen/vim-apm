@@ -77,8 +77,8 @@ function FileReporter:enable()
             end
             self.calc:trim()
 
-            APMBussin:emit("apm", self.calc:apm())
-            APMBussin:emit("stats", self.stats:to_json())
+            APMBussin:emit(Events.APM_REPORT, self.calc:apm())
+            APMBussin:emit(Events.STATS, self.stats:to_json())
 
             apm_report()
         end, self.opts.apm_report_period)

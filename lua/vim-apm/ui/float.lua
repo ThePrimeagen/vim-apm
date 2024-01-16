@@ -81,20 +81,16 @@ end
 
 -- TODO: Fix teh hard codedness
 function APMFloat:enable()
-    APMBussin:listen("apm", function(event)
+    APMBussin:listen(Events.APM_REPORT, function(event)
         motions(self._display, event)
         self:_display_contents()
     end)
 
-    APMBussin:listen("write_count", function(count)
-        print("write_count", count)
-        writes(self._display, count)
-        self._display[2] = utils.fit_string("w:", tostring(count), 7)
-    end)
-
-    APMBussin:listen(Events.STATS, function(count)
-        bufs(self._display, count)
-        self._display[3] = utils.fit_string("b:", tostring(count), 7)
+    ---@param stats APMStatsJson
+    APMBussin:listen(Events.STATS, function(stats)
+        writes(self._display, stats.write_count)
+        bufs(self._display, stats.buf_enter_count)
+        self:_display_contents()
     end)
 
     APMBussin:listen(Events.RESIZE, function()
