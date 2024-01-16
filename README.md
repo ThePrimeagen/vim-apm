@@ -1,6 +1,24 @@
 
 ## Vim APM
-Warning, not ready for you to use yet.  please don't bothe me with issues
+This is still a very alpha application but should be a good time to use.
+
+### Please file issues for
+* anytime you get an error
+* absolutely not working
+* missing motions or incorrect motions
+
+### Getting Started
+Here is my Lazy `config` function.
+
+```lua
+local apm = require("vim-apm")
+
+apm:setup({})
+vim.keymap.set("n", "<leader>apm", function() apm:toggle_monitor() end)
+```
+
+If you don't know how to install plugins, this is probably not for you in this
+moment
 
 ## Why Go?
 * [i did a poll](https://twitter.com/ThePrimeagen/status/1745166587781349888)

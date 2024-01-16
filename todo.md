@@ -5,3 +5,4 @@
 * <number>A
 * vk and vj show up.  v needs to only be i/a operations
 * name C-d/u instead of code units
+* gU/u
