@@ -1,5 +1,12 @@
 local M = {}
 
+local search_motion = {
+    f = true,
+    F = true,
+    t = true,
+    T = true,
+}
+
 ---@param chars string
 ---@return string
 function M.disnumber_motion(chars)
@@ -10,7 +17,17 @@ function M.disnumber_motion(chars)
             table.insert(out, char)
         end
     end
-    return table.concat(out)
+
+    if #chars > 1 then
+        local matched = chars:sub(#chars, #chars):match("%d")
+        local search = search_motion[chars:sub(#chars - 1, #chars - 1)]
+
+        if matched ~= nil and search then
+            table.insert(out, chars:sub(#chars, #chars))
+        end
+    end
+
+    return table.concat(out, "")
 end
 
 ---@param chars string

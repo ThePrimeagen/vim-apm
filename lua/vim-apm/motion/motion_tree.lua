@@ -25,7 +25,15 @@ local closed_squirle = Motions.make_key("}")
 local open_paren = Motions.make_key("(")
 local closed_paren = Motions.make_key(")")
 
+local any_key = Motions.make_any_key()
+local f = Motions.make_key("f", any_key)
+local F = Motions.make_key("F", any_key)
+local t = Motions.make_key("t", any_key)
+local T = Motions.make_key("t", any_key)
+
 local simple_motions = Motions.make_or(
+    f, F,
+    t, T,
     j, k,
     x, X,
     w, b,
@@ -86,6 +94,11 @@ local cut = Motions.make_key("c", make_numbered_command_motion("c"))
 local visual = Motions.make_key("v", numbered)
 local z = Motions.make_key("z")
 local zz = Motions.make_key("z", z)
+local g = Motions.make_key("g")
+local gg = Motions.make_key("g", g)
+
+local undo = Motions.make_key("u")
+local redo = Motions.make_key("")
 
 local command_motions = Motions.make_or(
     yank, delete, cut, numbered
@@ -93,7 +106,10 @@ local command_motions = Motions.make_or(
 local numbered_command_motions = Motions.make_number(
     Motions.make_or(
         command_motions,
-        zz
+        zz,
+        gg,
+        undo,
+        redo
     )
 )
 
@@ -123,7 +139,6 @@ local all_motions = Motions.make_or(
     page_motions,
     numbered_command_motions
 )
-
 
 return {
     j = j,

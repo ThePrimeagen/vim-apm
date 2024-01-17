@@ -1,3 +1,4 @@
+local utils = require("vim-apm.utils")
 
 --if VimAPMRequired then
 --    require("vim-apm"):clear()
@@ -9,6 +10,7 @@
 --apm:setup({})
 --apm:toggle_monitor()
 --
+--[[
 local function read_json_from_file(path)
     local fh = vim.loop.fs_open(path, "r")
     while true do
@@ -18,3 +20,13 @@ local function read_json_from_file(path)
     end
     return vim.fn.json_decode("")
 end
+--]]
+--
+
+
+    vim.api.nvim_create_autocmd("ModeChanged", {
+        group = utils.vim_apm_group_id(),
+        callback = function(a, b)
+            print(vim.inspect(a), vim.inspect(b))
+        end
+    })
