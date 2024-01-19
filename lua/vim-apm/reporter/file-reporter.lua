@@ -60,6 +60,7 @@ function FileReporter:enable()
             local file = vim.loop.fs_open(self.path, "w", 493)
             local out_json = vim.fn.json_encode(merged)
             local ok2, res = pcall(vim.loop.fs_write, file, out_json)
+            vim.loop.fs_close(file)
 
             if not ok2 then
                 error("vim-apm: error writing to file: " .. res)

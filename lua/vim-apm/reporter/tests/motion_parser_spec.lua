@@ -6,6 +6,7 @@ describe("Motion Parser", function()
         eq(motion_parser.disnumber_motion("1"), "")
         eq(motion_parser.disnumber_motion("6d9ap"), "dap")
         eq(motion_parser.disnumber_motion("dap69"), "dap")
+
         eq(motion_parser.disnumber_motion("3d9f9"), "df9")
         eq(motion_parser.disnumber_motion("3d9F9"), "dF9")
         eq(motion_parser.disnumber_motion("3d9t9"), "dt9")
