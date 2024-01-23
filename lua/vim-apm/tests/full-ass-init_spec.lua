@@ -2,9 +2,12 @@ local eq = assert.are.same
 local apm = require("vim-apm")
 local APMBussin = require("vim-apm.bus")
 local Events = require("vim-apm.event_names")
-
+local utils = require("vim-apm.tests.utils")
 
 describe("APM", function()
+    before_each(function()
+        apm:clear()
+    end)
     it("apm - memory-reporter", function()
         apm:setup({
             reporter = {
@@ -31,11 +34,15 @@ describe("APM", function()
         local buffer = vim.fn.bufnr("lua/vim-apm/tests/test-file", true)
         vim.api.nvim_set_current_buf(buffer)
         vim.api.nvim_win_set_cursor(0, {1, 0})
-        vim.api.nvim_feedkeys("23jci{hello worldkdi(itrue", "m", false)
+        utils.play_keys("23jci{hello worldkdi(itrue", 100)
 
-        vim.wait(5000)
+        vim.wait(50000, function()
+            return apm_stats ~= nil
+        end)
+
         eq(apm_stats, {})
         eq(stats, {})
     end)
 end)
+
 

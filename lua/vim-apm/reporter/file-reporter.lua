@@ -65,17 +65,6 @@ function FileReporter:enable()
         end
     end, self.opts.report_interval)
 
-    Interval.interval(function()
-        if not self.enabled then
-            return
-        end
-        self.calc:trim()
-
-        APMBussin:emit(Events.APM_REPORT, self.calc:apm())
-        APMBussin:emit(Events.STATS, self.stats:to_json())
-
-    end, self.opts.apm_report_period)
-
 end
 
 function FileReporter:clear()

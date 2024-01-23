@@ -5,10 +5,9 @@ local Interval = require("vim-apm.interval")
 
 ---@class APMMemoryReporter : APMReporter
 ---@field enabled boolean
----@field calc APMCalculator
----@field stats APMStats
 ---@field opts APMReporterIntervalOptions
 ---@field current_stats APMStatsJson
+---@field collector APMStatsCollector
 local MemoryReporter = {}
 MemoryReporter.__index = MemoryReporter
 
@@ -26,7 +25,7 @@ function MemoryReporter.new(path, opts)
     return setmetatable({
         path = path,
         enabled = false,
-        calc = Stats.StatsCollector.new(opts),
+        collector = Stats.StatsCollector.new(opts),
         opts = opts,
         current_stats = Stats.empty_stats_json(),
         apms = {},
@@ -41,20 +40,20 @@ function MemoryReporter:enable()
     self.enabled = true
 
     Interval.interval(function()
-        self.current_stats = self.stats:merge(self.current_stats)
+        self.current_stats = self.collector.stats:merge(self.current_stats)
     end, self.opts.report_interval)
 
     Interval.interval(function()
         if not self.enabled then
             return
         end
-        self.calc:trim()
+        self.collector.calc:trim()
 
-        print("APM: " .. self.calc:apm())
-        print("to_json: " .. self.stats:to_json())
+        print("APM: ", self.collector.calc:apm())
+        print("to_json: ", vim.inspect(self.collector.stats:to_json()))
 
-        APMBussin:emit(Events.APM_REPORT, self.calc:apm())
-        APMBussin:emit(Events.STATS, self.stats:to_json())
+        APMBussin:emit(Events.APM_REPORT, self.collector.calc:apm())
+        APMBussin:emit(Events.STATS, self.collector.stats:to_json())
     end, self.opts.apm_report_period)
 end
 
