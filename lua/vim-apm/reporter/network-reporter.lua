@@ -1,15 +1,12 @@
-
---[[
 local network_utils = require("vim-apm.reporter.network-utils")
 local bussin = require("vim-apm.bus")
-local Apm = require("vim-apm.apm")
-local MOTION = Apm.Events.MotionItem
+local Events = require("vim-apm.event_names")
 
-local APMReporter = {}
-APMReporter.__index = APMReporter
+local NetworkReporter = {}
+NetworkReporter.__index = NetworkReporter
 
 --- TODO: Think about reconnecting / understanding the current socket connection state
-function APMReporter.new()
+function NetworkReporter.new()
     local self = {
         error = false,
         messages = {}
@@ -26,7 +23,7 @@ function APMReporter.new()
     end)
 
     --- @param motion APMMotionItem
-    bussin:listen(MOTION, function(motion)
+    bussin:listen(Events.MOTION, function(motion)
         if self.error then
             return
         end
@@ -36,9 +33,13 @@ function APMReporter.new()
         -- table.insert(self.messages, motion)
     end)
 
-    return setmetatable(self, APMReporter)
+    return setmetatable(self, NetworkReporter)
 end
 
-return APMReporter
+function NetworkReporter:enable()
+end
 
-    ---]]
+function NetworkReporter:clear()
+end
+
+return NetworkReporter

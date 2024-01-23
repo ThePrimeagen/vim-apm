@@ -23,7 +23,7 @@ describe("Stats", function()
     end)
 
     it("calculator", function()
-        local calc = Stats.APMCalculator.new(5, 5)
+        local calc = Stats.Calculator.new(5, 5)
 
         calc:push({
             chars = "dap",
@@ -65,7 +65,7 @@ describe("Stats", function()
     end)
 
     it("calculator -- repeat count test", function()
-        local calc = Stats.APMCalculator.new(5, 5)
+        local calc = Stats.Calculator.new(5, 5)
 
         for _ = 1, 5 do
             calc:push({ chars = "dap", timings = {5, 10}, })

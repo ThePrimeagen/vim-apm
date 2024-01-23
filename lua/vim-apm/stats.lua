@@ -1,3 +1,5 @@
+local APMBussin = require("vim-apm.bus")
+local Events = require("vim-apm.event_names")
 local utils = require("vim-apm.utils")
 local motion_parser = require("vim-apm.reporter.motion_parser")
 local RingBuffer = require("vim-apm.ring_buffer")
@@ -20,10 +22,10 @@ local RingBuffer = require("vim-apm.ring_buffer")
 ---@field apm_sum number
 ---@field apm_period number
 ---@field apm_repeat_count number
-local APMCalculator = {}
-APMCalculator.__index = APMCalculator
+local Calculator = {}
+Calculator.__index = Calculator
 
-function APMCalculator.new(apm_repeat_count, apm_period)
+function Calculator.new(apm_repeat_count, apm_period)
     return setmetatable({
         motions = RingBuffer.new(),
         motions_count = {},
@@ -31,17 +33,17 @@ function APMCalculator.new(apm_repeat_count, apm_period)
         apm_sum = 0,
         apm_period = apm_period,
         apm_repeat_count = apm_repeat_count,
-    }, APMCalculator)
+    }, Calculator)
 end
 
 ---@return number
-function APMCalculator:apm()
+function Calculator:apm()
     local per_minute = (60 * 1000) / self.apm_period
     local apm = self.apm_sum * per_minute
     return utils.normalize_number(apm)
 end
 
-function APMCalculator:trim()
+function Calculator:trim()
     local expired = utils.now() - self.apm_period
     while self.motions:peek() ~= nil do
         local item = self.motions:peek()
@@ -56,7 +58,7 @@ end
 
 ---@param motion APMMotionItem
 ---@return number
-function APMCalculator:push(motion)
+function Calculator:push(motion)
     local key = motion_parser.disnumber_motion(motion.chars)
     local now = utils.now()
 
@@ -82,6 +84,13 @@ function APMCalculator:push(motion)
     self:trim()
 
     return utils.normalize_number(apm_score)
+end
+
+function Calculator:clear()
+    self.motions = RingBuffer.new()
+    self.motions_count = {}
+    self.index_count = 1
+    self.apm_sum = 0
 end
 
 ---@class APMAggregateMotionValue
@@ -266,8 +275,56 @@ local function empty_stats_json()
     }
 end
 
+---@class APMStatsCollector
+---@field stats APMStats
+---@field calc APMCalculator
+local StatsCollector = {}
+StatsCollector.__index = StatsCollector
+
+---@param opts APMReporterIntervalOptions
+---@return APMStatsCollector
+function StatsCollector.new(opts)
+    local self = {
+        stats = Stats.new(),
+        calc = Calculator.new(opts.apm_repeat_count, opts.apm_period),
+    }
+
+    return setmetatable(self, StatsCollector)
+end
+
+function StatsCollector:enable()
+    ---@param motion APMMotionItem
+    APMBussin:listen(Events.MOTION, function(motion)
+        self.stats:motion(motion)
+        self.calc:push(motion)
+    end)
+
+    APMBussin:listen(Events.INSERT_TO_TIME, function(insert_time)
+        self.stats:time_to_insert(insert_time)
+    end)
+
+    APMBussin:listen(Events.WRITE, function()
+        self.stats:write()
+    end)
+    APMBussin:listen(Events.BUF_ENTER, function()
+        self.stats:buf_enter()
+    end)
+
+    ---@param event APMInsertTimeEvent
+    APMBussin:listen(Events.INSERT_IN_TIME, function(event)
+        self.stats:time_in_insert(event.insert_time, event.insert_char_count)
+    end)
+
+end
+
+function StatsCollector:clear()
+    self.stats:clear()
+    self.calc:clear()
+end
+
 return {
     empty_stats_json = empty_stats_json,
+    StatsCollector = StatsCollector,
     Stats = Stats,
-    APMCalculator = APMCalculator,
+    Calculator = Calculator,
 }

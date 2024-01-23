@@ -3,20 +3,19 @@ local Stats = require("vim-apm.stats")
 local Events = require("vim-apm.event_names")
 local Interval = require("vim-apm.interval")
 
----@class APMFileReporter : APMReporter
----@field path string
+---@class APMMemoryReporter : APMReporter
 ---@field enabled boolean
 ---@field calc APMCalculator
 ---@field stats APMStats
 ---@field opts APMReporterIntervalOptions
-local FileReporter = {}
-FileReporter.__index = FileReporter
+---@field current_stats APMStatsJson
+local MemoryReporter = {}
+MemoryReporter.__index = MemoryReporter
 
 ---@param path string
 ---@param opts APMReporterIntervalOptions
----@return APMFileReporter
-function FileReporter.new(path, opts)
-
+---@return APMMemoryReporter
+function MemoryReporter.new(path, opts)
     opts = vim.tbl_extend("force", {
         report_interval = 1 * 60 * 1000,
         apm_repeat_count = 10,
@@ -29,40 +28,20 @@ function FileReporter.new(path, opts)
         enabled = false,
         calc = Stats.StatsCollector.new(opts),
         opts = opts,
+        current_stats = Stats.empty_stats_json(),
         apms = {},
         apm_sum = 0,
-    }, FileReporter)
+    }, MemoryReporter)
 end
 
----@param path string
----@return APMStatsJson
-local function read_json_from_file(path)
-    local list_why_oh_why = vim.fn.readfile(path)
-    return vim.fn.json_decode(list_why_oh_why[1])
-end
-
-function FileReporter:enable()
+function MemoryReporter:enable()
     if self.enabled then
         return
     end
     self.enabled = true
 
     Interval.interval(function()
-        local ok, json = pcall(read_json_from_file, self.path)
-        if not ok then
-            json = Stats.empty_stats_json()
-        end
-
-        local merged = self.stats:merge(json)
-
-        local file = vim.loop.fs_open(self.path, "w", 493)
-        local out_json = vim.fn.json_encode(merged)
-        local ok2, res = pcall(vim.loop.fs_write, file, out_json)
-        vim.loop.fs_close(file)
-
-        if not ok2 then
-            error("vim-apm: error writing to file: " .. res)
-        end
+        self.current_stats = self.stats:merge(self.current_stats)
     end, self.opts.report_interval)
 
     Interval.interval(function()
@@ -71,15 +50,17 @@ function FileReporter:enable()
         end
         self.calc:trim()
 
+        print("APM: " .. self.calc:apm())
+        print("to_json: " .. self.stats:to_json())
+
         APMBussin:emit(Events.APM_REPORT, self.calc:apm())
         APMBussin:emit(Events.STATS, self.stats:to_json())
-
     end, self.opts.apm_report_period)
-
 end
 
-function FileReporter:clear()
+function MemoryReporter:clear()
     self.enabled = false
 end
 
-return FileReporter
+return MemoryReporter
+

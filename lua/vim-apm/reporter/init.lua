@@ -1,5 +1,6 @@
 local Network = require("vim-apm.reporter.network-reporter");
 local File = require("vim-apm.reporter.file-reporter");
+local Memory = require("vim-apm.reporter.memory-reporter");
 
 ---@class APMReporterIntervalOptions
 ---@field report_interval? number
@@ -8,8 +9,8 @@ local File = require("vim-apm.reporter.file-reporter");
 ---@field apm_report_period? number
 
 ---@class APMReporterOptions
----@field type "network" | "file"
----@field uri string
+---@field type "network" | "file" | "memory"
+---@field uri? string
 ---@field interval_options? APMReporterIntervalOptions
 
 ---@class APMReporter
@@ -33,7 +34,13 @@ local function create_reporter(opts)
     if opts.type == "file" then
         return File.new(opts.uri, opts.interval_options)
     end
-    return Network.new(opts.uri, opts.interval_options)
+
+    if opts.type == "memory" then
+        return Memory.new(opts.uri, opts.interval_options)
+    end
+
+    print("AINT NO BOOLEAN", vim.inspect(Network))
+    return Network.new()
 end
 
 return {

@@ -19,6 +19,7 @@ func main() {
     // Accept incoming connections and handle them
     for {
         conn, err := ln.Accept()
+        fmt.Println("Connection accepted")
         if err != nil {
             fmt.Println(err)
             continue

@@ -1,11 +1,11 @@
 VimAPMRequired = true
 
-local Events = require("vim-apm.event_names")
 local APM = require("vim-apm.apm")
 local float = require("vim-apm.ui.float")
 local Reporter = require("vim-apm.reporter")
 local Actions = require("vim-apm.actions")
 local APMBussin = require("vim-apm.bus")
+local Interval = require("vim-apm.interval")
 
 
 ---@class APMOptions
@@ -45,6 +45,7 @@ function VimApm:setup(opts)
 
     self:clear()
     self.enabled = true
+    Interval.enable()
 
     self.reporter = Reporter.create_reporter(opts.reporter)
     self.reporter:enable()
@@ -57,10 +58,12 @@ end
 
 function VimApm:clear()
     APMBussin:clear()
+    Interval.clear()
     self.actions:clear()
     self.enabled = false
 
     if self.reporter ~= nil then
+        print(vim.inspect(self.reporter))
         self.reporter:clear()
         self.reporter = nil
     end
