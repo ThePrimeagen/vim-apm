@@ -41,6 +41,7 @@ describe("APM", function()
         vim.api.nvim_set_current_buf(buffer)
         vim.api.nvim_win_set_cursor(0, {1, 0})
         --vim.api.nvim_feedkeys("23jci{hello worldkdi(itrue", "t", false)
+        -- TOOD: teej check out run.lua
         vim.api.nvim_feedkeys("23j", "t", false)
 
         vim.wait(50000, function()
