@@ -31,17 +31,24 @@ describe("APM", function()
             stats = s
         end)
 
+        APMBussin:listen(Events.ON_KEY, function(key)
+            print("key", key)
+        end)
+
+        vim.wait(1000)
+
         local buffer = vim.fn.bufnr("lua/vim-apm/tests/test-file", true)
         vim.api.nvim_set_current_buf(buffer)
         vim.api.nvim_win_set_cursor(0, {1, 0})
-        utils.play_keys("23jci{hello worldkdi(itrue", 100)
+        --vim.api.nvim_feedkeys("23jci{hello worldkdi(itrue", "t", false)
+        vim.api.nvim_feedkeys("23j", "t", false)
 
         vim.wait(50000, function()
             return apm_stats ~= nil
         end)
 
-        eq(apm_stats, {})
         eq(stats, {})
+        eq(apm_stats, {})
     end)
 end)
 

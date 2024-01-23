@@ -43,14 +43,4 @@ function M.create_file(name, contents, row, col)
     return bufnr
 end
 
----@param keys string
----@param delay_per_stroke number
-function M.play_keys(keys, delay_per_stroke)
-    for idx = 1, #keys do
-        local key = keys:sub(idx, idx)
-        APMBussin:emit(Events.ON_KEY, key)
-        vim.wait(delay_per_stroke)
-    end
-end
-
 return M

@@ -1,13 +1,10 @@
-local APMBussin = require("vim-apm.bus")
 local Stats = require("vim-apm.stats")
-local Events = require("vim-apm.event_names")
 local Interval = require("vim-apm.interval")
 
 ---@class APMFileReporter : APMReporter
 ---@field path string
 ---@field enabled boolean
----@field calc APMCalculator
----@field stats APMStats
+---@field collector APMStatsCollector
 ---@field opts APMReporterIntervalOptions
 local FileReporter = {}
 FileReporter.__index = FileReporter
@@ -27,7 +24,7 @@ function FileReporter.new(path, opts)
     return setmetatable({
         path = path,
         enabled = false,
-        calc = Stats.StatsCollector.new(opts),
+        collector = Stats.StatsCollector.new(opts),
         opts = opts,
         apms = {},
         apm_sum = 0,
@@ -53,7 +50,7 @@ function FileReporter:enable()
             json = Stats.empty_stats_json()
         end
 
-        local merged = self.stats:merge(json)
+        local merged = self.collector.stats:merge(json)
 
         local file = vim.loop.fs_open(self.path, "w", 493)
         local out_json = vim.fn.json_encode(merged)
