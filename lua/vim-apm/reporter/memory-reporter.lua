@@ -38,6 +38,7 @@ function MemoryReporter:enable()
         return
     end
     self.enabled = true
+    self.collector:enable()
 
     Interval.interval(function()
         self.current_stats = self.collector.stats:merge(self.current_stats)
@@ -49,16 +50,14 @@ function MemoryReporter:enable()
         end
         self.collector.calc:trim()
 
-        print("APM: ", self.collector.calc:apm())
-        print("to_json: ", vim.inspect(self.collector.stats:to_json()))
-
         APMBussin:emit(Events.APM_REPORT, self.collector.calc:apm())
-        APMBussin:emit(Events.STATS, self.collector.stats:to_json())
+        APMBussin:emit(Events.STATS, self.current_stats)
     end, self.opts.apm_report_period)
 end
 
 function MemoryReporter:clear()
     self.enabled = false
+    self.collector:clear()
 end
 
 return MemoryReporter

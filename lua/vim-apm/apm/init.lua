@@ -6,6 +6,7 @@ local APMBussin = require("vim-apm.bus")
 local APMRingBuffer = require("vim-apm.ring_buffer")
 
 local NORMAL = "n"
+local OPERATIONAL_PENDING_MODE = "no"
 local INSERT = "i"
 local COMMAND = "c"
 local VISUAL = "v"
@@ -76,17 +77,17 @@ end
 
 ---@param key string
 function APM:feedkey(key)
-    if self.mode == NORMAL then
-        self:_normal(key)
-    elseif self.mode == INSERT then
+    if self.mode == INSERT then
         self:_insert(key)
+    elseif self.mode ~= COMMAND then
+        self:_normal(key)
     end
 end
 
----@param _ string
+---@param from string
 ---@param to string
-function APM:handle_mode_changed(_, to)
-    if to ~= NORMAL and to ~= VISUAL then
+function APM:handle_mode_changed(from, to)
+    if from == INSERT and to ~= INSERT then
         self.motion:clear()
     end
 

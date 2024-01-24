@@ -43,6 +43,7 @@ function FileReporter:enable()
         return
     end
     self.enabled = true
+    self.collector:enable()
 
     Interval.interval(function()
         local ok, json = pcall(read_json_from_file, self.path)
@@ -66,6 +67,7 @@ end
 
 function FileReporter:clear()
     self.enabled = false
+    self.collector:clear()
 end
 
 return FileReporter

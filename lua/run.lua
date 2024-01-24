@@ -11,9 +11,11 @@
 --     }
 -- })
 
+--[[
 vim.on_key(function(key)
     print("key: " .. key)
 end)
+
 
 vim.api.nvim_feedkeys("23jci{hello worldkdi(itrue", "t", false)
 

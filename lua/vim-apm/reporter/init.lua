@@ -39,7 +39,6 @@ local function create_reporter(opts)
         return Memory.new(opts.uri, opts.interval_options)
     end
 
-    print("AINT NO BOOLEAN", vim.inspect(Network))
     return Network.new()
 end
 

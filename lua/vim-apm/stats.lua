@@ -112,11 +112,14 @@ end
 local Stats = {}
 Stats.__index = Stats
 
+local id = 0
 ---@return APMStats
 function Stats.new()
+    id = id + 1
     return setmetatable({
         motions = {},
         write_count = 0,
+        id = id,
         _time_to_insert = 0,
         _time_to_insert_count = 0,
         _time_in_insert = 0,
@@ -195,7 +198,7 @@ function Stats:motion(motion)
     end
 
     self.motions[key] = self.motions[key] or {
-        count = 1,
+        count = 0,
         timings_total = sum
     }
     self.motions[key].count = self.motions[key].count + 1
@@ -297,6 +300,10 @@ function StatsCollector:enable()
     APMBussin:listen(Events.MOTION, function(motion)
         self.stats:motion(motion)
         self.calc:push(motion)
+    end)
+
+    APMBussin:listen(Events.MODE_CHANGED, function(mode)
+        self.stats:mode(mode[2])
     end)
 
     APMBussin:listen(Events.INSERT_TO_TIME, function(insert_time)

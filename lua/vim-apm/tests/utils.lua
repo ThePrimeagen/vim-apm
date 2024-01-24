@@ -43,4 +43,42 @@ function M.create_file(name, contents, row, col)
     return bufnr
 end
 
+---@class APMFauxKeyEvent
+---@field type ON_KEY | MODE_CHANGED
+---@field value string | [string, string]
+
+---@param keys APMFauxKeyEvent[]
+---@param delay_per_stroke number
+function M.play_keys(keys, delay_per_stroke)
+    for i = 1, #keys do
+        local key = keys[i]
+        APMBussin:emit(key.type, key.value)
+        vim.wait(delay_per_stroke)
+    end
+end
+
+---@param keys string
+---@return APMFauxKeyEvent[]
+function M.create_play_keys(keys, out)
+    out = out or {}
+    for i = 1, #keys do
+        local key = keys:sub(i, i)
+        table.insert(out, {
+            type = Events.ON_KEY,
+            value = key,
+        })
+    end
+    return out
+end
+
+---@param mode string[]
+---@return APMFauxKeyEvent
+function M.create_play_key_mode_change(mode)
+    return {
+        type = Events.MODE_CHANGED,
+        value = mode,
+    }
+end
+
+
 return M

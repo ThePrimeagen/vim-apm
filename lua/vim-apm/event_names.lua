@@ -1,3 +1,9 @@
+---@class APMEventNames
+---@field MODE_CHANGED "mode"
+---@field ON_KEY "on_key"
+
+---@alias ON_KEY "on_key"
+---@alias MODE_CHANGED "mode"
 
 return {
 

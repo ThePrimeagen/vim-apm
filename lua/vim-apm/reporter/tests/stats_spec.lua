@@ -60,7 +60,6 @@ describe("Stats", function()
             timings = {5, 10},
         })
 
-        print("score", utils.normalize_number(calc.apm_sum))
         eq(score(utils.normalize_number(calc.apm_sum)), score(.5 + 1))
     end)
 
