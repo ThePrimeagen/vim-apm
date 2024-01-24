@@ -2,12 +2,24 @@ local eq = assert.are.same
 local apm = require("vim-apm")
 local APMBussin = require("vim-apm.bus")
 local Events = require("vim-apm.event_names")
-local utils = require("vim-apm.tests.utils")
+local FauxKey = require("vim-apm.tests.faux-key")
 
-local function close_to(expected, received, margin)
+local function close_to(expected, received, margin, heading)
+    heading = heading or "close_to"
     margin = margin or 5
-    return math.abs(expected - received) < margin
+    eq(true, math.abs(expected - received) < margin, string.format("%s: expected %s to be close to %s", heading, received, expected))
 end
+
+---@param expected APMAggregateMotionValue
+---@param stats_json APMStatsJson
+---@param margin number
+local function motion_eq(motion_string, expected, stats_json, margin)
+    local received = stats_json.motions[motion_string]
+    eq(true, received ~= nil)
+    eq(expected.count, received.count, string.format("motion: count(%s): %d vs %d", motion_string, expected.count, received.count))
+    eq(expected.timings_total, received.timings_total, string.format("timings_total(%s)", motion_string))
+end
+
 
 describe("APM", function()
     before_each(function()
@@ -23,7 +35,6 @@ describe("APM", function()
                 }
             },
         });
-
 
         --- @type number
         local apm_stats = nil;
@@ -50,39 +61,26 @@ describe("APM", function()
         ---
         --- if tj comes back and i have to do this, i am going to create a
         --- builder because this sucks
-        local keys = utils.create_play_keys("23jci{")
-        local time_in_normal = #"23jci{" * 100
-
-        table.insert(keys, utils.create_play_key_mode_change({"n", "i"}))
-        time_in_normal = time_in_normal + 100
-
-        utils.create_play_keys("hello world", keys)
-        local time_in_insert = #"hello world" * 100;
-
-        table.insert(keys, utils.create_play_key_mode_change({"i", "n"}))
-        time_in_insert = time_in_insert + 100
-
-        utils.create_play_keys("kdi(i", keys)
-        time_in_normal = time_in_normal + #"kdi(i" * 100;
-
-        table.insert(keys, utils.create_play_key_mode_change({"n", "i"}))
-        time_in_normal = time_in_normal + 100
-
-        utils.create_play_keys("true", keys)
-        time_in_insert = time_in_insert + #"true" * 100;
-
-        table.insert(keys, utils.create_play_key_mode_change({"i", "n"}))
-        time_in_insert = time_in_insert + 100
-
-        utils.play_keys(keys, 100)
-
-        local remaining_time_in_normal = 5000 - time_in_normal - time_in_insert
+        local _, time_taken, mode_times = FauxKey.new()
+            :add_keys("23jci{")
+            :to_mode({"n", "i"}, 100)
+            :add_keys("hello world")
+            :to_mode({"i", "n"}, 75)
+            :add_keys("kdi(i")
+            :to_mode({"n", "i"}, 25)
+            :add_keys("true")
+            :to_mode({"i", "n"}, 50)
+            :play()
 
         vim.wait(50000, function()
             return apm_stats ~= nil
         end)
 
-        eq(true, close_to(remaining_time_in_normal + time_in_normal, stats.modes.n, 100))
+        local remaining_time = 5000 - time_taken
+
+        close_to(remaining_time + mode_times.n, stats.modes.n, 10)
+        close_to(mode_times.i, stats.modes.i, 10)
+        motion_eq("<n>j", {count = 1, timings_total = 200}, stats, 10)
     end)
 end)
 
