@@ -28,6 +28,8 @@ describe("state", function()
             {"6", "y", "9", "y"},
             {"6", "d", "9", "a", "p"}, -- damn we got that one right....
             {"6", "d", "9", "f", "9"}, -- did we? WE DID!! holy
+            {"6", ""},
+            {"6", ""},
         }
 
         for _, list in ipairs(motions) do
@@ -45,8 +47,6 @@ describe("state", function()
             {"d", "y"},
             {"y", "d"},
             {"c", "d"},
-            {"6", ""},
-            {"6", ""},
         }
 
         for _, list in ipairs(motions) do
