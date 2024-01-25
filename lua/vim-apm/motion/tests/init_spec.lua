@@ -45,6 +45,8 @@ describe("state", function()
             {"d", "y"},
             {"y", "d"},
             {"c", "d"},
+            {"6", ""},
+            {"6", ""},
         }
 
         for _, list in ipairs(motions) do
