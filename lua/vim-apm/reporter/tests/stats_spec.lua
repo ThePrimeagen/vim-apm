@@ -1,5 +1,5 @@
 local eq = assert.are.same
-local Stats = require("vim-apm.reporter.stats")
+local Stats = require("vim-apm.stats")
 local utils = require("vim-apm.utils")
 
 local function score(s)
@@ -137,5 +137,28 @@ describe("Stats", function()
             time_in_insert_count = 66,
         }, new_json)
     end)
+
+    it("stats motion", function()
+        local stats = Stats.Stats.new()
+        stats:motion({
+            chars = "dap",
+            timings = {5, 10},
+        })
+
+        eq({
+            dap = {count = 1, timings_total = 15},
+        }, stats.motions)
+
+        stats:motion({
+            chars = "dap",
+            timings = {5, 10},
+        })
+
+        eq({
+            dap = {count = 2, timings_total = 30},
+        }, stats.motions)
+    end)
+
+
 end)
 

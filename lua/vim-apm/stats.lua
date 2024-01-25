@@ -199,7 +199,7 @@ function Stats:motion(motion)
 
     self.motions[key] = self.motions[key] or {
         count = 0,
-        timings_total = sum
+        timings_total = 0
     }
     self.motions[key].count = self.motions[key].count + 1
     self.motions[key].timings_total = self.motions[key].timings_total + sum

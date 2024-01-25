@@ -17,7 +17,7 @@ local function motion_eq(motion_string, expected, stats_json, margin)
     local received = stats_json.motions[motion_string]
     eq(true, received ~= nil)
     eq(expected.count, received.count, string.format("motion: count(%s): %d vs %d", motion_string, expected.count, received.count))
-    eq(expected.timings_total, received.timings_total, string.format("timings_total(%s)", motion_string))
+    close_to(expected.timings_total, received.timings_total, margin, string.format("timings_total(%s)", motion_string))
 end
 
 
@@ -66,7 +66,7 @@ describe("APM", function()
             :to_mode({"n", "i"}, 100)
             :add_keys("hello world")
             :to_mode({"i", "n"}, 75)
-            :add_keys("kdi(i")
+            :add_keys("kdi(i", 50)
             :to_mode({"n", "i"}, 25)
             :add_keys("true")
             :to_mode({"i", "n"}, 50)
@@ -80,7 +80,15 @@ describe("APM", function()
 
         close_to(remaining_time + mode_times.n, stats.modes.n, 10)
         close_to(mode_times.i, stats.modes.i, 10)
-        motion_eq("<n>j", {count = 1, timings_total = 200}, stats, 10)
+        motion_eq("<n>j", {count = 1, timings_total = 200}, stats, 3)
+        motion_eq("ci{", {count = 1, timings_total = 200}, stats, 3)
+        motion_eq("k", {count = 1, timings_total = 0}, stats, 3)
+        motion_eq("di(", {count = 1, timings_total = 100}, stats, 3)
+        motion_eq("i", {count = 1, timings_total = 0}, stats, 3)
+        close_to(mode_times.i, stats.time_in_insert);
+
+        -- hello world and true
+        eq(#"hello world" + #"true", stats.time_in_insert_count);
     end)
 end)
 

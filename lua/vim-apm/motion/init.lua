@@ -90,13 +90,15 @@ end
 --- TODO: consider reusing the memories here
 ---@return APMMotionItem
 function Motion:create_motion_item()
-    local start = self.timings[1]
+    local previous_time = self.timings[1]
     local timings = {}
 
     for i = 2, #self.timings do
         table.insert(timings, math.floor(
-            (self.timings[i] - start)
+            (self.timings[i] - previous_time)
         ))
+
+        previous_time = self.timings[i]
     end
 
     return {
