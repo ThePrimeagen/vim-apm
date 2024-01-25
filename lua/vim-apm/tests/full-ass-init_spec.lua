@@ -40,12 +40,15 @@ describe("APM", function()
         local apm_stats = nil;
         --- @type APMStatsJson
         local stats = nil;
+        local count = 0
 
         APMBussin:listen(Events.APM_REPORT, function(a)
+            count = count + 1
             apm_stats = a
         end)
 
         APMBussin:listen(Events.STATS, function(s)
+            count = count + 1
             stats = s
         end)
 
@@ -64,7 +67,7 @@ describe("APM", function()
         local _, time_taken, mode_times = FauxKey.new()
             :add_keys("23jci{")
             :to_mode({"n", "i"}, 100)
-            :add_keys("hello world")
+            :add_keys("hello world", 69)
             :to_mode({"i", "n"}, 75)
             :add_keys("kdi(i", 50)
             :to_mode({"n", "i"}, 25)
@@ -73,7 +76,7 @@ describe("APM", function()
             :play()
 
         vim.wait(50000, function()
-            return apm_stats ~= nil
+            return count == 2
         end)
 
         local remaining_time = 5000 - time_taken
@@ -85,10 +88,51 @@ describe("APM", function()
         motion_eq("k", {count = 1, timings_total = 0}, stats, 3)
         motion_eq("di(", {count = 1, timings_total = 100}, stats, 3)
         motion_eq("i", {count = 1, timings_total = 0}, stats, 3)
-        close_to(mode_times.i, stats.time_in_insert);
+
+        close_to(stats.time_to_insert, 69 + 100, 3);
+        eq(stats.time_to_insert_count, 2);
 
         -- hello world and true
+        close_to(mode_times.i, stats.time_in_insert);
         eq(#"hello world" + #"true", stats.time_in_insert_count);
+
+        local previous_n_time = stats.modes.n
+        local previous_i_time = stats.modes.i
+
+        _, time_taken, mode_times = FauxKey.new()
+            :add_keys("jjjkkki")
+            :to_mode({"n", "i"})
+            :add_keys("hollo werld")
+            :to_mode({"i", "n"})
+            :play()
+
+        vim.wait(50000, function()
+            return count == 4
+        end)
+
+        remaining_time = 5000 - time_taken
+
+        close_to(remaining_time + mode_times.n + previous_n_time, stats.modes.n, 10)
+        close_to(mode_times.i + previous_i_time, stats.modes.i, 10)
+
+        -- previous timings
+        motion_eq("<n>j", {count = 1, timings_total = 200}, stats, 5)
+        motion_eq("ci{", {count = 1, timings_total = 200}, stats, 5)
+        motion_eq("di(", {count = 1, timings_total = 100}, stats, 5)
+
+        -- updated timings
+        motion_eq("k", {count = 4, timings_total = 0}, stats, 5)
+        motion_eq("i", {count = 2, timings_total = 0}, stats, 5)
+
+        -- new timings
+        motion_eq("j", {count = 3, timings_total = 0}, stats, 5)
+
+        close_to(stats.time_to_insert, 69 + 100 + 100, 5);
+        eq(stats.time_to_insert_count, 3);
+
+        -- hello world and true
+        close_to(mode_times.i + previous_i_time, stats.time_in_insert);
+        eq(#"hello world" + #"true" + #"hollo werld", stats.time_in_insert_count);
     end)
 end)
 

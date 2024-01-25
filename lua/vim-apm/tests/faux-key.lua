@@ -36,6 +36,7 @@ end
 ---@param mode string[]
 ---@return APMFauxKey
 function FauxKey:to_mode(mode, delay)
+    delay = delay or 100
     table.insert(self.operations, {
         event = {
             type = Events.MODE_CHANGED,
