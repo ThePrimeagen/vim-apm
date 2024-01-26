@@ -63,7 +63,6 @@ function VimApm:clear()
     self.enabled = false
 
     if self.reporter ~= nil then
-        print(vim.inspect(self.reporter))
         self.reporter:clear()
         self.reporter = nil
     end

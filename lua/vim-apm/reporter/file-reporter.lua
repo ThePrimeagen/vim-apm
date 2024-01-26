@@ -1,5 +1,7 @@
 local Stats = require("vim-apm.stats")
 local Interval = require("vim-apm.interval")
+local APMBussin = require("vim-apm.bus")
+local Events = require("vim-apm.event_names")
 
 ---@class APMFileReporter : APMReporter
 ---@field path string
@@ -58,9 +60,13 @@ function FileReporter:enable()
         local ok2, res = pcall(vim.loop.fs_write, file, out_json)
         vim.loop.fs_close(file)
 
+        APMBussin:emit(Events.APM_REPORT, self.collector.calc:apm())
+        APMBussin:emit(Events.STATS, merged)
+
         if not ok2 then
             error("vim-apm: error writing to file: " .. res)
         end
+
     end, self.opts.report_interval)
 
 end

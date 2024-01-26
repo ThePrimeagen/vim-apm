@@ -32,6 +32,9 @@ end
 ---@return APMReporter
 local function create_reporter(opts)
     if opts.type == "file" then
+        if opts.uri == nil then
+            opts.uri = default_data_path
+        end
         return File.new(opts.uri, opts.interval_options)
     end
 
