@@ -68,7 +68,6 @@ local function motions(display, count)
     display[1] = utils.fit_string("m:", tostring(count), 7)
 end
 
-
 function APMFloat.new()
     local self = setmetatable({
         buf_id = nil,
@@ -96,7 +95,6 @@ function APMFloat:enable()
     APMBussin:listen(Events.RESIZE, function()
         self:resize()
     end)
-
 end
 
 --- TODO: This rubs me the wrong way
@@ -105,7 +103,13 @@ function APMFloat:_display_contents()
         if self._display == nil then
             self._display = create_display()
         end
-        vim.api.nvim_buf_set_lines(self.buf_id, 0, -1, false, {table.concat(self._display, " ")})
+        vim.api.nvim_buf_set_lines(
+            self.buf_id,
+            0,
+            -1,
+            false,
+            { table.concat(self._display, " ") }
+        )
     end
 end
 

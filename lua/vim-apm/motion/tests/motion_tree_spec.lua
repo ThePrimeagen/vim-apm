@@ -1,7 +1,6 @@
 local eq = assert.are.same
 local MotionTree = require("vim-apm.motion.motion_tree")
 local Motions = require("vim-apm.motion.motions")
-local Motion = require("vim-apm.motion")
 
 describe("state", function()
     it("simple motions", function()
@@ -39,6 +38,4 @@ describe("state", function()
         eq(Motions.State.DONE_CONSUME, done)
         eq(nil, next)
     end)
-
 end)
-

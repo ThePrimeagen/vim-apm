@@ -1,6 +1,6 @@
-local Network = require("vim-apm.reporter.network-reporter");
-local File = require("vim-apm.reporter.file-reporter");
-local Memory = require("vim-apm.reporter.memory-reporter");
+local Network = require("vim-apm.reporter.network-reporter")
+local File = require("vim-apm.reporter.file-reporter")
+local Memory = require("vim-apm.reporter.memory-reporter")
 
 ---@class APMReporterIntervalOptions
 ---@field report_interval? number
@@ -63,4 +63,3 @@ return {
     end,
     create_reporter = create_reporter,
 }
-

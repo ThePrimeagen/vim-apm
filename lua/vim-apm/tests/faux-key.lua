@@ -20,7 +20,6 @@ local function create_play_keys(keys, out)
     return out
 end
 
-
 ---@class APMFauxKey
 ---@field operations {event: APMFauxKeyEvent[], delay: number}
 local FauxKey = {}
@@ -29,7 +28,7 @@ FauxKey.__index = FauxKey
 ---@return APMFauxKey
 function FauxKey.new()
     return setmetatable({
-        operations = {}
+        operations = {},
     }, FauxKey)
 end
 
@@ -42,7 +41,7 @@ function FauxKey:to_mode(mode, delay)
             type = Events.MODE_CHANGED,
             value = mode,
         },
-        delay = delay
+        delay = delay,
     })
     return self
 end
@@ -55,7 +54,7 @@ function FauxKey:add_keys(keys, delay)
     for i = 1, #ops do
         table.insert(self.operations, {
             event = ops[i],
-            delay = delay
+            delay = delay,
         })
     end
     return self
@@ -67,7 +66,7 @@ function FauxKey:play()
     local modes = {
         n = 0,
         i = 0,
-    };
+    }
 
     local current_mode = "n"
     local last_mode_start_time = utils.now()

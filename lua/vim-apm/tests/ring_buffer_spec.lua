@@ -34,6 +34,3 @@ describe("RingBuffer", function()
         eq(0, buffer.len)
     end)
 end)
-
-
-

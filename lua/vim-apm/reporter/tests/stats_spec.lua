@@ -27,13 +27,13 @@ describe("Stats", function()
 
         calc:push({
             chars = "dap",
-            timings = {5, 10},
+            timings = { 5, 10 },
         })
 
         now = 1
         calc:push({
             chars = "dap",
-            timings = {5, 10},
+            timings = { 5, 10 },
         })
 
         eq(1.5, utils.normalize_number(calc.apm_sum))
@@ -41,41 +41,44 @@ describe("Stats", function()
         now = 2
         calc:push({
             chars = "dap",
-            timings = {5, 10},
+            timings = { 5, 10 },
         })
 
-        eq(score(utils.normalize_number(calc.apm_sum)), score(1.5 + 1/3))
+        eq(score(utils.normalize_number(calc.apm_sum)), score(1.5 + 1 / 3))
 
         now = 6
         calc:push({
             chars = "7j",
-            timings = {5, 10},
+            timings = { 5, 10 },
         })
 
-        eq(score(utils.normalize_number(calc.apm_sum)), score(.5 + 1/3 + 1))
+        eq(score(utils.normalize_number(calc.apm_sum)), score(0.5 + 1 / 3 + 1))
 
         now = 8
         calc:push({
             chars = "4j",
-            timings = {5, 10},
+            timings = { 5, 10 },
         })
 
-        eq(score(utils.normalize_number(calc.apm_sum)), score(.5 + 1))
+        eq(score(utils.normalize_number(calc.apm_sum)), score(0.5 + 1))
     end)
 
     it("calculator -- repeat count test", function()
         local calc = Stats.Calculator.new(5, 5)
 
         for _ = 1, 5 do
-            calc:push({ chars = "dap", timings = {5, 10}, })
+            calc:push({ chars = "dap", timings = { 5, 10 } })
         end
 
-        eq(utils.normalize_number(0.16666666), calc:push({ chars = "dap", timings = {5, 10}, }))
-        eq(1, calc:push({ chars = "j", timings = {5, 10}, }))
-        eq(0.5, calc:push({ chars = "7j", timings = {5, 10}, }))
+        eq(
+            utils.normalize_number(0.16666666),
+            calc:push({ chars = "dap", timings = { 5, 10 } })
+        )
+        eq(1, calc:push({ chars = "j", timings = { 5, 10 } }))
+        eq(0.5, calc:push({ chars = "7j", timings = { 5, 10 } }))
 
         -- there are 3 daps left in the previous
-        eq(0.25, calc:push({ chars = "7d4ap", timings = {5, 10}, }))
+        eq(0.25, calc:push({ chars = "7d4ap", timings = { 5, 10 } }))
     end)
 
     it("stats merge", function()
@@ -87,8 +90,8 @@ describe("Stats", function()
         }
 
         stats.motions = {
-            dap = {count = 1, timings_total = 3},
-            ["<n>dap"] = {count = 2, timings_total = 4},
+            dap = { count = 1, timings_total = 3 },
+            ["<n>dap"] = { count = 2, timings_total = 4 },
         }
 
         stats.write_count = 10
@@ -100,8 +103,8 @@ describe("Stats", function()
 
         local json = {
             motions = {
-                dap = {count = 5, timings_total = 7},
-                j = {count = 6, timings_total = 8},
+                dap = { count = 5, timings_total = 7 },
+                j = { count = 6, timings_total = 8 },
             },
             modes = {
                 c = 42,
@@ -119,9 +122,9 @@ describe("Stats", function()
         local new_json = stats:merge(json)
         eq({
             motions = {
-                dap = {count = 6, timings_total = 10},
-                ["<n>dap"] = {count = 2, timings_total = 4},
-                j = {count = 6, timings_total = 8},
+                dap = { count = 6, timings_total = 10 },
+                ["<n>dap"] = { count = 2, timings_total = 4 },
+                j = { count = 6, timings_total = 8 },
             },
             modes = {
                 c = 42,
@@ -142,23 +145,20 @@ describe("Stats", function()
         local stats = Stats.Stats.new()
         stats:motion({
             chars = "dap",
-            timings = {5, 10},
+            timings = { 5, 10 },
         })
 
         eq({
-            dap = {count = 1, timings_total = 15},
+            dap = { count = 1, timings_total = 15 },
         }, stats.motions)
 
         stats:motion({
             chars = "dap",
-            timings = {5, 10},
+            timings = { 5, 10 },
         })
 
         eq({
-            dap = {count = 2, timings_total = 30},
+            dap = { count = 2, timings_total = 30 },
         }, stats.motions)
     end)
-
-
 end)
-

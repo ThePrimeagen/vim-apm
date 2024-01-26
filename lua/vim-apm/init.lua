@@ -1,4 +1,6 @@
+-- luacheck: push ignore
 VimAPMRequired = true
+-- luacheck: pop
 
 local APM = require("vim-apm.apm")
 local float = require("vim-apm.ui.float")
@@ -6,7 +8,6 @@ local Reporter = require("vim-apm.reporter")
 local Actions = require("vim-apm.actions")
 local APMBussin = require("vim-apm.bus")
 local Interval = require("vim-apm.interval")
-
 
 ---@class APMOptions
 ---@field reporter? APMReporterOptions
@@ -26,7 +27,6 @@ VimApm.__index = VimApm
 
 ---@return VimApm
 function VimApm.new()
-
     local self = setmetatable({
         enabled = false,
         actions = Actions.new(),
@@ -53,7 +53,6 @@ function VimApm:setup(opts)
     self.actions:enable()
     self.monitor:enable()
     self.apm:enable()
-
 end
 
 function VimApm:clear()

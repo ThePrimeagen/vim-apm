@@ -1,4 +1,3 @@
-
 ---@class ApmLogger
 ---@field _indent number
 local Logger = {}

@@ -1,4 +1,3 @@
-
 local M = {}
 
 local enabled = false

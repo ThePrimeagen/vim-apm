@@ -10,7 +10,6 @@ local APMActions = {}
 APMActions.__index = APMActions
 
 function APMActions.new()
-
     return setmetatable({
         enabled = false,
         _on_key_id = nil,
@@ -60,9 +59,9 @@ function APMActions:enable()
     end
     idle_check()
 
-    vim.api.nvim_create_autocmd('ModeChanged', {
+    vim.api.nvim_create_autocmd("ModeChanged", {
         group = utils.vim_apm_group_id(),
-        pattern = '*',
+        pattern = "*",
 
         ---@param event Event
         callback = function(event)
@@ -73,7 +72,11 @@ function APMActions:enable()
 
     ---@param key string
     local on_key_id = vim.on_key(function(key)
-        if #key > 1 and string.byte(key, 1) == 128 and string.byte(key, 2) == 253 then
+        if
+            #key > 1
+            and string.byte(key, 1) == 128
+            and string.byte(key, 2) == 253
+        then
             return
         end
 
@@ -92,21 +95,21 @@ function APMActions:enable()
         group = utils.vim_apm_group_id(),
         callback = function()
             APMBussin:emit(Events.RESIZE)
-        end
+        end,
     })
 
     vim.api.nvim_create_autocmd("BufWrite", {
         group = utils.vim_apm_group_id(),
         callback = function()
             APMBussin:emit(Events.WRITE)
-        end
+        end,
     })
 
     vim.api.nvim_create_autocmd("BufEnter", {
         group = utils.vim_apm_group_id(),
         callback = function()
             APMBussin:emit(Events.BUF_ENTER)
-        end
+        end,
     })
 
     return true

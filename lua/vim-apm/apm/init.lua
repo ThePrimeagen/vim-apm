@@ -6,10 +6,10 @@ local APMBussin = require("vim-apm.bus")
 local APMRingBuffer = require("vim-apm.ring_buffer")
 
 local NORMAL = "n"
-local OPERATIONAL_PENDING_MODE = "no"
+-- local OPERATIONAL_PENDING_MODE = "no"
 local INSERT = "i"
 local COMMAND = "c"
-local VISUAL = "v"
+-- local VISUAL = "v"
 
 -- TODO fill out anything else?
 
@@ -36,7 +36,7 @@ function APM.new()
         insert_char_count = 0,
         insert_enter_time = 0,
         insert_time_event_emitted = true,
-    }, APM);
+    }, APM)
     return self
 end
 
@@ -74,7 +74,6 @@ function APM:_insert(_)
     self.insert_char_count = self.insert_char_count + 1
 end
 
-
 ---@param key string
 function APM:feedkey(key)
     if self.mode == INSERT then
@@ -108,4 +107,3 @@ function APM:handle_mode_changed(from, to)
 end
 
 return APM
-

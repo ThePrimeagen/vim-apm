@@ -9,4 +9,3 @@ describe("utils", function()
         eq("hello  world", utils.fit_string("hello", "world", 12))
     end)
 end)
-

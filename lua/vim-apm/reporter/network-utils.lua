@@ -1,11 +1,10 @@
-
 local M = {}
 
 local ZERO = string.byte(0)
 
 M.VERSION = 0
 M.Types = {
-    Motion = 0
+    Motion = 0,
 }
 
 ---@param length number
@@ -30,4 +29,3 @@ function M.encode_motion(motion)
 end
 
 return M
-

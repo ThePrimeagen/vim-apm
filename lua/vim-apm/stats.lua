@@ -78,7 +78,7 @@ function Calculator:push(motion)
 
     local apm_score = 1 / count
 
-    self.motions:push({now, apm_score})
+    self.motions:push({ now, apm_score })
     self.apm_sum = self.apm_sum + apm_score
 
     self:trim()
@@ -142,9 +142,11 @@ function Stats:merge(json)
         modes = {},
         write_count = self.write_count + json.write_count,
         time_to_insert = self._time_to_insert + json.time_to_insert,
-        time_to_insert_count = self._time_to_insert_count + json.time_to_insert_count,
+        time_to_insert_count = self._time_to_insert_count
+            + json.time_to_insert_count,
         time_in_insert = self._time_in_insert + json.time_in_insert,
-        time_in_insert_count = self._time_in_insert_count + json.time_in_insert_count,
+        time_in_insert_count = self._time_in_insert_count
+            + json.time_in_insert_count,
         buf_enter_count = self.buf_enter_count + json.buf_enter_count,
     }
 
@@ -176,6 +178,7 @@ function Stats:merge(json)
 end
 
 function Stats:enable()
+    local _ = self
 end
 
 function Stats:clear()
@@ -197,10 +200,11 @@ function Stats:motion(motion)
         sum = sum + timing
     end
 
-    self.motions[key] = self.motions[key] or {
-        count = 0,
-        timings_total = 0
-    }
+    self.motions[key] = self.motions[key]
+        or {
+            count = 0,
+            timings_total = 0,
+        }
     self.motions[key].count = self.motions[key].count + 1
     self.motions[key].timings_total = self.motions[key].timings_total + sum
 end
@@ -321,7 +325,6 @@ function StatsCollector:enable()
     APMBussin:listen(Events.INSERT_IN_TIME, function(event)
         self.stats:time_in_insert(event.insert_time, event.insert_char_count)
     end)
-
 end
 
 function StatsCollector:clear()

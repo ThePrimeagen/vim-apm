@@ -25,7 +25,7 @@ local M = {
         DONE_CONSUME = DONE_CONSUME,
         DONE_NO_CONSUME = DONE_NO_CONSUME,
         NO_DONE_CONSUME = NO_DONE_CONSUME,
-    }
+    },
 }
 
 function M.make_number(next)
@@ -69,13 +69,9 @@ function M.make_or(...)
     return function(arg)
         for _, motion in ipairs(motions) do
             local res, next = motion(arg)
-            if res == nil then
-                goto continue
-            else
+            if res ~= nil then
                 return res, next
             end
-
-            ::continue::
         end
 
         return nil, nil
@@ -83,4 +79,3 @@ function M.make_or(...)
 end
 
 return M
-

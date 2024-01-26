@@ -1,3 +1,4 @@
+--[[
 local network_utils = require("vim-apm.reporter.network-utils")
 local bussin = require("vim-apm.bus")
 local Events = require("vim-apm.event_names")
@@ -9,12 +10,12 @@ NetworkReporter.__index = NetworkReporter
 function NetworkReporter.new()
     local self = {
         error = false,
-        messages = {}
+        messages = {},
     }
 
     local uv = vim.loop
     local client = uv.new_tcp()
-    client:connect("127.0.0.1", 6112, function (err)
+    client:connect("127.0.0.1", 6112, function(err)
         if err ~= nil then
             error("vim-apm failed to connect to the APM server: " .. err)
             self.error = true
@@ -36,10 +37,10 @@ function NetworkReporter.new()
     return setmetatable(self, NetworkReporter)
 end
 
-function NetworkReporter:enable()
-end
+function NetworkReporter:enable() end
 
-function NetworkReporter:clear()
-end
+function NetworkReporter:clear() end
 
 return NetworkReporter
+--]]
+return {}

@@ -22,12 +22,12 @@ function M.now()
 end
 
 function M.on_close(buf_id, cb)
-    vim.api.nvim_create_autocmd('BufUnload', {
+    vim.api.nvim_create_autocmd("BufUnload", {
         group = M.vim_apm_group_id(),
         buffer = buf_id,
         callback = function()
             cb()
-        end
+        end,
     })
 end
 
@@ -44,8 +44,8 @@ function M.split(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t={}
-    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+    local t = {}
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         table.insert(t, str)
     end
     return t
@@ -77,7 +77,7 @@ function M.fit_string(left, right, max_len)
     local white_space = remaining - #right
 
     local out = left
-    for i = 1, white_space do
+    for _ = 1, white_space do
         out = out .. " "
     end
 

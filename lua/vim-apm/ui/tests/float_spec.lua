@@ -25,7 +25,6 @@ describe("harpoon", function()
         eq(float.win_id, nil)
         eq(false, vim.api.nvim_win_is_valid(win_id))
         eq(false, vim.api.nvim_buf_is_valid(buf_id))
-
     end)
 
     it("ensure toggle works with float", function()
@@ -45,7 +44,5 @@ describe("harpoon", function()
         eq(nil, float.win_id)
         eq(false, vim.api.nvim_win_is_valid(win_id))
         eq(false, vim.api.nvim_buf_is_valid(buf_id))
-
     end)
-
 end)

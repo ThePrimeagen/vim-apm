@@ -1,5 +1,3 @@
-local APMBussin = require("vim-apm.bus")
-local Events = require("vim-apm.event_names")
 local M = {}
 
 M.created_files = {}
@@ -10,7 +8,6 @@ function M.clear_memory()
     --if float.buf_id ~= nil then
     --    float:toggle()
     --end
-
 
     for _, bufnr in ipairs(M.created_files) do
         vim.api.nvim_buf_delete(bufnr, { force = true })
@@ -24,7 +21,6 @@ function M.key(k)
     k = vim.api.nvim_replace_termcodes(k, true, false, true)
     vim.api.nvim_feedkeys(k, "m", false)
 end
-
 
 ---@param name string
 ---@param contents string[]

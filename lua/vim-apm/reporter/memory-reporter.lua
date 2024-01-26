@@ -61,4 +61,3 @@ function MemoryReporter:clear()
 end
 
 return MemoryReporter
-

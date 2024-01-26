@@ -6,7 +6,9 @@ local utils = require("vim-apm.utils")
 ---@field chars string
 ---@field timings number[]
 
-local function get_char(item) return item.chars end
+local function get_char(item)
+    return item.chars
+end
 
 ---@class APMMotion
 ---@field head MotionFunction
@@ -83,8 +85,7 @@ end
 
 function Motion:reset()
     error("please implement me daddy")
-    vim.schedule(function()
-    end)
+    vim.schedule(function() print(self) end)
 end
 
 --- TODO: consider reusing the memories here
@@ -94,9 +95,7 @@ function Motion:create_motion_item()
     local timings = {}
 
     for i = 2, #self.timings do
-        table.insert(timings, math.floor(
-            (self.timings[i] - previous_time)
-        ))
+        table.insert(timings, math.floor((self.timings[i] - previous_time)))
 
         previous_time = self.timings[i]
     end

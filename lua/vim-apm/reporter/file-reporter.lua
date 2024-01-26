@@ -15,7 +15,6 @@ FileReporter.__index = FileReporter
 ---@param opts APMReporterIntervalOptions
 ---@return APMFileReporter
 function FileReporter.new(path, opts)
-
     opts = vim.tbl_extend("force", {
         report_interval = 1 * 60 * 1000,
         apm_repeat_count = 10,
@@ -66,9 +65,7 @@ function FileReporter:enable()
         if not ok2 then
             error("vim-apm: error writing to file: " .. res)
         end
-
     end, self.opts.report_interval)
-
 end
 
 function FileReporter:clear()
