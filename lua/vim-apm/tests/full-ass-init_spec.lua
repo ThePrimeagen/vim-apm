@@ -3,6 +3,7 @@ local apm = require("vim-apm")
 local APMBussin = require("vim-apm.bus")
 local Events = require("vim-apm.event_names")
 local FauxKey = require("vim-apm.tests.faux-key")
+local Stats = require("vim-apm.stats")
 
 local function close_to(expected, received, margin, heading)
     heading = heading or "close_to"
@@ -97,7 +98,7 @@ describe("APM", function()
     local stats = nil;
     local count = 0
 
-    function link_listeners()
+    local function link_listeners()
         -- how to suppress?
         stats = nil
         apm_stats = nil
@@ -198,6 +199,35 @@ describe("APM", function()
         remaining_time = 5000 - time_taken
         expect_sequence_2(remaining_time, mode_times, stats, previous_n_time, previous_i_time)
 
+    end)
+
+    it("apm - file reporter should use its file as the base source of truth upon merging", function()
+        apm:setup({
+            reporter = {
+                type = "file",
+                uri = "/tmp/vim-apm.json",
+                interval_options = {
+                    report_interval = 5000,
+                    apm_report_period = 5000,
+                }
+            },
+        });
+
+        link_listeners()
+        local empty_stats = Stats.empty_stats_json()
+        empty_stats.motions["<n>j"] = {count = 1, timings_total = 200}
+
+        local file = vim.loop.fs_open("/tmp/vim-apm.json", "w", 493)
+        local out_json = vim.fn.json_encode(empty_stats)
+        local ok2, _ = pcall(vim.loop.fs_write, file, out_json)
+        vim.loop.fs_close(file)
+        eq(true, ok2)
+
+        vim.wait(7000, function()
+            return count == 2
+        end)
+
+        eq(stats.motions, empty_stats.motions)
     end)
 end)
 
