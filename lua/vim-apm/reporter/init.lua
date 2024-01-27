@@ -11,6 +11,7 @@ local Memory = require("vim-apm.reporter.memory-reporter")
 ---@class APMReporterOptions
 ---@field type "network" | "file" | "memory"
 ---@field uri? string
+---@field port? number only used for network
 ---@field interval_options? APMReporterIntervalOptions
 
 ---@class APMReporter
@@ -42,7 +43,11 @@ local function create_reporter(opts)
         return Memory.new(opts.uri, opts.interval_options)
     end
 
-    return Network.new()
+    if opts.type == "network" then
+        return Network.new(opts)
+    end
+
+    error("Unknown reporter type: " .. opts.type)
 end
 
 return {

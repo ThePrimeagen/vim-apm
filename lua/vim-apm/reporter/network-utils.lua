@@ -1,10 +1,12 @@
 local M = {}
 
-local ZERO = string.byte(0)
+local ZERO = string.byte("0")
 
 M.VERSION = 0
 M.Types = {
     Motion = 0,
+    Write = 2,
+    BufNavigate = 2,
 }
 
 ---@param length number
