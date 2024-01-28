@@ -88,7 +88,6 @@ function Motion:reset()
     vim.schedule(function() print(self) end)
 end
 
---- TODO: consider reusing the memories here
 ---@return APMMotionItem
 function Motion:create_motion_item()
     local previous_time = self.timings[1]

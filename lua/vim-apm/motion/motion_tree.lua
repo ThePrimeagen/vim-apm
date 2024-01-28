@@ -6,7 +6,6 @@ local Motions = require("vim-apm.motion.motions")
 --- will fix at some point and if you find   ---
 --- something that is missing, file a ticket ---
 ------------------------------------------------
---- TODO: FINISH THESE
 local j = Motions.make_key("j")
 local k = Motions.make_key("k")
 local x = Motions.make_key("x")

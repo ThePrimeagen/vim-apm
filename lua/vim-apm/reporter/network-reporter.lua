@@ -1,7 +1,10 @@
+--- TODO: I would like to see a more robust socket solution here.  Right now
+--- its all inlined, but a separate IoC method could be nice for both testing
+--- and for production
+--
 local network_utils = require("vim-apm.reporter.network-utils")
 local bussin = require("vim-apm.bus")
 local Events = require("vim-apm.event_names")
-local utils = require("vim-apm.utils")
 
 ---@class UVTcp
 ---@field connect fun(self: UVTcp, host: string, port: number, callback: fun(err: string | nil): nil): nil
@@ -12,13 +15,11 @@ local utils = require("vim-apm.utils")
 ---@field state "stopped" | "connecting" | "connected" | "error"
 ---@field apm_state "idle" | "busy"
 ---@field messages {type: "motion" | "write" | "buf_enter", value: any}[]
----@field last_flush_time number
 ---@field opts APMReporterOptions
 ---@field client UVTcp | nil
 local NetworkReporter = {}
 NetworkReporter.__index = NetworkReporter
 
---- TODO: Think about reconnecting / understanding the current socket connection state
 ---@param opts APMReporterOptions | nil
 ---@return AMPNetworkReporter
 function NetworkReporter.new(opts)
@@ -32,8 +33,6 @@ function NetworkReporter.new(opts)
         opts = opts,
 
         client = nil,
-
-        last_flush_time = utils.now(),
     }
 
     return setmetatable(self, NetworkReporter)
@@ -100,11 +99,6 @@ function NetworkReporter:_flush()
         return
     end
 
-    local now = utils.now()
-    if now - self.last_flush_time < self.opts.interval_options.report_interval then
-        return
-    end
-
     local to_write = ""
     for _, message in ipairs(self.messages) do
         if message.type == "motion" then
@@ -115,7 +109,6 @@ function NetworkReporter:_flush()
     if to_write ~= "" then
         self.client:write(to_write)
     end
-    self.last_flush_time = now
 end
 
 

@@ -3,12 +3,6 @@ local M = {}
 M.created_files = {}
 
 function M.clear_memory()
-    -- TODO: Setup a way to clear listeners based on id
-    -- TODO: clear floats through apm main interface
-    --if float.buf_id ~= nil then
-    --    float:toggle()
-    --end
-
     for _, bufnr in ipairs(M.created_files) do
         vim.api.nvim_buf_delete(bufnr, { force = true })
     end

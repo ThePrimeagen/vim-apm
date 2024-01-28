@@ -78,7 +78,6 @@ function APMFloat.new()
     return self
 end
 
--- TODO: Fix teh hard codedness
 function APMFloat:enable()
     APMBussin:listen(Events.APM_REPORT, function(event)
         motions(self._display, event)
@@ -97,7 +96,6 @@ function APMFloat:enable()
     end)
 end
 
---- TODO: This rubs me the wrong way
 function APMFloat:_display_contents()
     if self.buf_id ~= nil then
         if self._display == nil then
@@ -153,7 +151,6 @@ function APMFloat:toggle()
                 return
             end
 
-            -- TODO: Probablly refuctorc
             close_window(self.win_id, nil)
             self.buf_id = nil
             self.win_id = nil

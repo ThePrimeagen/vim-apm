@@ -11,8 +11,6 @@ local INSERT = "i"
 local COMMAND = "c"
 -- local VISUAL = "v"
 
--- TODO fill out anything else?
-
 ---@class APMInsertTimeEvent
 ---@field insert_char_count number
 ---@field insert_time number
@@ -52,14 +50,12 @@ end
 
 ---@param key string
 function APM:_normal(key)
-    -- TODO: handle mode changes
     local motion_item = self.motion:feedkey(key)
 
     if motion_item == nil then
         return
     end
 
-    --- TODO: See note on enable
     APMBussin:emit(Events.MOTION, motion_item)
 end
 
