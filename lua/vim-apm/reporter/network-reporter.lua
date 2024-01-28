@@ -68,7 +68,7 @@ function NetworkReporter:enable()
 
             self.messages[#self.messages + 1] = {
                 type = type,
-                value = value
+                value = value,
             }
         end
     end
@@ -87,7 +87,6 @@ function NetworkReporter:enable()
     bussin:listen(Events.BUF_ENTER, store_event("buf_enter"))
     bussin:listen(Events.IDLE_WORK, set_state("idle"))
     bussin:listen(Events.BUSY_WORK, set_state("busy"))
-
 end
 
 function NetworkReporter:_flush()
@@ -110,7 +109,6 @@ function NetworkReporter:_flush()
         self.client:write(to_write)
     end
 end
-
 
 function NetworkReporter:clear()
     self.messages = {}

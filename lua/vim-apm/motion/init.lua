@@ -85,7 +85,9 @@ end
 
 function Motion:reset()
     error("please implement me daddy")
-    vim.schedule(function() print(self) end)
+    vim.schedule(function()
+        print(self)
+    end)
 end
 
 ---@return APMMotionItem
