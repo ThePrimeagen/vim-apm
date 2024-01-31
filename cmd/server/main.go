@@ -4,11 +4,30 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"sync"
 
 	"vim-apm.theprimeagen.tv/pkg/parser"
 )
 
 func main() {
+
+    wg := sync.WaitGroup{}
+    wg.Add(1)
+    go func() {
+        tcpVimAPMServer()
+        wg.Done()
+    }()
+
+    wg.Add(1)
+    go func() {
+        tcpVimAPMServer()
+        wg.Done()
+    }
+}
+
+func
+
+func tcpVimAPMServer() {
     // Listen for incoming connections on port 8080
     ln, err := net.Listen("tcp", ":6112")
     if err != nil {
@@ -26,11 +45,11 @@ func main() {
         }
 
         // Handle the connection in a new goroutine
-        go handleConnection(conn)
+        go handleVimAPMConnection(conn)
     }
 }
 
-func handleConnection(conn net.Conn) {
+func handleVimAPMConnection(conn net.Conn) {
     // Close the connection when we're done
     defer conn.Close()
 

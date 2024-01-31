@@ -1,0 +1,1 @@
+local dev: go get github.com/tursodatabase/libsql-client-go
