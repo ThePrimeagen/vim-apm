@@ -101,7 +101,7 @@ function NetworkReporter:_flush()
     local to_write = ""
     for _, message in ipairs(self.messages) do
         if message.type == "motion" then
-            to_write = to_write + network_utils.motion_packet(message.value)
+            to_write = to_write .. network_utils.encode_motion(message.value)
         end
     end
 
