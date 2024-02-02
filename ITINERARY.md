@@ -1,13 +1,6 @@
 Stream Schedules
 
 ## Later this week and next week
-### Context
-Learn about go context
-* https://gobyexample.com/context
-* https://go.dev/blog/context
--- maybe --
-* https://medium.com/@jamal.kaksouri/the-complete-guide-to-context-in-golang-efficient-concurrency-management-43d722f6eaea
-
 ### SQLER
 * SQLx exploration
 * SQLc exploration
