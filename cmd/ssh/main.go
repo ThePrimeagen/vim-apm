@@ -15,8 +15,8 @@ import (
 	"github.com/charmbracelet/wish"
 	bm "github.com/charmbracelet/wish/bubbletea"
 	"github.com/charmbracelet/wish/logging"
-	"vim-apm.theprimeagen.tv/pkg/ssh_view"
-    import _ "github.com/joho/godotenv/autoload"
+	_ "github.com/joho/godotenv/autoload"
+	"vim-apm.theprimeagen.tv/pkg/bubbletea_view"
 )
 
 const (
@@ -34,29 +34,26 @@ func teaHandler(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 		wish.Fatalln(s, "no active terminal, skipping")
 		return nil, nil
 	}
-	m := ssh_view.InitialModel(s)
+	m := bubbletea_view.InitialModel(s)
 
 	return m, []tea.ProgramOption{
-        tea.WithInput(pty.Slave),
-        tea.WithOutput(pty.Slave),
-    }
+		tea.WithInput(pty.Slave),
+		tea.WithOutput(pty.Slave),
+	}
 }
 
 func main() {
 	s, err := wish.NewServer(
 		wish.WithAddress(fmt.Sprintf("%s:%d", host, port)),
 		wish.WithHostKeyPath(".ssh/term_info_ed25519"),
-        wish.WithPublicKeyAuth(func(_ ssh.Context, key ssh.PublicKey) bool {
-            return true;
+		wish.WithPublicKeyAuth(func(_ ssh.Context, key ssh.PublicKey) bool {
+			// needed for the public key on the ssh.Session, else it just
+			// returns 0s
+			return true
 		}),
 		wish.WithMiddleware(
-			func(h ssh.Handler) ssh.Handler {
-				return func(s ssh.Session) {
-					h(s)
-				}
-			},
 			logging.Middleware(),
-            bm.Middleware(teaHandler),
+			bm.Middleware(teaHandler),
 		),
 	)
 	if err != nil {
@@ -82,4 +79,3 @@ func main() {
 		log.Error("could not stop server", "error", err)
 	}
 }
-

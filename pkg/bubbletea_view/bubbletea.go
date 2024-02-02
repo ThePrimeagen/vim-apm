@@ -1,4 +1,4 @@
-package ssh_view
+package bubbletea_view
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
