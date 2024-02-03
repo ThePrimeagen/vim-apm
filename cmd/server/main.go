@@ -4,28 +4,13 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"sync"
 
 	"vim-apm.theprimeagen.tv/pkg/parser"
 )
 
 func main() {
-
-    wg := sync.WaitGroup{}
-    wg.Add(1)
-    go func() {
-        tcpVimAPMServer()
-        wg.Done()
-    }()
-
-    wg.Add(1)
-    go func() {
-        tcpVimAPMServer()
-        wg.Done()
-    }
+    tcpVimAPMServer()
 }
-
-func
 
 func tcpVimAPMServer() {
     // Listen for incoming connections on port 8080

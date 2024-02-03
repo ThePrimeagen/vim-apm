@@ -2,3 +2,4 @@
 .ssh
 /out
 /.env
+/tmp
