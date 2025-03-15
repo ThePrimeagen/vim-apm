@@ -23,7 +23,7 @@ apm:setup({
         type = "file", -- or "memory", "network" reporter seems to be unfinished
         uri = default_data_path,
         report_interval = 1 * 60 * 1000, -- unused by file reporter
-        apm_repeat_count = 10, -- window size for diminishing returns, i.e. higher -> less diminishing returns on repeated motions
+        apm_repeat_count = 10, -- window size for diminishing returns, i.e. lower -> less diminishing returns on repeated motions
         apm_period = 60 * 1000, -- in ms, actions per 1 minute, e.g. use 5*60*1000 for actions per 5 minute period
         apm_report_period = 5 * 1000, -- in ms, updates the apm and stats with a period of this amount
     }
