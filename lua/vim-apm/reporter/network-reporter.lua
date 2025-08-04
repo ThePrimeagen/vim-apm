@@ -16,7 +16,6 @@ local Events = require("vim-apm.event_names")
 ---@field apm_state "idle" | "busy"
 ---@field messages {type: "motion" | "write" | "buf_enter", value: any}[]
 ---@field opts APMReporterOptions
----@field client UVTcp | nil
 local NetworkReporter = {}
 NetworkReporter.__index = NetworkReporter
 
@@ -31,8 +30,6 @@ function NetworkReporter.new(opts)
         state = "stopped",
         messages = {},
         opts = opts,
-
-        client = nil,
     }
 
     return setmetatable(self, NetworkReporter)

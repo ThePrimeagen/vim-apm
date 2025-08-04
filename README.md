@@ -1,3 +1,8 @@
+## No PRs please
+Right now i am still working on this project and i don't think i want to review
+your crappy code, i already have to do it for myself.
+
+thanks
 
 ## Vim APM
 This is still a very alpha application but should be a good time to use.
