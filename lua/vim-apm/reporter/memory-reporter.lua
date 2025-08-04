@@ -41,18 +41,13 @@ function MemoryReporter:enable()
     self.collector:enable()
 
     Interval.interval(function()
-        self.current_stats = self.collector.stats:merge(self.current_stats)
-    end, self.opts.report_interval)
-
-    Interval.interval(function()
         if not self.enabled then
             return
         end
-        self.collector.calc:trim()
 
-        APMBussin:emit(Events.APM_REPORT, self.collector.calc:apm())
+        self.current_stats = self.collector.stats:merge(self.current_stats)
         APMBussin:emit(Events.STATS, self.current_stats)
-    end, self.opts.apm_report_period)
+    end, self.opts.report_interval, "memory-reporter#reporter")
 end
 
 function MemoryReporter:clear()

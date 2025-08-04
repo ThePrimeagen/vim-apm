@@ -84,4 +84,18 @@ function M.fit_string(left, right, max_len)
     return out .. right
 end
 
+---@return boolean
+---@return table | nil
+function M.read_file(path)
+    local ok, lines = pcall(vim.fn.readfile, path)
+    if not ok then
+        return false, nil
+    end
+
+    local contents = table.concat(lines, "\n")
+    local ok, out = pcall(vim.json.decode, contents)
+    return ok, out
+end
+
+
 return M

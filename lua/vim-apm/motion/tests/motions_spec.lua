@@ -35,7 +35,7 @@ describe("state", function()
         local motion = motions.make_or(number)
 
         local res, next = motion("1")
-        eq({ done = false, consume = true }, res)
+        eq(State.NO_DONE_CONSUME, res)
         eq(nil, next)
 
         res, next = motion("j")
@@ -46,4 +46,5 @@ describe("state", function()
         eq(State.DONE_CONSUME, res)
         eq(nil, next)
     end)
+
 end)

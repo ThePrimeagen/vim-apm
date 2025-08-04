@@ -1,6 +1,5 @@
 local eq = assert.are.same
 local Stats = require("vim-apm.stats")
-local utils = require("vim-apm.utils")
 local test_utils = require("vim-apm.tests.utils")
 
 local function score(s)

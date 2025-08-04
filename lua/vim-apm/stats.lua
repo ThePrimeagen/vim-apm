@@ -4,10 +4,6 @@ local utils = require("vim-apm.utils")
 local motion_parser = require("vim-apm.reporter.motion_parser")
 
 ---@class APMStatsJson
----@field time_in_insert number
----@field time_in_insert_count number
----@field time_to_insert number
----@field time_to_insert_count number
 ---@field motions table<string, APMAggregateMotionValue>
 ---@field write_count number
 ---@field buf_enter_count number
@@ -89,11 +85,6 @@ end
 ---@param motion APMMotionItem
 function Stats:motion(motion)
     local key = motion_parser.generate_motion_key(motion.chars)
-    local sum = 0
-    for _, timing in ipairs(motion.timings) do
-        sum = sum + timing
-    end
-
     self.motions[key] = self.motions[key]
         or {
             count = 0,

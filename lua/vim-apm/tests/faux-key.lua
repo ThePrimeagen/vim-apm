@@ -2,6 +2,8 @@ local APMBussin = require("vim-apm.bus")
 local Events = require("vim-apm.event_names")
 local utils = require("vim-apm.utils")
 
+local DEFAULT_DELAY = 10
+
 ---@class APMFauxKeyEvent
 ---@field type ON_KEY | MODE_CHANGED
 ---@field value string | string[]
@@ -24,6 +26,7 @@ end
 ---@field operations {event: APMFauxKeyEvent[], delay: number}
 local FauxKey = {}
 FauxKey.__index = FauxKey
+FauxKey.DEFAULT_DELAY = DEFAULT_DELAY
 
 ---@return APMFauxKey
 function FauxKey.new()
@@ -35,7 +38,7 @@ end
 ---@param mode string[]
 ---@return APMFauxKey
 function FauxKey:to_mode(mode, delay)
-    delay = delay or 100
+    delay = delay or DEFAULT_DELAY
     table.insert(self.operations, {
         event = {
             type = Events.MODE_CHANGED,
@@ -49,7 +52,7 @@ end
 ---@param keys string
 ---@return APMFauxKey
 function FauxKey:add_keys(keys, delay)
-    delay = delay or 100
+    delay = delay or DEFAULT_DELAY
     local ops = create_play_keys(keys)
     for i = 1, #ops do
         table.insert(self.operations, {
@@ -76,6 +79,7 @@ function FauxKey:play()
         local delay = op.delay
 
         vim.wait(delay)
+
         APMBussin:emit(event.type, event.value)
 
         if event.type == Events.MODE_CHANGED then
