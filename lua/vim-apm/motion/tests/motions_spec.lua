@@ -46,5 +46,4 @@ describe("state", function()
         eq(State.DONE_CONSUME, res)
         eq(nil, next)
     end)
-
 end)

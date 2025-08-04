@@ -69,7 +69,12 @@ function NetworkReporter:enable()
 end
 
 function NetworkReporter:_flush()
-    http.make_request(self.opts.uri, self.opts.port, self.opts.token, self.messages)
+    http.make_request(
+        self.opts.uri,
+        self.opts.port,
+        self.opts.token,
+        self.messages
+    )
     self.messages = {}
 end
 

@@ -97,5 +97,4 @@ describe("Stats", function()
             v = 30,
         }, stats:to_json().modes)
     end)
-
 end)

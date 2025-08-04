@@ -113,7 +113,6 @@ describe("APM", function()
         wait(2)
         eq(2, count)
         expect_sequence_2(stats)
-
     end)
 
     it("apm - file-reporter", function()
@@ -146,7 +145,9 @@ describe("APM", function()
         eq(stats_from_file, stats)
 
         apm:clear()
-        vim.wait(100, function() return false end)
+        vim.wait(100, function()
+            return false
+        end)
         apm:setup(setup_opts)
 
         link_listeners()
@@ -155,7 +156,5 @@ describe("APM", function()
         wait(1)
         eq(1, count)
         expect_sequence_3(stats)
-
     end)
-
 end)

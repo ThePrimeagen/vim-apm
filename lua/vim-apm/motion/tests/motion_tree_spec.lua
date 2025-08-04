@@ -38,5 +38,4 @@ describe("state", function()
         eq(Motions.State.DONE_CONSUME, done)
         eq(nil, next)
     end)
-
 end)

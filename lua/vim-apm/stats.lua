@@ -85,10 +85,9 @@ end
 ---@param motion APMMotionItem
 function Stats:motion(motion)
     local key = motion_parser.generate_motion_key(motion.chars)
-    self.motions[key] = self.motions[key]
-        or {
-            count = 0,
-        }
+    self.motions[key] = self.motions[key] or {
+        count = 0,
+    }
     self.motions[key].count = self.motions[key].count + 1
 end
 

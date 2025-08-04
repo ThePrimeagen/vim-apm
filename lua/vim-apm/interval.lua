@@ -28,7 +28,7 @@ function M.interval(cb, time, name)
         name = name,
         cb = cb,
         time = time,
-        next_time = next_time
+        next_time = next_time,
     })
 
     vim.defer_fn(check, time)

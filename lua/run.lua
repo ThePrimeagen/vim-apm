@@ -10,5 +10,5 @@ local apm = require("vim-apm")
 apm:setup({
     reporter = {
         type = "network",
-    }
+    },
 })
