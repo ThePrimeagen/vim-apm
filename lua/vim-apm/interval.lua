@@ -34,9 +34,7 @@ function M.interval(cb, time, name)
     vim.defer_fn(check, time)
 end
 
----@param resolution number
-function M.enable(resolution)
-    resolution = resolution or 10
+function M.enable()
     enabled = true
     intervals = {}
 end

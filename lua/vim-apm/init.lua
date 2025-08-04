@@ -8,9 +8,12 @@ local Reporter = require("vim-apm.reporter")
 local Actions = require("vim-apm.actions")
 local APMBussin = require("vim-apm.bus")
 local Interval = require("vim-apm.interval")
+local utils = require("vim-apm.utils")
 
 ---@class APMOptions
 ---@field reporter? APMReporterOptions
+---@field token_path? string
+---@field token? string
 
 ---@class Event
 ---@field buf number
@@ -39,17 +42,33 @@ end
 
 ---@param opts APMOptions
 function VimApm:setup(opts)
+    ---@type APMOptions
     opts = vim.tbl_extend("force", {}, {
         reporter = Reporter.default_options(),
     }, opts)
+
+    if opts.token_path ~= nil then
+        local ok, lines = pcall(vim.fn.readfile, opts.token_path)
+        if ok then
+            opts.token = lines[1]
+        else
+            error(
+                "vim-apm: failed to read token from file: " .. opts.token_path
+            )
+        end
+    end
+
+    if opts.token ~= nil then
+        opts.reporter.token = opts.token
+    end
 
     self:clear()
     self.enabled = true
     Interval.enable()
 
     self.reporter = Reporter.create_reporter(opts.reporter)
-    self.reporter:enable()
 
+    self.reporter:enable()
     self.actions:enable()
     self.monitor:enable()
     self.apm:enable()
