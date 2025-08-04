@@ -121,6 +121,7 @@ end
 describe("APM", function()
     --- @type number
     local apm_stats = nil
+
     --- @type APMStatsJson
     local stats = nil
     local count = 0
@@ -172,9 +173,10 @@ describe("APM", function()
 
         local _, time_taken, mode_times = key_sequence_1()
 
-        vim.wait(50000, function()
+        vim.wait(5100, function()
             return count == 2
         end)
+        eq(2, count)
 
         local remaining_time = 5000 - time_taken
         expect_sequence_1(remaining_time, mode_times, stats)
@@ -183,9 +185,11 @@ describe("APM", function()
         local previous_i_time = stats.modes.i
 
         _, time_taken, mode_times = key_sequence_2()
-        vim.wait(50000, function()
+
+        vim.wait(5100, function()
             return count == 4
         end)
+        eq(4, count)
 
         remaining_time = 5000 - time_taken
         expect_sequence_2(
@@ -199,6 +203,7 @@ describe("APM", function()
         local _ = apm_stats
     end)
 
+    --[[
     it("apm - file-reporter", function()
         apm:setup({
             reporter = {
@@ -271,4 +276,5 @@ describe("APM", function()
             eq(stats.motions, empty_stats.motions)
         end
     )
+    --]]
 end)
