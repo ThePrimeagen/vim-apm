@@ -138,9 +138,8 @@ end
 local StatsCollector = {}
 StatsCollector.__index = StatsCollector
 
----@param opts APMReporterIntervalOptions
 ---@return APMStatsCollector
-function StatsCollector.new(opts)
+function StatsCollector.new()
     local self = {
         stats = Stats.new(),
     }

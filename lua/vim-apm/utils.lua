@@ -93,7 +93,9 @@ function M.read_file(path)
     end
 
     local contents = table.concat(lines, "\n")
+    -- luacheck: push ignore
     local ok, out = pcall(vim.json.decode, contents)
+    -- luacheck: pop
     return ok, out
 end
 

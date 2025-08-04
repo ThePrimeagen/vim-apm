@@ -8,7 +8,6 @@ local Reporter = require("vim-apm.reporter")
 local Actions = require("vim-apm.actions")
 local APMBussin = require("vim-apm.bus")
 local Interval = require("vim-apm.interval")
-local utils = require("vim-apm.utils")
 
 ---@class APMOptions
 ---@field reporter? APMReporterOptions

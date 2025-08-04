@@ -2,10 +2,6 @@ local eq = assert.are.same
 local Stats = require("vim-apm.stats")
 local test_utils = require("vim-apm.tests.utils")
 
-local function score(s)
-    return math.floor(s * 100)
-end
-
 describe("Stats", function()
     local spoofer = test_utils.Spoofer.new()
 
