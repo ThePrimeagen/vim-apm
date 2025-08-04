@@ -52,8 +52,7 @@ defmodule VimApmWeb do
 
   def live_view do
     quote do
-      use Phoenix.LiveView,
-        layout: {VimApmWeb.Layouts, :app}
+      use Phoenix.LiveView
 
       unquote(html_helpers())
     end

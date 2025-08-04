@@ -32,6 +32,11 @@ defmodule VimApm.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+
+      {:oauth2, "~> 2.1"},
+      {:plug_cowboy, "~> 2.0"},
+      {:dotenvy, "~> 1.0.0"},
+
       {:phoenix, "~> 1.7.21"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.10"},

@@ -14,6 +14,12 @@ defmodule VimApmWeb.Router do
     plug :accepts, ["json"]
   end
 
+  scope "/auth", VimApmWeb do
+    pipe_through :browser
+    get "/twitch", AuthController, :request
+    get "/twitch/callback", AuthController, :callback
+  end
+
   scope "/", VimApmWeb do
     pipe_through :browser
 

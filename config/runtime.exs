@@ -1,4 +1,16 @@
 import Config
+import Dotenvy
+
+base_dir = Path.expand("./")
+source! Path.absname(".env", base_dir)
+
+if config_env() == :prod do
+else
+  config :vim_apm, :twitch_redirect_uri, "http://localhost:4000/auth/twitch/callback"
+end
+
+config :vim_apm, :client_id, env!("TWITCH_CLIENT_ID")
+config :vim_apm, :client_secret, env!("TWITCH_CLIENT_SECRET")
 
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the

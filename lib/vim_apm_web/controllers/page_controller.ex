@@ -2,8 +2,6 @@ defmodule VimApmWeb.PageController do
   use VimApmWeb, :controller
 
   def home(conn, _params) do
-    # The home page is often custom made,
-    # so skip the default app layout.
-    render(conn, :home, layout: false)
+    render(conn, :home, layout: false, current_user: nil, login_path: ~p"/auth/twitch")
   end
 end
