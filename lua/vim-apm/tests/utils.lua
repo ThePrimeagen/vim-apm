@@ -1,3 +1,4 @@
+local utils = require("vim-apm.utils")
 local M = {}
 
 M.created_files = {}
@@ -32,5 +33,44 @@ function M.create_file(name, contents, row, col)
     table.insert(M.created_files, bufnr)
     return bufnr
 end
+
+---@class Spoofer
+---@field now function
+---@field old_now function
+---@field time {now: number}
+local Spoofer = {}
+Spoofer.__index = Spoofer
+
+function Spoofer.new()
+    local old_now = utils.now
+    local time = {
+        now = 0,
+    }
+    local function spoof_now()
+        return time.now
+    end
+
+    return setmetatable({
+        now = spoof_now,
+        time = time,
+        old_now = old_now,
+    }, Spoofer)
+end
+
+function Spoofer:advance(milli)
+    self.time.now = self.time.now + milli
+end
+
+function Spoofer:reset()
+    self.time.now = 0
+    utils.now = self.old_now
+end
+
+function Spoofer:start()
+    self.time.now = 0
+    utils.now = self.now
+end
+
+M.Spoofer = Spoofer
 
 return M

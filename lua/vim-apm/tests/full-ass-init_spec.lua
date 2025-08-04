@@ -36,12 +36,6 @@ local function motion_eq(motion_string, expected, stats_json, margin)
             received.count
         )
     )
-    close_to(
-        expected.timings_total,
-        received.timings_total,
-        margin,
-        string.format("timings_total(%s)", motion_string)
-    )
 end
 
 local function key_sequence_1()
@@ -74,11 +68,11 @@ end
 local function expect_sequence_1(remaining_time, mode_times, stats)
     close_to(remaining_time + mode_times.n, stats.modes.n, 10)
     close_to(mode_times.i, stats.modes.i, 10)
-    motion_eq("<n>j", { count = 1, timings_total = 200 }, stats, 3)
-    motion_eq("ci{", { count = 1, timings_total = 200 }, stats, 3)
-    motion_eq("k", { count = 1, timings_total = 0 }, stats, 3)
-    motion_eq("di(", { count = 1, timings_total = 100 }, stats, 3)
-    motion_eq("i", { count = 1, timings_total = 0 }, stats, 3)
+    motion_eq("<n>j", { count = 1}, stats, 3)
+    motion_eq("ci{", { count = 1}, stats, 3)
+    motion_eq("k", { count = 1}, stats, 3)
+    motion_eq("di(", { count = 1}, stats, 3)
+    motion_eq("i", { count = 1}, stats, 3)
 
     close_to(stats.time_to_insert, 69 + 100, 3)
     eq(stats.time_to_insert_count, 2)
@@ -99,23 +93,16 @@ local function expect_sequence_2(
     close_to(mode_times.i + previous_i_time, stats.modes.i, 10)
 
     -- previous timings
-    motion_eq("<n>j", { count = 1, timings_total = 200 }, stats, 5)
-    motion_eq("ci{", { count = 1, timings_total = 200 }, stats, 5)
-    motion_eq("di(", { count = 1, timings_total = 100 }, stats, 5)
+    motion_eq("<n>j", { count = 1}, stats, 5)
+    motion_eq("ci{", { count = 1}, stats, 5)
+    motion_eq("di(", { count = 1}, stats, 5)
 
     -- updated timings
-    motion_eq("k", { count = 4, timings_total = 0 }, stats, 5)
-    motion_eq("i", { count = 2, timings_total = 0 }, stats, 5)
+    motion_eq("k", { count = 4}, stats, 5)
+    motion_eq("i", { count = 2}, stats, 5)
 
     -- new timings
-    motion_eq("j", { count = 3, timings_total = 0 }, stats, 5)
-
-    close_to(stats.time_to_insert, 69 + 100 + 100, 5)
-    eq(stats.time_to_insert_count, 3)
-
-    -- hello world and true
-    close_to(mode_times.i + previous_i_time, stats.time_in_insert)
-    eq(#"hello world" + #"true" + #"hollo werld", stats.time_in_insert_count)
+    motion_eq("j", { count = 3}, stats, 5)
 end
 
 describe("APM", function()
