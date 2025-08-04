@@ -11,6 +11,7 @@ local Memory = require("vim-apm.reporter.memory-reporter")
 ---@field type "network" | "file" | "memory"
 ---@field uri? string
 ---@field port? number only used for network
+---@field token? string only used for network
 ---@field interval_options? APMReporterIntervalOptions
 
 ---@class APMReporter
