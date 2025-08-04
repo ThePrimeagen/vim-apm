@@ -23,6 +23,7 @@ function NetworkReporter.new(opts)
 
     opts.uri = opts.uri or "127.0.0.1"
     opts.port = opts.port or 4000
+    opts.network_mode = opts.network_mode or "immediate"
 
     local self = {
         state = "stopped",
@@ -44,13 +45,17 @@ function NetworkReporter:enable()
                 type = type,
                 value = value,
             }
+
+            if self.opts.network_mode == "immediate" then
+                self:_flush()
+            end
         end
     end
 
     local function set_state(state)
         return function()
             self.apm_state = state
-            if state == "idle" then
+            if state == "idle" and self.opts.network_mode == "batch" then
                 self:_flush()
             end
         end
@@ -65,6 +70,7 @@ end
 
 function NetworkReporter:_flush()
     http.make_request(self.opts.uri, self.opts.port, self.opts.token, self.messages)
+    self.messages = {}
 end
 
 function NetworkReporter:clear()
