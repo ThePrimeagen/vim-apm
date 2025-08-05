@@ -22,6 +22,7 @@ defmodule VimApmWeb.Api.VimMessageController do
   def motions(conn, params) do
     auth = get_req_header(conn, "authorization")
 
+    IO.inspect(auth, label: "auth")
     case auth do
       ["Bearer " <> token] ->
         with nil <- Twitch.get_user_by_token(token) do

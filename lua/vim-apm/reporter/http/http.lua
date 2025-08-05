@@ -14,7 +14,7 @@ function M.make_request(uri, port, token, messages)
             if ok then
                 local http_message = {
                     "POST /api/motions HTTP/1.1",
-                    string.format("Authorization: Basic %s", token),
+                    string.format("Authorization: Bearer %s", token),
                     string.format("Host: %s:%d", uri, port),
                     "Content-Type: application/json",
                     string.format("Content-Length: %d", #to_write),
@@ -30,6 +30,8 @@ function M.make_request(uri, port, token, messages)
             err = "vim-apm failed to connect to the APM server: " .. err
         end
 
+        -- ooops...
+        client:close()
         if err ~= nil then
             -- TODO: handle error -- the one thing that has never hurt anyone...
             -- error(err)

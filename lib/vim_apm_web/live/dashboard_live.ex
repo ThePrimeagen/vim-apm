@@ -5,7 +5,7 @@ defmodule VimApmWeb.DashboardLive do
 
   def mount(%{"dashboard_id" => dashboard_id}, _session, socket) do
     case VimApm.Twitch.get_user_by_dashboard(dashboard_id) do
-      nil -> {:ok, push_redirect(socket, ~p"/")}
+      nil -> {:ok, push_navigate(socket, to: ~p"/")} # does this work with live view???
       user ->
         if connected?(socket) do
           Phoenix.PubSub.subscribe(VimApm.PubSub, @topic)
@@ -14,7 +14,7 @@ defmodule VimApmWeb.DashboardLive do
     end
   end
 
-  def handle_info({:motion, motion}, socket) do
+  def handle_info({:motion, _motion}, socket) do
     {:noreply, assign(socket, motion_count: socket.assigns.motion_count + 1)}
   end
 end

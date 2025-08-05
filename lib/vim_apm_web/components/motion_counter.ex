@@ -1,10 +1,13 @@
 defmodule VimApmWeb.Components.MotionCounter do
-  use Phoenix.Component
+  use Phoenix.LiveComponent
 
   def render(assigns) do
     ~H"""
-    TEST MOTION COUNTER {assigns.motion_count}
+    <div>
+      WHAT IS THIS REACT??? {assigns.motion_count}
+    </div>
     """
   end
+
 end
 
