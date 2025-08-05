@@ -41,6 +41,15 @@ defmodule VimApm.Twitch do
     VimApm.Repo.one(from t in VimApm.Tokens.Token, where: t.twitch_id == ^twitch_id)
   end
 
+  def get_user_by_dashboard(dashboard_id) do
+    query = from t in VimApm.Tokens.Token,
+      where: t.dashboard == ^dashboard_id,
+      join: u in VimApm.Users.User, on: t.twitch_id == u.twitch_id,
+      select: u
+
+    VimApm.Repo.one(query)
+  end
+
   def reset_token(%{twitch_id: twitch_id}) do
     VimApm.Repo.delete_all(from t in VimApm.Tokens.Token, where: t.twitch_id == ^twitch_id)
     create_token(twitch_id)

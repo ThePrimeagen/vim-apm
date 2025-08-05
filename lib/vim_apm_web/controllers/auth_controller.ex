@@ -9,9 +9,10 @@ defmodule VimApmWeb.AuthController do
 
   def reset_token(conn, _params) do
     user = get_session(conn, :user)
+
+    # apparently errors are just not possible?  this ... seems unlikely
     case VimApm.Twitch.reset_token(user) do
-      {:ok, _} -> conn |> put_flash(:info, "Token Reset!") |> redirect(to: "/")
-      {:error, _} -> conn |> put_flash(:error, "Error Resetting Token!") |> redirect(to: "/")
+      {:ok, _, _} -> conn |> put_flash(:info, "Token Reset!") |> redirect(to: "/")
     end
   end
 
