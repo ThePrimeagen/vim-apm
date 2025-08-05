@@ -15,10 +15,11 @@ defmodule VimApmWeb.DashboardLive do
   end
 
   def handle_info({:motion, _motion}, socket) do
-    {:ok, socket
+    {:noreply, socket
       |> assign(motion_count: socket.assigns.motion_count + 1)
-      |> push_event(@topic, %{motion_count: socket.assigns.motion_count})
+      |> push_event(@topic, %{type: "motion", motion_count: socket.assigns.motion_count})
     }
   end
+
 end
 
