@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+cloudflared tunnel run vim-apm
+
+

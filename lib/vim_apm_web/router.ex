@@ -26,6 +26,12 @@ defmodule VimApmWeb.Router do
     get "/", PageController, :home
   end
 
+  scope "/api", VimApmWeb.Api do
+    pipe_through :api
+
+    post "/motions", VimMessageController, :motions
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", VimApmWeb do
   #   pipe_through :api

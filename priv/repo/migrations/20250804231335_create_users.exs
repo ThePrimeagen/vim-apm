@@ -6,9 +6,8 @@ defmodule VimApm.Repo.Migrations.CreateUsers do
       add :twitch_id, :string
       add :display_name, :string
 
-      create index(:users, [:twitch_id])
-
       timestamps(type: :utc_datetime)
     end
+    create index(:users, [:twitch_id])
   end
 end
