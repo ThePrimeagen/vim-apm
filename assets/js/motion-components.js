@@ -3,17 +3,15 @@ import { display_ui_motion, set_text_class } from "./utils";
 // I can make these into something a bit more config driven later...
 // oh
 const level_config = {
+    time_to_stop_animation: 1000 * 3,
     time_before_reset: 1000 * 15,
     time_to_display_motion: 1000 * 3,
     motion_sizes: new Map([
-        [1, "text-4xl"],
-        [2, "text-3xl"],
-        [3, "text-2xl"],
-        [4, "text-xl"],
-        [5, "text-lg"],
-        [6, "text-base"],
-        [7, "text-sm"],
-        [8, "text-xs"],
+        [3, "text-xl"],
+        [4, "text-lg"],
+        [5, "text-base"],
+        [6, "text-sm"],
+        [7, "text-xs"],
     ]),
 };
 
@@ -89,13 +87,23 @@ class MotionCounter extends HTMLElement {
   .bounce-vibrate {
     animation: bounce-vibrate 0.4s ease-in-out infinite;
   }
+
+  #last-motion {
+      font-size: 100%
+  }
 </style>
 
-<div id="motion-container" class="p-3 flex w-[25%] h-[3rem] gap-2 bg-slate-900 rounded-t-lg items-center">
-    <div id="level" class="w-[20%] text-center text-white text-4xl">1</div>
-    <div id="last-motion" class="w-[30%] text-center text-white throb-target text-4xl">w</div>
-    <div class="w-[50%] bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-      <div id="motion-counter-progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 45%"></div>
+<div class="p-5">
+    <div id="motion-container" class="p-3 flex w-full h-[4rem] gap-2 bg-slate-900 rounded-md items-center">
+        <div id="level" class="w-[20%] text-center text-white text-4xl">1</div>
+        <div class="flex-1 flex flex-col justify-between text-white h-[3rem] w-full">
+            <div class="flex-1  text-center text-white throb-target text-2xl">
+                <span id="last-motion">w</span>
+            </div>
+            <div class="bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+              <div id="motion-counter-progress-bar" class="bg-blue-600 h-full rounded-full" style="width: 45%"></div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -111,6 +119,11 @@ class MotionCounter extends HTMLElement {
         this.monitor();
     }
 
+    clear_animations() {
+        this.motion_container.classList.remove("vibrate");
+        this.motion_container.classList.remove("bounce-vibrate");
+    }
+
     update_display() {
         this.progress.style.width = `${Math.floor(this.level.progress * 100)}%`;
         this.level_display.innerHTML = `${this.level.level}`;
@@ -124,9 +137,12 @@ class MotionCounter extends HTMLElement {
             );
 
             this.last_motion.innerHTML = display
-            set_text_class(this.last_motion, level_config.motion_sizes, display);
         } else {
             this.last_motion.innerHTML = "";
+        }
+
+        if (Date.now() - this.level.last_update > level_config.time_to_stop_animation) {
+            this.clear_animations();
         }
     }
 
@@ -138,8 +154,7 @@ class MotionCounter extends HTMLElement {
             last_set_progress: 0,
             last_motion_executed: { chars: "", count: 0 },
         };
-        this.motion_container.classList.remove("vibrate");
-        this.motion_container.classList.remove("bounce-vibrate");
+        this.clear_animations();
     }
 
     /** @param {APMVimMotion} motion */
