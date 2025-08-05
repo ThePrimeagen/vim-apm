@@ -88,20 +88,22 @@ class MotionCounter extends HTMLElement {
     animation: bounce-vibrate 0.4s ease-in-out infinite;
   }
 
-  #last-motion {
-      font-size: 100%
+  html {
+      font-size: 250%
   }
 </style>
 
 <div class="p-5">
-    <div id="motion-container" class="p-3 flex w-full h-[4rem] gap-2 bg-slate-900 rounded-md items-center">
-        <div id="level" class="w-[20%] text-center text-white text-4xl">1</div>
-        <div class="flex-1 flex flex-col justify-between text-white h-[3rem] w-full">
-            <div class="flex-1  text-center text-white throb-target text-2xl">
-                <span id="last-motion">w</span>
-            </div>
-            <div class="bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-              <div id="motion-counter-progress-bar" class="bg-blue-600 h-full rounded-full" style="width: 45%"></div>
+    <div id="motion-container" class="relative pl-3 pr-3 flex w-full h-[3rem] gap-2 bg-slate-900 rounded-md">
+        <div id="level" class="w-[20%] text-center text-white text-3xl">1</div>
+        <div class="flex-1  text-center text-white throb-target text-3xl">
+            <span id="last-motion">w</span>
+        </div>
+        <div class="h-2.5">&nbsp;</div>
+
+        <div class="absolute bottom-0 left-0 right-0">
+            <div class="bg-gray-200 rounded-b-md h-2.5 dark:bg-gray-700">
+              <div id="motion-counter-progress-bar" class="bg-blue-600 h-full rounded-b-md" style="width: 45%"></div>
             </div>
         </div>
     </div>
@@ -126,7 +128,12 @@ class MotionCounter extends HTMLElement {
 
     update_display() {
         this.progress.style.width = `${Math.floor(this.level.progress * 100)}%`;
-        this.level_display.innerHTML = `${this.level.level}`;
+
+        if (this.level.level === 1 && this.level.progress <= 0) {
+            this.level_display.innerHTML = ``;
+        } else {
+            this.level_display.innerHTML = `${this.level.level}`;
+        }
 
         if (
             Date.now() - this.level.last_update <
