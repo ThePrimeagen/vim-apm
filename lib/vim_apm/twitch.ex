@@ -4,11 +4,17 @@
 defmodule VimApm.Twitch do
   import Ecto.Query, warn: false
 
+  defp create_token(twitch_id) do
+    token = Ecto.UUID.generate()
+    dashboard = Ecto.UUID.generate()
+    VimApm.Tokens.create_token(%{twitch_id: twitch_id, token: token, dashboard: dashboard})
+
+    {:ok, token, dashboard}
+  end
+
   defp create_user(%{id: twitch_id, display_name: display_name}) do
     {:ok, user} = VimApm.Users.create_user(%{twitch_id: twitch_id, display_name: display_name})
-    uuid = Ecto.UUID.generate()
-
-    VimApm.Tokens.create_token(%{twitch_id: twitch_id, token: uuid})
+    create_token(twitch_id)
 
     user
   end
@@ -36,10 +42,8 @@ defmodule VimApm.Twitch do
   end
 
   def reset_token(%{twitch_id: twitch_id}) do
-    uuid = Ecto.UUID.generate()
     VimApm.Repo.delete_all(from t in VimApm.Tokens.Token, where: t.twitch_id == ^twitch_id)
-    VimApm.Tokens.create_token(%{twitch_id: twitch_id, token: uuid})
-    {:ok, uuid}
+    create_token(twitch_id)
   end
 
 end
