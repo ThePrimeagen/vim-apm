@@ -7,6 +7,14 @@ defmodule VimApmWeb.AuthController do
     redirect(conn, external: Twitch.authorize_url!())
   end
 
+  def reset_token(conn, _params) do
+    user = get_session(conn, :user)
+    case VimApm.Twitch.reset_token(user) do
+      {:ok, _} -> conn |> put_flash(:info, "Token Reset!") |> redirect(to: "/")
+      {:error, _} -> conn |> put_flash(:error, "Error Resetting Token!") |> redirect(to: "/")
+    end
+  end
+
   def callback(conn, %{"code" => code} = out) do
     IO.inspect(out, label: "twitch callback")
     client = Twitch.get_token!(code: code)

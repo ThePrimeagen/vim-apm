@@ -1,6 +1,6 @@
 <.flash_group flash={@flash} />
 <%= if @current_user do %>
-  OH MY GOSH YOU ARE LOGGED in...
+  Reset your token: <.link href={~p"/auth/reset-token"}>Reset Token</.link>
 <% else %>
   <div class="container">
 You need to login: <.link href={@login_path}>Login To Twitch</.link>

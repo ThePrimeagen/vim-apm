@@ -18,6 +18,7 @@ defmodule VimApmWeb.Router do
     pipe_through :browser
     get "/twitch", AuthController, :request
     get "/twitch/callback", AuthController, :callback
+    get "/reset-token", AuthController, :reset_token
   end
 
   scope "/", VimApmWeb do

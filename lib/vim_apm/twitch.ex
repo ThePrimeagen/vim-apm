@@ -35,4 +35,11 @@ defmodule VimApm.Twitch do
     VimApm.Repo.one(from t in VimApm.Tokens.Token, where: t.twitch_id == ^twitch_id)
   end
 
+  def reset_token(%{twitch_id: twitch_id}) do
+    uuid = Ecto.UUID.generate()
+    VimApm.Repo.delete_all(from t in VimApm.Tokens.Token, where: t.twitch_id == ^twitch_id)
+    VimApm.Tokens.create_token(%{twitch_id: twitch_id, token: uuid})
+    {:ok, uuid}
+  end
+
 end

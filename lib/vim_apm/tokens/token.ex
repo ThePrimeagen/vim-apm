@@ -5,6 +5,7 @@ defmodule VimApm.Tokens.Token do
   schema "tokens" do
     field :token, :string
     field :twitch_id, :string
+    field :dashboard, :string
 
     timestamps(type: :utc_datetime)
   end
@@ -12,7 +13,7 @@ defmodule VimApm.Tokens.Token do
   @doc false
   def changeset(token, attrs) do
     token
-    |> cast(attrs, [:twitch_id, :token])
-    |> validate_required([:twitch_id, :token])
+    |> cast(attrs, [:twitch_id, :token, :dashboard])
+    |> validate_required([:twitch_id, :token, :dashboard])
   end
 end
