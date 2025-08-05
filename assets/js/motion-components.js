@@ -75,19 +75,19 @@ class MotionCounter extends HTMLElement {
   }
 
   /* Bounce with a bit of rotate */
-  @keyframes bounce-twist {
-    0%   { transform: scale(1) rotate(0deg); }
-    30%  { transform: scale(1.05) rotate(1deg); }
-    60%  { transform: scale(0.97) rotate(-1deg); }
-    100% { transform: scale(1) rotate(0deg); }
+  @keyframes bounce-vibrate {
+    0%, 100% { transform: translate(0); rotate(0deg); }
+    25% { transform: translate(-1px, 1px); rotate(1deg); }
+    50% { transform: translate(1px, -1px); rotate(0deg); }
+    75% { transform: translate(-1px, -1px); rotate(-1deg); }
   }
 
   .vibrate {
     animation: vibrate 0.2s linear infinite;
   }
 
-  .bounce-twist {
-    animation: bounce-twist 0.4s ease-in-out;
+  .bounce-vibrate {
+    animation: bounce-vibrate 0.4s ease-in-out infinite;
   }
 </style>
 
@@ -138,6 +138,8 @@ class MotionCounter extends HTMLElement {
             last_set_progress: 0,
             last_motion_executed: { chars: "", count: 0 },
         };
+        this.motion_container.classList.remove("vibrate");
+        this.motion_container.classList.remove("bounce-vibrate");
     }
 
     /** @param {APMVimMotion} motion */
@@ -164,6 +166,9 @@ class MotionCounter extends HTMLElement {
 
         if (this.level.level > 3) {
             this.reanimate(this.motion_container, "vibrate");
+        }
+        if (this.level.level > 5) {
+            this.reanimate(this.motion_container, "bounce-vibrate");
         }
     }
 
