@@ -13,7 +13,7 @@ defmodule VimApmWeb.Api.VimMessageController do
   defp handle_motions(conn, user) do
     IO.inspect("handle_motions: for user #{inspect(user)}", label: "handle_motions")
     # we are currently not doing anything with the motions...
-    Phoenix.PubSub.broadcast(VimApm.PubSub, @topic, {:message, "hello"})
+    Phoenix.PubSub.broadcast(VimApm.PubSub, @topic, {:motion, "hello"})
     conn
     |> put_status(200)
     |> json(%{message: "ok"})
