@@ -37,6 +37,9 @@ class MotionCounter extends HTMLElement {
     last_motion;
 
     /** @type {HTMLElement} */
+    motion_container;
+
+    /** @type {HTMLElement} */
     level_display;
 
     constructor() {
@@ -62,9 +65,33 @@ class MotionCounter extends HTMLElement {
     80%  { transform: scale(0.98); }   /* Undershoot */
     100% { transform: scale(1); }      /* Settle back */
   }
+
+  /* Small vibrate/shake */
+  @keyframes vibrate {
+    0%, 100% { transform: translate(0); }
+    25% { transform: translate(-1px, 1px); }
+    50% { transform: translate(1px, -1px); }
+    75% { transform: translate(-1px, -1px); }
+  }
+
+  /* Bounce with a bit of rotate */
+  @keyframes bounce-twist {
+    0%   { transform: scale(1) rotate(0deg); }
+    30%  { transform: scale(1.05) rotate(1deg); }
+    60%  { transform: scale(0.97) rotate(-1deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
+  .vibrate {
+    animation: vibrate 0.2s linear infinite;
+  }
+
+  .bounce-twist {
+    animation: bounce-twist 0.4s ease-in-out;
+  }
 </style>
 
-<div class="p-3 flex w-[25%] h-[3rem] gap-2 bg-slate-900 rounded-t-lg items-center">
+<div id="motion-container" class="p-3 flex w-[25%] h-[3rem] gap-2 bg-slate-900 rounded-t-lg items-center">
     <div id="level" class="w-[20%] text-center text-white text-4xl">1</div>
     <div id="last-motion" class="w-[30%] text-center text-white throb-target text-4xl">w</div>
     <div class="w-[50%] bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
@@ -78,6 +105,7 @@ class MotionCounter extends HTMLElement {
         this.progress = this.querySelector("#motion-counter-progress-bar");
         this.level_display = this.querySelector("#level");
         this.last_motion = this.querySelector("#last-motion");
+        this.motion_container = this.querySelector("#motion-container");
 
         this.setupHandlers();
         this.monitor();
@@ -133,7 +161,20 @@ class MotionCounter extends HTMLElement {
                 count: 1,
             };
         }
-        console.log("motion", this.level.last_motion_executed);
+
+        if (this.level.level > 3) {
+            this.reanimate(this.motion_container, "vibrate");
+        }
+    }
+
+    /**
+     * @param {HTMLElement} element
+     * @param {string} class_name
+     * */
+    reanimate(element, class_name) {
+        element.classList.remove(class_name);
+        void element.offsetWidth;
+        element.classList.add(class_name);
     }
 
     /** @param {APMVimWrite} write */
@@ -144,13 +185,10 @@ class MotionCounter extends HTMLElement {
 
     /** @param {APMStatsJson} msg */
     handle_message(msg) {
-        this.throbber.classList.remove("throb");
-        void this.throbber.offsetWidth;
-        this.throbber.classList.add("throb");
-
         // TODO: how evil?
         // @ts-ignore oh... why have i done this to myself?
         this[`handle_${msg.type}`](msg);
+        this.reanimate(this.throbber, "throb");
     }
 
     setupHandlers() {
