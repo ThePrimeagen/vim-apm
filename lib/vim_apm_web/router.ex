@@ -32,7 +32,7 @@ defmodule VimApmWeb.Router do
   scope "/api", VimApmWeb.Api do
     pipe_through :api
 
-    post "/motions", VimMessageController, :motions
+    post "/vim-message", VimMessageController, :message
   end
 
   # Other scopes may use custom stacks.

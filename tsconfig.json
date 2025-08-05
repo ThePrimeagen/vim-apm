@@ -11,14 +11,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "**/*.js",
-    "**/*.mjs",
-    "global.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build"
-  ]
+  "include": ["**/*.js", "**/*.mjs", "**/*.ts", "global.d.ts"],
+  "exclude": ["node_modules", "dist", "build"]
 }

@@ -13,7 +13,7 @@ function M.make_request(uri, port, token, messages)
             local ok, to_write = pcall(vim.json.encode, messages)
             if ok then
                 local http_message = {
-                    "POST /api/motions HTTP/1.1",
+                    "POST /api/vim-message HTTP/1.1",
                     string.format("Authorization: Bearer %s", token),
                     string.format("Host: %s:%d", uri, port),
                     "Content-Type: application/json",
