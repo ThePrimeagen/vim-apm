@@ -13,7 +13,7 @@ function M.make_request(uri, port, token, messages)
             local ok, to_write = pcall(vim.json.encode, messages)
             if ok then
                 local http_message = {
-                    "POST /stats HTTP/1.1",
+                    "POST /api/motions HTTP/1.1",
                     string.format("Authorization: Basic %s", token),
                     string.format("Host: %s:%d", uri, port),
                     "Content-Type: application/json",
@@ -31,7 +31,8 @@ function M.make_request(uri, port, token, messages)
         end
 
         if err ~= nil then
-            error(err)
+            -- TODO: handle error -- the one thing that has never hurt anyone...
+            -- error(err)
         end
     end)
 end

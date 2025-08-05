@@ -8,7 +8,6 @@ local http = require("vim-apm.reporter.http.http")
 ---@field close fun(self: UVTcp): nil
 
 ---@class AMPNetworkReporter : APMReporter
----@field state "stopped" | "connecting" | "connected" | "error"
 ---@field apm_state "idle" | "busy"
 ---@field messages {type: "motion" | "write" | "buf_enter", value: any}[]
 ---@field opts APMReporterOptions
@@ -26,7 +25,6 @@ function NetworkReporter.new(opts)
     opts.network_mode = opts.network_mode or "immediate"
 
     local self = {
-        state = "stopped",
         messages = {},
         opts = opts,
     }
@@ -35,12 +33,9 @@ function NetworkReporter.new(opts)
 end
 
 function NetworkReporter:enable()
+    print("network reporter enabled")
     local function store_event(type)
         return function(value)
-            if self.state == "error" or self.state == "stopped" then
-                return
-            end
-
             self.messages[#self.messages + 1] = {
                 type = type,
                 value = value,
@@ -69,7 +64,7 @@ function NetworkReporter:enable()
 end
 
 function NetworkReporter:_flush()
-    http.make_request(
+    pcall(http.make_request,
         self.opts.uri,
         self.opts.port,
         self.opts.token,

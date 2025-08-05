@@ -33,6 +33,7 @@ end
 ---@param opts APMReporterOptions
 ---@return APMReporter
 local function create_reporter(opts)
+    print("creating reporter", vim.inspect(opts))
     if opts.type == "file" then
         if opts.uri == nil then
             opts.uri = default_data_path

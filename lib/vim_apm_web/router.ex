@@ -26,7 +26,7 @@ defmodule VimApmWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
-    get "/dashboard/:dashboard_id", DashboardController, :show
+    live "/dashboard/:dashboard_id", DashboardLive
   end
 
   scope "/api", VimApmWeb.Api do
