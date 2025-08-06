@@ -155,7 +155,9 @@ class MotionCounter extends HTMLElement {
             this.last_motion.innerHTML = "";
         }
 
-        this.apm.innerHTML = this.level.apm > 0 ? `${this.level.apm}` : ""
+        const apm_string = this.level.apm > 0 ? `${this.level.apm}` : ""
+        this.apm.innerHTML = apm_string
+        console.log("APM", apm_string)
 
         if (Date.now() - this.level.last_update > level_config.time_to_stop_animation) {
             this.clear_animations();
@@ -163,6 +165,7 @@ class MotionCounter extends HTMLElement {
     }
 
     reset_level() {
+
         this.level = {
             level: 1,
             apm: 0,
@@ -171,6 +174,7 @@ class MotionCounter extends HTMLElement {
             last_set_progress: 0,
             last_motion_executed: { chars: "", count: 0 },
         };
+
         this.clear_animations();
     }
 
@@ -222,7 +226,7 @@ class MotionCounter extends HTMLElement {
 
     /** @param {APMVimApmReport} report */
     handle_apm_report(report) {
-        console.log("report", report)
+        this.level.apm = report.value
     }
 
     /** @param {APMServerMessage} msg */
