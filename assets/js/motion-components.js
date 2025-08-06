@@ -19,6 +19,7 @@ class MotionCounter extends HTMLElement {
     /** @type {Level} */
     level = {
         level: 1,
+        apm: 0,
         progress: 0,
         last_update: Date.now(),
         last_set_progress: 0,
@@ -27,6 +28,9 @@ class MotionCounter extends HTMLElement {
 
     /** @type {HTMLElement} */
     throbber;
+
+    /** @type {HTMLElement} */
+    apm;
 
     /** @type {HTMLElement} */
     progress;
@@ -96,10 +100,12 @@ class MotionCounter extends HTMLElement {
 <div class="p-5">
     <div id="motion-container" class="relative pl-3 pr-3 flex w-full h-[3rem] gap-2 bg-slate-900 rounded-md">
         <div id="level" class="w-[20%] text-center text-white text-3xl">1</div>
-        <div class="flex-1  text-center text-white throb-target text-3xl">
+        <div class="flex-1 text-center text-white throb-target text-3xl">
             <span id="last-motion">w</span>
         </div>
-        <div class="h-2.5">&nbsp;</div>
+        <div class="flex-1 text-center text-white throb-target text-3xl">
+            <span id="apm">0</span>
+        </div>
 
         <div class="absolute bottom-0 left-0 right-0">
             <div class="bg-gray-200 rounded-b-md h-2.5 dark:bg-gray-700">
@@ -116,6 +122,7 @@ class MotionCounter extends HTMLElement {
         this.level_display = this.querySelector("#level");
         this.last_motion = this.querySelector("#last-motion");
         this.motion_container = this.querySelector("#motion-container");
+        this.apm = this.querySelector("#apm");
 
         this.setupHandlers();
         this.monitor();
@@ -148,6 +155,8 @@ class MotionCounter extends HTMLElement {
             this.last_motion.innerHTML = "";
         }
 
+        this.apm.innerHTML = this.level.apm > 0 ? `${this.level.apm}` : ""
+
         if (Date.now() - this.level.last_update > level_config.time_to_stop_animation) {
             this.clear_animations();
         }
@@ -156,6 +165,7 @@ class MotionCounter extends HTMLElement {
     reset_level() {
         this.level = {
             level: 1,
+            apm: 0,
             progress: 0,
             last_update: Date.now(),
             last_set_progress: 0,
@@ -210,12 +220,24 @@ class MotionCounter extends HTMLElement {
     /** @param {APMVimBufEnter} buf_enter */
     handle_buf_enter(buf_enter) {}
 
-    /** @param {APMStatsJson} msg */
+    /** @param {APMVimApmReport} report */
+    handle_apm_report(report) {
+        console.log("report", report)
+    }
+
+    /** @param {APMServerMessage} msg */
     handle_message(msg) {
         // TODO: how evil?
         // @ts-ignore oh... why have i done this to myself?
         this[`handle_${msg.type}`](msg);
         this.reanimate(this.throbber, "throb");
+    }
+
+    /** @param {APMServerMessage[]} */
+    handle_all_messages(messages) {
+        for (const msg of messages) {
+            this.handle_message(msg);
+        }
     }
 
     setupHandlers() {
@@ -224,8 +246,11 @@ class MotionCounter extends HTMLElement {
             const details = event.detail;
 
             if (details.type === "server-message") {
-                for (const msg of details.message) {
-                    this.handle_message(msg);
+                const message = details.message
+                if (Array.isArray(message)) {
+                    this.handle_all_messages(message)
+                } else {
+                    this.handle_message(message)
                 }
             }
         });

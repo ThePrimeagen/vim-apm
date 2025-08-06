@@ -12,6 +12,7 @@ defmodule VimApmWeb.Api.VimMessageController do
 
   defp handle_message(conn, json) do
     Phoenix.PubSub.broadcast(VimApm.PubSub, @topic, {:message, json})
+
     conn
     |> put_status(200)
     |> json(%{message: "ok"})
@@ -19,7 +20,6 @@ defmodule VimApmWeb.Api.VimMessageController do
 
   def message(conn, params) do
     auth = get_req_header(conn, "authorization")
-    json = params["_json"]
 
     case auth do
       ["Bearer " <> token] ->
@@ -27,11 +27,11 @@ defmodule VimApmWeb.Api.VimMessageController do
           unauthorized(conn)
         else
           user ->
-            handle_message(conn, json)
+            handle_message(conn, params)
         end
+
       _ ->
         unauthorized(conn)
     end
   end
 end
-

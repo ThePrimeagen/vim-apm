@@ -18,11 +18,16 @@ declare global {
         type: "buf_enter",
     }
 
-    type APMStatsJson = APMVimMotion | APMVimWrite | APMVimBufEnter
+    type APMVimApmReport = {
+        type: "apm_report",
+        value: number
+    }
+
+    type APMServerMessage = APMVimMotion | APMVimWrite | APMVimBufEnter | APMVimApmReport
 
     type APMEvent = {
         type: "server-message",
-        message: APMStatsJson[],
+        message: APMServerMessage[],
     }
 
     type UIMotion = {
@@ -33,6 +38,7 @@ declare global {
 
     type Level = {
         level: number,
+        apm: number,
         progress: number,
         last_update: number,
         last_set_progress: number,

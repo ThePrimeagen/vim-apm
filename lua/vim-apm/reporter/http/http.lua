@@ -3,14 +3,14 @@ local M = {}
 ---@param uri string
 ---@param port number
 ---@param token string
----@param messages APMStatsJson[]
-function M.make_request(uri, port, token, messages)
+---@param message APMStatsJson
+function M.make_request(uri, port, token, message)
     local uv = vim.loop
     local client = uv.new_tcp()
 
     client:connect(uri, port, function(err)
         if err == nil then
-            local ok, to_write = pcall(vim.json.encode, messages)
+            local ok, to_write = pcall(vim.json.encode, message)
             if ok then
                 local http_message = {
                     "POST /api/vim-message HTTP/1.1",

@@ -64,12 +64,15 @@ function NetworkReporter:enable()
 end
 
 function NetworkReporter:_flush()
-    pcall(http.make_request,
-        self.opts.uri,
-        self.opts.port,
-        self.opts.token,
-        self.messages
-    )
+    for _, message in ipairs(self.messages) do
+        pcall(http.make_request,
+            self.opts.uri,
+            self.opts.port,
+            self.opts.token,
+            message
+        )
+    end
+
     self.messages = {}
 end
 

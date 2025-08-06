@@ -46,7 +46,28 @@ defmodule VimApm.MotionTest do
 
       motion = Motion.add(motion, %{type: "motion", value: %{chars: "w3"}}, now)
       assert Motion.calculate_apm(motion) == 1.5
-
     end
+
+    test "test repeats" do
+      motion = Motion.new(max_age: 60_000)
+
+      now = 0
+      motion = Motion.add(motion, %{type: "motion", value: %{chars: "w"}}, now)
+      assert Motion.calculate_apm(motion) == 1
+      assert motion.length == 1
+
+      motion = Motion.add(motion, %{type: "motion", value: %{chars: "w"}}, now)
+      assert Motion.calculate_apm(motion) == 1.9
+      assert motion.length == 2
+
+      motion = Motion.add(motion, %{type: "motion", value: %{chars: "w"}}, now)
+      assert Motion.calculate_apm(motion) == 2.7
+      assert motion.length == 3
+
+      motion = Motion.add(motion, %{type: "motion", value: %{chars: "w"}}, now)
+      assert Motion.calculate_apm(motion) == 3.4
+      assert motion.length == 4
+    end
+
   end
 end

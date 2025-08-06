@@ -15,28 +15,28 @@ defmodule VimApm.Motion do
 
   def calculate_apm(motion) do
     minutes = motion.max_age / 60_000.0
-    motion.apm / minutes
+    Float.round(motion.apm / minutes, 2)
   end
 
-  defp get_motion_count(motion, chars) do
-    case Map.get(motion.motions, chars) do
-      nil -> 1
-      count -> count + 1
-    end
-  end
-
-  defp get_apm(_motion, _chars) do
-    1
+  defp get_apm(motion, chars) do
+    count = Map.get(motion.motions, chars, 0) * 0.1
+    max(1 - count, 0)
   end
 
   defp remove_old(motion, now) do
     with {:value, front} <- :queue.peek(motion.stats) do
       if now - front.time > motion.max_age do
+
+        # there has to be a better way of doing this...
+        count = Map.get(motion.motions, front.value, 1) - 1
+        motions = Map.put(motion.motions, front.value, count)
+
         motion = %VimApm.Motion{
           motion
           | stats: :queue.drop(motion.stats),
             length: motion.length - 1,
-            apm: motion.apm - front.apm
+            apm: motion.apm - front.apm,
+            motions: motions
         }
 
         remove_old(motion, now)
@@ -51,22 +51,22 @@ defmodule VimApm.Motion do
   def add(motion, vim_message, now) do
     motion =
       case vim_message do
-        %{type: "motion", value: %{chars: chars}} ->
-          motions = Map.put(motion.motions, chars, get_motion_count(motion, chars))
+        %{"type" => "motion", "value" => %{"chars" => chars}} ->
+          motions = Map.put(motion.motions, chars, Map.get(motion.motions, chars, 0) + 1)
           apm = get_apm(motion, chars)
 
-          remove_old(%VimApm.Motion{
+          %VimApm.Motion{
             motion
             | stats: :queue.in(%Stat{time: now, type: :motion, value: chars, apm: apm}, motion.stats),
               motions: motions,
               apm: motion.apm + apm,
               length: motion.length + 1
-          }, now)
+          }
 
-        %{type: "write"} ->
+        %{"type" => "write"} ->
           :queue.in(%Stat{time: now, type: :write, value: ""}, motion.stats)
 
-        %{type: "buf_enter"} ->
+        %{"type" => "buf_enter"} ->
           :queue.in(%Stat{time: now, type: :write, value: ""}, motion.stats)
 
         _ ->
