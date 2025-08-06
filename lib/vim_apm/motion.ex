@@ -26,7 +26,6 @@ defmodule VimApm.Motion do
   defp remove_old(motion, now) do
     with {:value, front} <- :queue.peek(motion.stats) do
       if now - front.time > motion.max_age do
-
         # there has to be a better way of doing this...
         count = Map.get(motion.motions, front.value, 1) - 1
         motions = Map.put(motion.motions, front.value, count)
@@ -49,30 +48,36 @@ defmodule VimApm.Motion do
   end
 
   def add(motion, vim_message, now) do
-    motion =
-      case vim_message do
-        %{"type" => "motion", "value" => %{"chars" => chars}} ->
-          motions = Map.put(motion.motions, chars, Map.get(motion.motions, chars, 0) + 1)
-          apm = get_apm(motion, chars)
+    case vim_message do
+      %{"type" => "motion", "value" => %{"chars" => chars}} ->
+        motions = Map.put(motion.motions, chars, Map.get(motion.motions, chars, 0) + 1)
+        apm = get_apm(motion, chars)
 
-          %VimApm.Motion{
-            motion
-            | stats: :queue.in(%Stat{time: now, type: :motion, value: chars, apm: apm}, motion.stats),
-              motions: motions,
-              apm: motion.apm + apm,
-              length: motion.length + 1
-          }
+        motion = %VimApm.Motion{
+          motion
+          | stats:
+              :queue.in(%Stat{time: now, type: :motion, value: chars, apm: apm}, motion.stats),
+            motions: motions,
+            apm: motion.apm + apm,
+            length: motion.length + 1
+        }
 
-        %{"type" => "write"} ->
-          :queue.in(%Stat{time: now, type: :write, value: ""}, motion.stats)
+        remove_old(motion, now)
 
-        %{"type" => "buf_enter"} ->
-          :queue.in(%Stat{time: now, type: :write, value: ""}, motion.stats)
+      %{"type" => "write"} ->
+        %VimApm.Motion{
+          motion
+          | stats: :queue.in(%Stat{time: now, type: :write, value: ""}, motion.stats)
+        }
 
-        _ ->
-          IO.inspect(vim_message, label: "unknown vim message")
-      end
+      %{"type" => "buf_enter"} ->
+        %VimApm.Motion{
+          motion
+          | stats: :queue.in(%Stat{time: now, type: :write, value: ""}, motion.stats)
+        }
 
-    remove_old(motion, now)
+      _ ->
+        IO.inspect(vim_message, label: "unknown vim message")
+    end
   end
 end
