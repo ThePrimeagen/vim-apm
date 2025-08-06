@@ -3,7 +3,12 @@ defmodule VimApm.Motion.Stat do
 end
 
 defmodule VimApm.Motion do
-  defstruct stats: :queue.new(), max_age: 60 * 1000, motions: %{}, apm: 0, length: 0
+  defstruct last_motions: :queue.new(),
+            stats: :queue.new(),
+            max_age: 60 * 1000,
+            motions: %{},
+            apm: 0,
+            length: 0
 
   alias VimApm.Motion.Stat
 
@@ -19,8 +24,18 @@ defmodule VimApm.Motion do
   end
 
   defp get_apm(motion, chars) do
-    count = Map.get(motion.motions, chars, 0) * 0.1
-    max(1 - count, 0)
+    in_window = Map.get(motion.motions, chars, 0)
+    last_four = :queue.fold(fn item, acc ->
+      if item == chars do
+        acc + 1
+      else
+        acc
+      end
+    end, 0, motion.last_motions)
+
+    IO.inspect("last_four #{last_four * 0.25}", label: "get_apm")
+    reduction = in_window * 0.01 + last_four * 0.25
+    max(1 - reduction, 0.01)
   end
 
   defp remove_old(motion, now) do
@@ -53,13 +68,20 @@ defmodule VimApm.Motion do
         motions = Map.put(motion.motions, chars, Map.get(motion.motions, chars, 0) + 1)
         apm = get_apm(motion, chars)
 
+        last_motions = :queue.in(chars, motion.last_motions)
+
+        if :queue.len(last_motions) > Application.fetch_env!(:vim_apm, :motion_last_few) do
+          :queue.drop(last_motions)
+        end
+
         motion = %VimApm.Motion{
           motion
           | stats:
               :queue.in(%Stat{time: now, type: :motion, value: chars, apm: apm}, motion.stats),
             motions: motions,
             apm: motion.apm + apm,
-            length: motion.length + 1
+            length: motion.length + 1,
+            last_motions: last_motions
         }
 
         remove_old(motion, now)
@@ -76,6 +98,9 @@ defmodule VimApm.Motion do
           | stats: :queue.in(%Stat{time: now, type: :write, value: ""}, motion.stats)
         }
 
+      %{"type" => "apm_state_change", "value" => value} ->
+          IO.inspect(value, label: "apm_state_change")
+          motion
       _ ->
         IO.inspect(vim_message, label: "unknown vim message")
     end

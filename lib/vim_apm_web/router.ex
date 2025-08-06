@@ -26,6 +26,7 @@ defmodule VimApmWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/stats", StatsController, :index
     live "/dashboard/:dashboard_id", DashboardLive
   end
 

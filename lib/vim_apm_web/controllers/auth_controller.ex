@@ -40,10 +40,11 @@ defmodule VimApmWeb.AuthController do
 
     IO.inspect(user, label: "twitch user information")
 
-    user = VimApm.Twitch.get_user(user)
+    {user, token, dashboard} = VimApm.Twitch.get_user(user)
 
     conn
     |> put_session(:user, user)
+    |> put_session(:tokens, %{token: token, dashboard: dashboard})
     |> redirect(to: "/")
   end
 

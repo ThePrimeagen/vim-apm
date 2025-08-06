@@ -114,7 +114,6 @@ class MotionCounter extends HTMLElement {
         </div>
     </div>
 </div>
-
     `;
 
         this.throbber = this.querySelector(".throb-target");

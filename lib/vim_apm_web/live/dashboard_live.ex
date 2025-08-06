@@ -27,7 +27,6 @@ defmodule VimApmWeb.DashboardLive do
     motion = socket.assigns.motion
     motion = Motion.add(motion, message, System.system_time(:millisecond))
 
-    IO.inspect("adding #{inspect(message)} -- length #{motion.length} raw_apm #{motion.apm} calculated_apm #{inspect(Motion.calculate_apm(motion))}", label: "DashboardLive#handle_info")
     {:noreply,
      socket
      |> assign(motion_count: socket.assigns.motion_count + 1)
@@ -38,8 +37,6 @@ defmodule VimApmWeb.DashboardLive do
   def handle_info(:tick, socket) do
     motion = socket.assigns.motion
     apm = Motion.calculate_apm(motion)
-
-    IO.inspect("APM: #{apm}, length: #{motion.length} pid: #{inspect(self())}", label: "Dashboard#apm-report")
 
     {:noreply,
      socket

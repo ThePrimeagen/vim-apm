@@ -1,8 +1,12 @@
 <.flash_group flash={@flash} />
-<%= if @current_user do %>
-  Reset your token: <.link href={~p"/auth/reset-token"}>Reset Token</.link>
+<%= if @current_user && @tokens do %>
+  <div class="flex flex-col">
+    <div>Reset your token: <.link class="text-blue-600 hover:text-blue-700" href={~p"/auth/reset-token"}>Reset Token</.link> </div>
+    <div><.link class="text-blue-600 hover:text-blue-700" href={~p"/dashboard/#{@tokens.dashboard}"}>Dashboard</.link></div>
+    <div><.link class="text-blue-600 hover:text-blue-700" href={~p"/stats"}>Stats</.link></div>
+  </div>
 <% else %>
   <div class="container">
-You need to login: <.link href={@login_path}>Login To Twitch</.link>
+  You need to login: <.link class="text-blue-600 hover:text-blue-700" href={@login_path}>Login To Twitch</.link>
   </div>
 <% end %>

@@ -47,9 +47,7 @@ function Motion:feedkey(key)
     end
 
     while true do
-        if self.curr == nil then
-            error("infalible: curr is nil")
-        end
+        assert(self.curr ~= nil, "infalible: curr is nil")
 
         -- how the hell do i convert that?
 

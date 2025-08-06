@@ -7,12 +7,13 @@ source! Path.absname(".env", base_dir)
 if config_env() == :prod do
   config :vim_apm, :twitch_redirect_uri, "https://vim-apm.theprimeagen.com/auth/twitch/callback"
 else
-  config :vim_apm, :twitch_redirect_uri, "https://vim-apm.theprimeagen.com/auth/twitch/callback"
+  config :vim_apm, :twitch_redirect_uri, "http://localhost:4000/auth/twitch/callback"
 end
 
 config :vim_apm, :client_id, env!("TWITCH_CLIENT_ID")
 config :vim_apm, :client_secret, env!("TWITCH_CLIENT_SECRET")
 config :ecto_sql, log: true
+config :vim_apm, :motion_last_few, 3
 
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the
@@ -35,45 +36,36 @@ if System.get_env("PHX_SERVER") do
 end
 
 if config_env() == :prod do
-  database_path =
-    System.get_env("DATABASE_PATH") ||
-      raise """
-      environment variable DATABASE_PATH is missing.
-      For example: /etc/vim_apm/vim_apm.db
-      """
-
+  # Configure your database
   config :vim_apm, VimApm.Repo,
-    database: database_path,
-    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "5")
-
-  # The secret key base is used to sign/encrypt cookies and other secrets.
-  # A default value is used in config/dev.exs and config/test.exs but you
-  # want to use a different value for prod and you most likely don't want
-  # to check this value into version control, so we use an environment
-  # variable instead.
-  secret_key_base =
-    System.get_env("SECRET_KEY_BASE") ||
-      raise """
-      environment variable SECRET_KEY_BASE is missing.
-      You can generate one by calling: mix phx.gen.secret
-      """
+    database: Path.expand("../vim_apm_dev.db", __DIR__),
+    pool_size: 5,
+    stacktrace: true,
+    show_sensitive_data_on_connection_error: true
 
   host = System.get_env("PHX_HOST") || "example.com"
   port = String.to_integer(System.get_env("PORT") || "4000")
 
-  config :vim_apm, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
-
+  # For development, we disable any cache and enable
+  # debugging and code reloading.
+  #
+  # The watchers configuration can be used to run external
+  # watchers to your application. For example, we can use it
+  # to bundle .js and .css sources.
   config :vim_apm, VimApmWeb.Endpoint,
-    url: [host: host, port: 443, scheme: "https"],
-    http: [
-      # Enable IPv6 and bind on all interfaces.
-      # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
-      # See the documentation on https://hexdocs.pm/bandit/Bandit.html#t:options/0
-      # for details about using IPv6 vs IPv4 and loopback vs public addresses.
-      ip: {0, 0, 0, 0, 0, 0, 0, 0},
-      port: port
-    ],
-    secret_key_base: secret_key_base
+    # Binding to loopback ipv4 address prevents access from other machines.
+    # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
+    http: [ip: {127, 0, 0, 1}, port: 4000],
+    check_origin: false,
+    code_reloader: true,
+    debug_errors: true,
+    secret_key_base: "NZ3Fxylzll85A/19vhOL4vq5DmVyYKcP9gSbBg/rAaj7HDzhfbsfBo/SONWw18ab",
+    watchers: [
+      esbuild: {Esbuild, :install_and_run, [:vim_apm, ~w(--sourcemap=inline --watch)]},
+      tailwind: {Tailwind, :install_and_run, [:vim_apm, ~w(--watch)]}
+    ]
+
+  config :vim_apm, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   # ## SSL Support
   #

@@ -14,9 +14,9 @@ defmodule VimApm.Twitch do
 
   defp create_user(%{id: twitch_id, display_name: display_name}) do
     {:ok, user} = VimApm.Users.create_user(%{twitch_id: twitch_id, display_name: display_name})
-    create_token(twitch_id)
+    {:ok, token, dashboard} = create_token(twitch_id)
 
-    user
+    {user, token, dashboard}
   end
 
   def get_user(%{id: twitch_id} = twitch_user) do
@@ -24,7 +24,8 @@ defmodule VimApm.Twitch do
     if user == nil do
       create_user(twitch_user)
     else
-      user
+      token = VimApm.Repo.one(from t in VimApm.Tokens.Token, where: t.twitch_id == ^twitch_id)
+      {user, token.token, token.dashboard}
     end
   end
 

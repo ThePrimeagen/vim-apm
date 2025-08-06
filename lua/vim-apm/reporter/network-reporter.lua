@@ -1,6 +1,7 @@
 local bussin = require("vim-apm.bus")
 local Events = require("vim-apm.event_names")
 local http = require("vim-apm.reporter.http.http")
+local utils = require("vim-apm.utils")
 
 ---@class UVTcp
 ---@field connect fun(self: UVTcp, host: string, port: number, callback: fun(err: string | nil): nil): nil
@@ -9,6 +10,7 @@ local http = require("vim-apm.reporter.http.http")
 
 ---@class AMPNetworkReporter : APMReporter
 ---@field apm_state "idle" | "busy"
+---@field apm_state_time number
 ---@field messages {type: "motion" | "write" | "buf_enter", value: any}[]
 ---@field opts APMReporterOptions
 local NetworkReporter = {}
@@ -27,13 +29,14 @@ function NetworkReporter.new(opts)
     local self = {
         messages = {},
         opts = opts,
+        apm_state_time = utils.now(),
+        apm_state = "busy",
     }
 
     return setmetatable(self, NetworkReporter)
 end
 
 function NetworkReporter:enable()
-    print("network reporter enabled")
     local function store_event(type)
         return function(value)
             self.messages[#self.messages + 1] = {
@@ -49,8 +52,22 @@ function NetworkReporter:enable()
 
     local function set_state(state)
         return function()
+            local now = utils.now()
+            local last_state = self.apm_state
+
+            -- TODO: is there a possible to have a state change to the same previous state?
+            table.insert(self.messages, {
+                type = "apm_state_change",
+                value = {
+                    from = last_state,
+                    time = utils.now() - self.apm_state_time,
+                },
+            })
+
             self.apm_state = state
-            if state == "idle" and self.opts.network_mode == "batch" then
+            self.apm_state_time = now
+
+            if state == "idle" then
                 self:_flush()
             end
         end
@@ -65,7 +82,8 @@ end
 
 function NetworkReporter:_flush()
     for _, message in ipairs(self.messages) do
-        pcall(http.make_request,
+        pcall(
+            http.make_request,
             self.opts.uri,
             self.opts.port,
             self.opts.token,
