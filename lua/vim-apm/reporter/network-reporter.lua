@@ -2,6 +2,9 @@ local bussin = require("vim-apm.bus")
 local Events = require("vim-apm.event_names")
 local http = require("vim-apm.reporter.http.http")
 local utils = require("vim-apm.utils")
+local Interval = require("vim-apm.interval")
+local Config = require("vim-apm.config")
+local Stats = require("vim-apm.stats")
 
 ---@class UVTcp
 ---@field connect fun(self: UVTcp, host: string, port: number, callback: fun(err: string | nil): nil): nil
@@ -13,6 +16,7 @@ local utils = require("vim-apm.utils")
 ---@field apm_state_time number
 ---@field messages {type: "motion" | "write" | "buf_enter", value: any}[]
 ---@field opts APMReporterOptions
+---@field collector APMStatsCollector
 local NetworkReporter = {}
 NetworkReporter.__index = NetworkReporter
 
@@ -31,6 +35,7 @@ function NetworkReporter.new(opts)
         opts = opts,
         apm_state_time = utils.now(),
         apm_state = "busy",
+        collector = Stats.StatsCollector.new(),
     }
 
     return setmetatable(self, NetworkReporter)
@@ -73,9 +78,18 @@ function NetworkReporter:enable()
         end
     end
 
+    Interval.interval(function()
+        table.insert(self.messages, {
+            type = "mode_times",
+            value = self.collector.stats:get_modes_and_reset_times(),
+        })
+        self:_flush()
+    end, Config.modes_report_interval, "modes_report_interval")
+
     bussin:listen(Events.MOTION, store_event("motion"))
     bussin:listen(Events.WRITE, store_event("write"))
     bussin:listen(Events.BUF_ENTER, store_event("buf_enter"))
+    bussin:listen(Events.MODE_TIMES, store_event("mode_times"))
     bussin:listen(Events.IDLE_WORK, set_state("idle"))
     bussin:listen(Events.BUSY_WORK, set_state("busy"))
 end

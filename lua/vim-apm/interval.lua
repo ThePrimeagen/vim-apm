@@ -23,15 +23,21 @@ function M.interval(cb, time, name)
     id = id + 1
     local _id = id
     local next_time = utils.now() + time
-    table.insert(intervals, {
+    intervals[_id] = {
         id = _id,
         name = name,
         cb = cb,
         time = time,
         next_time = next_time,
-    })
+    }
 
     vim.defer_fn(check, time)
+    return _id
+end
+
+---@param _id number
+function M.cancel(_id)
+    intervals[_id] = nil
 end
 
 function M.enable()

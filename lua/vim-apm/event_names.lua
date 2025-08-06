@@ -12,6 +12,7 @@ return {
     RESIZE = "resize",
     WRITE = "write",
     BUF_ENTER = "buf_enter",
+    MODE_TIMES = "mode_times",
 
     IDLE_WORK = "idle_work",
     BUSY_WORK = "busy_work",

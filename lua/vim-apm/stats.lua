@@ -122,6 +122,15 @@ function Stats:to_json()
     }
 end
 
+---@returns table<string, number>
+function Stats:get_modes_and_reset_times()
+    self:mode(self.last_mode)
+
+    local out = self.modes
+    self.modes = {}
+    return out
+end
+
 local function empty_stats_json()
     return {
         motions = {},

@@ -64,6 +64,8 @@ defmodule VimApm.Motion do
 
   def add(motion, vim_message, now) do
     case vim_message do
+      %{"type" => "mode_times", "value" => _modes} ->
+        motion
       %{"type" => "motion", "value" => %{"chars" => chars}} ->
         motions = Map.put(motion.motions, chars, Map.get(motion.motions, chars, 0) + 1)
         apm = get_apm(motion, chars)
