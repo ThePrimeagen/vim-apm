@@ -16,16 +16,38 @@ export function display_ui_motion(motion: UIMotion) {
     return get_display_from_chars(motion.chars);
 }
 
-export function set_text_class(element: HTMLElement, sizing: Map<number, string>, text: string) {
-    for (const [_, class_name] of sizing) {
-        element.classList.remove(class_name);
+function ms(ms: number) {
+    return {
+        time: ms % 1000,
+        remaining: Math.floor(ms / 1000),
+        modifier: "ms",
     }
+}
 
-    const sizes = Array.from(sizing.keys()).sort((a, b) => b - a);
-    for (const size of sizes) {
-        if (text.length >= size) {
-            element.classList.add(sizing.get(size));
+function s(s: number) {
+    return {
+        time: s % 60,
+        remaining: Math.floor(s / 60),
+        modifier: "s",
+    }
+}
+
+function m(m: number) {
+    return {
+        time: m % 60,
+        remaining: Math.floor(m / 60),
+        modifier: "m",
+    }
+}
+
+const time_formats = [ms, s, m];
+export function relative_time(time_ms: number) {
+    let time = { time: 0, remaining: time_ms, modifier: "" };
+    for (const format of time_formats) {
+        time = format(time.remaining);
+        if (time.remaining == 0) {
             break;
         }
     }
+    return `${time.time}${time.modifier}`;
 }

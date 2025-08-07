@@ -74,7 +74,7 @@ end
 function APM:feedkey(key)
     if self.mode == INSERT then
         self:_insert(key)
-    elseif self.mode == INSERT or self.mode == VISUAL then
+    elseif self.mode == NORMAL or self.mode == VISUAL then
         self:_normal(key)
     end
 end

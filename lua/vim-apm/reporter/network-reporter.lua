@@ -72,7 +72,7 @@ function NetworkReporter:enable()
             self.apm_state = state
             self.apm_state_time = now
 
-            if state == "idle" then
+            if state == "idle" or self.opts.network_mode == "immediate" then
                 self:_flush()
             end
         end

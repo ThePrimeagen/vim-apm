@@ -65,6 +65,7 @@ declare global {
     type Level = {
         level: number;
         apm: number;
+        modes: ModeMap;
         progress: number;
         last_update: number;
         last_set_progress: number;

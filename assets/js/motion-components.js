@@ -1,4 +1,4 @@
-import { display_ui_motion, set_text_class } from "./utils";
+import { display_ui_motion, relative_time } from "./utils";
 
 // I can make these into something a bit more config driven later...
 // oh
@@ -21,6 +21,7 @@ class MotionCounter extends HTMLElement {
         level: 1,
         apm: 0,
         progress: 0,
+        modes: {n: 0, i: 0, v: 0, untracked: 0},
         last_update: Date.now(),
         last_set_progress: 0,
         last_motion_executed: { chars: "", count: 0 },
@@ -28,6 +29,9 @@ class MotionCounter extends HTMLElement {
 
     /** @type {HTMLElement} */
     throbber;
+
+    /** @type {HTMLElement} */
+    modes;
 
     /** @type {HTMLElement} */
     apm;
@@ -95,16 +99,43 @@ class MotionCounter extends HTMLElement {
   html {
       font-size: 250%
   }
+
+  #modes {
+      font-size: 0.5rem;
+  }
 </style>
 
 <div class="p-5">
-    <div id="motion-container" class="relative pl-3 pr-3 flex w-full h-[3rem] gap-2 bg-slate-900 rounded-md">
-        <div id="level" class="w-[20%] text-center text-white text-3xl">1</div>
-        <div class="flex-1 text-center text-white throb-target text-3xl">
-            <span id="last-motion">w</span>
+    <div id="motion-container" class="relative pl-3 pr-3 flex flex-col w-full h-[4rem] bg-slate-900 rounded-md">
+        <div class="flex h-[50%] border-box w-full">
+            <div id="level" class="w-[20%] text-center text-white text-2xl">1</div>
+            <div class="flex-1 text-center text-white throb-target text-2xl">
+                <span id="last-motion">w</span>
+            </div>
+            <div class="w-[30%] text-center text-white throb-target text-2xl">
+                <span id="apm">0</span>
+            </div>
         </div>
-        <div class="flex-1 text-center text-white throb-target text-3xl">
-            <span id="apm">0</span>
+
+        <div class="flex flex-1 text-center text-white throb-target text-md">
+            <div id="modes" class="w-[40%] flex text-sm">
+                <div class="flex-1" id="n">
+                    <span>n</span>
+                    <span class="value">0</span>
+                </div>
+                <div class="flex-1" id="i">
+                    <span>i</span>
+                    <span class="value">0</span>
+                </div>
+                <div class="flex-1" id="v">
+                    <span>v</span>
+                    <span class="value">0</span>
+                </div>
+                <div class="flex-1" id="untracked">
+                    <span>u</span>
+                    <span class="value">0</span>
+                </div>
+            </div>
         </div>
 
         <div class="absolute bottom-0 left-0 right-0">
@@ -122,6 +153,7 @@ class MotionCounter extends HTMLElement {
         this.last_motion = this.querySelector("#last-motion");
         this.motion_container = this.querySelector("#motion-container");
         this.apm = this.querySelector("#apm");
+        this.modes = this.querySelector("#modes");
 
         this.setupHandlers();
         this.monitor();
@@ -160,6 +192,21 @@ class MotionCounter extends HTMLElement {
         if (Date.now() - this.level.last_update > level_config.time_to_stop_animation) {
             this.clear_animations();
         }
+
+        for (const [mode, time] of Object.entries(this.level.modes)) {
+            const parent = this.modes.querySelector(`#${mode}`);
+            const text = parent.querySelector(".value");
+            console.log("MODE", mode, time, relative_time(time))
+
+            if (time === 0) {
+                parent.classList.remove("visible");
+                parent.classList.add("hidden");
+            } else {
+                parent.classList.remove("hidden");
+                parent.classList.add("visible");
+            }
+            text.setHTMLUnsafe(relative_time(time))
+        }
     }
 
     reset_level() {
@@ -167,6 +214,7 @@ class MotionCounter extends HTMLElement {
         this.level = {
             level: 1,
             apm: 0,
+            modes: this.level.modes,
             progress: 0,
             last_update: Date.now(),
             last_set_progress: 0,
@@ -216,23 +264,23 @@ class MotionCounter extends HTMLElement {
         element.classList.add(class_name);
     }
 
-    /** @param {APMVimWrite} write */
-    handle_write(write) {}
+    /** @param {APMVimWrite} _write */
+    handle_write(_write) {}
 
-    /** @param {APMVimBufEnter} buf_enter */
-    handle_buf_enter(buf_enter) {}
+    /** @param {APMVimBufEnter} _buf_enter */
+    handle_buf_enter(_buf_enter) {}
 
-    /** @param {APMVimModeTimes} mode_times */
-    handle_mode_times(mode_times) {}
+    /** @param {APMVimModeTimes} _mode_times */
+    handle_mode_times(_mode_times) {}
 
     /** @param {APMVimApmReport} report */
     handle_stat_report(report) {
-        console.log("STAT REPORT", report)
         this.level.apm = report.value.apm
+        this.level.modes = report.value.mode_timings
     }
 
-    /** @param {APMVimStateChange} state */
-    handle_apm_state_change(state) { }
+    /** @param {APMVimStateChange} _state */
+    handle_apm_state_change(_state) { }
 
     /** @param {APMServerMessage} msg */
     handle_message(msg) {
