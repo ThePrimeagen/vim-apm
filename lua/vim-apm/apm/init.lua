@@ -6,10 +6,8 @@ local APMBussin = require("vim-apm.bus")
 local APMRingBuffer = require("vim-apm.ring_buffer")
 
 local NORMAL = "n"
--- local OPERATIONAL_PENDING_MODE = "no"
 local INSERT = "i"
-local COMMAND = "c"
--- local VISUAL = "v"
+local VISUAL = "v"
 
 ---@class APMInsertTimeEvent
 ---@field insert_char_count number
@@ -70,11 +68,13 @@ function APM:_insert(_)
     self.insert_char_count = self.insert_char_count + 1
 end
 
+---TODO: this is something that i am unable to really sus out everything.
+---how many of these modes should i track?
 ---@param key string
 function APM:feedkey(key)
     if self.mode == INSERT then
         self:_insert(key)
-    elseif self.mode ~= COMMAND then
+    elseif self.mode == INSERT or self.mode == VISUAL then
         self:_normal(key)
     end
 end

@@ -3,6 +3,12 @@ local Events = require("vim-apm.event_names")
 local utils = require("vim-apm.utils")
 local motion_parser = require("vim-apm.reporter.motion_parser")
 
+local NORMAL = "n"
+local INSERT = "i"
+local VISUAL = "v"
+local UNKNOWN = "untracked"
+local SUPPORTED_MODES = {NORMAL, INSERT, VISUAL, UNKNOWN}
+
 ---@class APMStatsJson
 ---@field motions table<string, APMAggregateMotionValue>
 ---@field write_count number
@@ -93,6 +99,11 @@ end
 
 ---@param mode string
 function Stats:mode(mode)
+
+    if mode ~= NORMAL and mode ~= INSERT and mode ~= VISUAL then
+        mode = UNKNOWN
+    end
+
     local now = utils.now()
     local time_in_last_mode = now - self.last_mode_start_time
     local last_mode = self.last_mode
@@ -128,6 +139,12 @@ function Stats:get_modes_and_reset_times()
 
     local out = self.modes
     self.modes = {}
+
+    for _, mode in ipairs(SUPPORTED_MODES) do
+        out[mode] = out[mode] or 0
+        self.modes[mode] = 0
+    end
+
     return out
 end
 

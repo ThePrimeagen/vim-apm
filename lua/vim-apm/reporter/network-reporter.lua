@@ -89,7 +89,6 @@ function NetworkReporter:enable()
     bussin:listen(Events.MOTION, store_event("motion"))
     bussin:listen(Events.WRITE, store_event("write"))
     bussin:listen(Events.BUF_ENTER, store_event("buf_enter"))
-    bussin:listen(Events.MODE_TIMES, store_event("mode_times"))
     bussin:listen(Events.IDLE_WORK, set_state("idle"))
     bussin:listen(Events.BUSY_WORK, set_state("busy"))
 end
