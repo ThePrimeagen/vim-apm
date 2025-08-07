@@ -145,6 +145,8 @@ function Stats:get_modes_and_reset_times()
         self.modes[mode] = 0
     end
 
+    print("get_modes_and_reset_times", vim.inspect(out, {newline = "", indent = ""}))
+
     return out
 end
 
@@ -173,12 +175,14 @@ function StatsCollector.new()
 end
 
 function StatsCollector:enable()
+    print("StatsCollector#enable")
     ---@param motion APMMotionItem
     APMBussin:listen(Events.MOTION, function(motion)
         self.stats:motion(motion)
     end)
 
     APMBussin:listen(Events.MODE_CHANGED, function(mode)
+        print("StatsCollector#enable", "mode", vim.inspect(mode, {newline = "", indent = ""}))
         self.stats:mode(mode[2])
     end)
 

@@ -196,7 +196,6 @@ class MotionCounter extends HTMLElement {
         for (const [mode, time] of Object.entries(this.level.modes)) {
             const parent = this.modes.querySelector(`#${mode}`);
             const text = parent.querySelector(".value");
-            console.log("MODE", mode, time, relative_time(time))
 
             if (time === 0) {
                 parent.classList.remove("visible");

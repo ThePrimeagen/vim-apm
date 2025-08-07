@@ -42,6 +42,7 @@ function NetworkReporter.new(opts)
 end
 
 function NetworkReporter:enable()
+    self.collector:enable()
     local function store_event(type)
         return function(value)
             self.messages[#self.messages + 1] = {
@@ -110,6 +111,7 @@ end
 function NetworkReporter:clear()
     self.messages = {}
     Interval.cancel(self.interval_id)
+    self.collector:clear()
 end
 
 return NetworkReporter
