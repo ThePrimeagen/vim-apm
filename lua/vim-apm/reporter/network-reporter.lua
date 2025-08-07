@@ -78,7 +78,7 @@ function NetworkReporter:enable()
         end
     end
 
-    Interval.interval(function()
+    self.interval_id = Interval.interval(function()
         table.insert(self.messages, {
             type = "mode_times",
             value = self.collector.stats:get_modes_and_reset_times(),
@@ -109,6 +109,7 @@ end
 
 function NetworkReporter:clear()
     self.messages = {}
+    Interval.cancel(self.interval_id)
 end
 
 return NetworkReporter

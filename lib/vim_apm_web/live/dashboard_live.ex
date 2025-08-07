@@ -25,6 +25,7 @@ defmodule VimApmWeb.DashboardLive do
 
   def handle_info({:message, message}, socket) do
     motion = socket.assigns.motion
+    IO.inspect(message, label: "dashboard#handle_info")
     motion = Motion.add(motion, message, System.system_time(:millisecond))
 
     {:noreply,
@@ -37,14 +38,18 @@ defmodule VimApmWeb.DashboardLive do
   def handle_info(:tick, socket) do
     motion = socket.assigns.motion
     apm = Motion.calculate_apm(motion)
+    mode_timings = motion.mode_times
 
     {:noreply,
      socket
      |> push_event(@topic, %{
        type: "server-message",
        message: %{
-         type: "apm_report",
-         value: apm
+         type: "stat_report",
+         value: %{
+           apm: apm,
+           mode_timings: mode_timings,
+         }
        }
      })}
   end

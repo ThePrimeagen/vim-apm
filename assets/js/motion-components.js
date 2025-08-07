@@ -156,7 +156,6 @@ class MotionCounter extends HTMLElement {
 
         const apm_string = this.level.apm > 0 ? `${this.level.apm}` : ""
         this.apm.innerHTML = apm_string
-        console.log("APM", apm_string)
 
         if (Date.now() - this.level.last_update > level_config.time_to_stop_animation) {
             this.clear_animations();
@@ -223,20 +222,29 @@ class MotionCounter extends HTMLElement {
     /** @param {APMVimBufEnter} buf_enter */
     handle_buf_enter(buf_enter) {}
 
+    /** @param {APMVimModeTimes} mode_times */
+    handle_mode_times(mode_times) {}
+
     /** @param {APMVimApmReport} report */
-    handle_apm_report(report) {
-        this.level.apm = report.value
+    handle_stat_report(report) {
+        console.log("STAT REPORT", report)
+        this.level.apm = report.value.apm
     }
+
+    /** @param {APMVimStateChange} state */
+    handle_apm_state_change(state) { }
 
     /** @param {APMServerMessage} msg */
     handle_message(msg) {
+        console.log("message received", msg.type)
+
         // TODO: how evil?
         // @ts-ignore oh... why have i done this to myself?
         this[`handle_${msg.type}`](msg);
         this.reanimate(this.throbber, "throb");
     }
 
-    /** @param {APMServerMessage[]} */
+    /** @param {APMServerMessage[]} messages */
     handle_all_messages(messages) {
         for (const msg of messages) {
             this.handle_message(msg);

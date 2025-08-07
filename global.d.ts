@@ -1,49 +1,75 @@
 // Global type definitions for JSDoc usage
 
 declare global {
-
+    type ModeMap = {
+        n: number;
+        i: number;
+        v: number;
+        untracked: number;
+    };
     type APMVimMotion = {
-        type: "motion",
+        type: "motion";
         value: {
-            chars: string,
-            timings: number[],
-        }
-    }
+            chars: string;
+            timings: number[];
+        };
+    };
+
+    type APMVimModeTimes = {
+        type: "mode_times";
+        value: ModeMap;
+    };
 
     type APMVimWrite = {
-        type: "write",
-    }
+        type: "write";
+    };
 
     type APMVimBufEnter = {
-        type: "buf_enter",
-    }
+        type: "buf_enter";
+    };
 
     type APMVimApmReport = {
-        type: "apm_report",
-        value: number
-    }
+        type: "apm_report";
+        value: {
+            apm: number;
+            mode_timings: ModeMap;
+        };
+    };
 
-    type APMServerMessage = APMVimMotion | APMVimWrite | APMVimBufEnter | APMVimApmReport
+    type APMVimStateChange = {
+        type: "apm_state_change";
+        value: {
+            from: string,
+            time: number,
+        };
+    };
+
+    type APMServerMessage =
+        | APMVimMotion
+        | APMVimWrite
+        | APMVimBufEnter
+        | APMVimApmReport
+        | APMVimModeTimes;
 
     type APMEvent = {
-        type: "server-message",
-        message: APMServerMessage[],
-    }
+        type: "server-message";
+        message: APMServerMessage[];
+    };
 
     type UIMotion = {
-        chars: string,
+        chars: string;
         display_chars?: string;
-        count: number,
-    }
+        count: number;
+    };
 
     type Level = {
-        level: number,
-        apm: number,
-        progress: number,
-        last_update: number,
-        last_set_progress: number,
-        last_motion_executed: UIMotion,
-    }
+        level: number;
+        apm: number;
+        progress: number;
+        last_update: number;
+        last_set_progress: number;
+        last_motion_executed: UIMotion;
+    };
 }
 
 export {};
