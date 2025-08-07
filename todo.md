@@ -1,6 +1,4 @@
 ## Stats
-* all the times in every mode
-* the busy vs idle timings
 * upgrade stats to include the timing information
   * right now its just count.  i took out the timing because i didn't want to test it and make sure its all right.
 * send stats up to the network server in batches
@@ -12,3 +10,5 @@
 ## Prod
 * Search for TODOs and fix them
 
+## Docs
+* Update readme to have a proper into
