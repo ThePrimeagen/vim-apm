@@ -6,6 +6,7 @@ local motion_parser = require("vim-apm.reporter.motion_parser")
 local NORMAL = "n"
 local INSERT = "i"
 local VISUAL = "v"
+local VISUAL_LINE = "V"
 local UNKNOWN = "untracked"
 local SUPPORTED_MODES = {NORMAL, INSERT, VISUAL, UNKNOWN}
 
@@ -100,9 +101,11 @@ end
 ---@param mode string
 function Stats:mode(mode)
 
-    if mode ~= NORMAL and mode ~= INSERT and mode ~= VISUAL then
+    if mode ~= NORMAL and mode ~= INSERT and mode ~= VISUAL and mode ~= VISUAL_LINE then
         mode = UNKNOWN
     end
+
+    mode = mode:lower()
 
     local now = utils.now()
     local time_in_last_mode = now - self.last_mode_start_time
@@ -145,8 +148,6 @@ function Stats:get_modes_and_reset_times()
         self.modes[mode] = 0
     end
 
-    print("get_modes_and_reset_times", vim.inspect(out, {newline = "", indent = ""}))
-
     return out
 end
 
@@ -175,14 +176,12 @@ function StatsCollector.new()
 end
 
 function StatsCollector:enable()
-    print("StatsCollector#enable")
     ---@param motion APMMotionItem
     APMBussin:listen(Events.MOTION, function(motion)
         self.stats:motion(motion)
     end)
 
     APMBussin:listen(Events.MODE_CHANGED, function(mode)
-        print("StatsCollector#enable", "mode", vim.inspect(mode, {newline = "", indent = ""}))
         self.stats:mode(mode[2])
     end)
 
