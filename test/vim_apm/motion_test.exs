@@ -61,7 +61,7 @@ defmodule VimApm.MotionTest do
     end
 
     test "test modes" do
-      motion = Motion.new(max_age: 60_000)
+      motion = Motion.new(max_age: 1_000)
 
       now = 0
 
@@ -109,6 +109,30 @@ defmodule VimApm.MotionTest do
                "i" => 190 + 15,
                "v" => 0 + 42,
                "untracked" => 0 + 69
+             } == motion.mode_times
+
+      now = 1001
+
+      motion =
+        Motion.add(
+          motion,
+          %{
+            "type" => "mode_times",
+            "value" => %{
+              "n" => 69000,
+              "i" => 70000,
+              "v" => 71000,
+              "untracked" => 72000
+            }
+          },
+          now
+        )
+
+      assert %{
+               "n" => 69000 + 250,
+               "i" => 190 + 70000,
+               "v" => 42 + 71000,
+               "untracked" => 69 + 72000
              } == motion.mode_times
     end
   end

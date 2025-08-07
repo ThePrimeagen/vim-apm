@@ -59,12 +59,19 @@ defmodule VimApm.Motion do
   defp remove_modes(motion, now) do
     with {:value, front} <- :queue.peek(motion.modes) do
       if now - front.time > motion.max_age do
+        modes = :queue.drop(motion.modes)
         mode_times =
-          Enum.reduce(front, {0, motion.mode_times}, fn {mode, time}, acc ->
-            Map.put(acc, mode, Map.get(acc, mode, 0) - time)
+          Enum.reduce(front, motion.mode_times, fn {mode, time}, acc ->
+            # remember, we add a time field to the mode map.  this is annoying
+            # and causes unit tests to fail :(
+            if mode == :time do
+              acc
+            else
+              Map.put(acc, mode, Map.get(acc, mode, 0) - time)
+            end
           end)
 
-        remove_modes(%VimApm.Motion{motion | mode_times: mode_times}, now)
+        remove_modes(%VimApm.Motion{motion | mode_times: mode_times, modes: modes}, now)
       else
         motion
       end
