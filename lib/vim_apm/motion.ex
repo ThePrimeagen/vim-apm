@@ -43,7 +43,13 @@ defmodule VimApm.Motion do
 
   def calculate_total_apm(motion) do
     minutes = motion.max_age / 60_000.0
-    Float.round(motion.apm / minutes, 2)
+    cpw = Application.fetch_env!(:vim_apm, :characters_per_word)
+    apm = Float.round(motion.apm / minutes, 2)
+    raw = Float.round(motion.cpm_raw / cpw / minutes, 2)
+    changed = Float.round(motion.cpm_changed / cpw / minutes, 2)
+
+    IO.inspect("apm: #{apm}, raw: #{raw}, changed: #{changed}", label: "total_apm")
+    {apm + raw, apm, raw, changed}
   end
 
   def calculate_mode_times(motion) do
@@ -52,11 +58,8 @@ defmodule VimApm.Motion do
     end)
   end
 
-  defp get_apm(motion, chars) do
-    in_window = Map.get(motion.motion_times, chars, 0)
-    count = CountQueue.count(motion.last_motions, chars)
-    reduction = in_window * 0.01 + count * 0.25
-    max(1 - reduction, 0.01)
+  defp get_apm(_motion, _chars) do
+    1
   end
 
   defp remove_modes(%__MODULE__{} = motion, []) do
@@ -128,6 +131,7 @@ defmodule VimApm.Motion do
       Map.put(motion.motion_times, chars, Map.get(motion.motion_times, chars, 0) + 1)
 
     apm = get_apm(motion, chars)
+    IO.inspect("added apm: #{apm} with current total as #{motion.apm}", label: "add_motion")
 
     {last_motions, _} = CountQueue.add(motion.last_motions, chars)
 

@@ -14,6 +14,7 @@ config :vim_apm, :client_id, env!("TWITCH_CLIENT_ID")
 config :vim_apm, :client_secret, env!("TWITCH_CLIENT_SECRET")
 config :ecto_sql, log: true
 config :vim_apm, :motion_last_few, 3
+config :vim_apm, :characters_per_word, 5
 
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the

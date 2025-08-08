@@ -38,13 +38,32 @@ defmodule VimApm.MotionTest do
 
       now = 0
       motion = Motion.add(motion, %{"type" => "motion", "value" => %{"chars" => "w"}}, now)
-      assert Motion.calculate_total_apm(motion) == 0.5
+      motion = Motion.add(motion, %{"type" => "motion", "value" => %{"chars" => "w"}}, now)
+      motion = Motion.add(motion, %{"type" => "motion", "value" => %{"chars" => "w"}}, now)
+      motion = Motion.add(motion, %{"type" => "motion", "value" => %{"chars" => "w"}}, now)
+      assert 4 == motion.apm
 
-      motion = Motion.add(motion, %{"type" => "motion", "value" => %{"chars" => "w2"}}, now)
-      assert Motion.calculate_total_apm(motion) == 1
+      motion = Motion.add(motion, %{"type" => "insert_report", "value" => %{"time" => 100, "raw_typed" => 10, "changed" => 20}}, now)
+      motion = Motion.add(motion, %{"type" => "insert_report", "value" => %{"time" => 200, "raw_typed" => 25, "changed" => 50}}, now)
 
-      motion = Motion.add(motion, %{"type" => "motion", "value" => %{"chars" => "w3"}}, now)
-      assert Motion.calculate_total_apm(motion) == 1.5
+      # TODO: this is not going to be a great way to do things.  please forgive me future self for this.
+      raw = Float.round(35 / 5 / 2, 2)
+      changed = Float.round(70 / 5 / 2, 2)
+      apm = Float.round(4 / 2, 2)
+
+      assert {
+        # calculated (apm + raw)... raw
+        apm + raw,
+
+        # apm
+        apm,
+
+        # raw
+        raw,
+
+        # changed
+        changed
+      } == Motion.calculate_total_apm(motion)
     end
 
     test "test repeats" do
@@ -52,12 +71,12 @@ defmodule VimApm.MotionTest do
 
       now = 0
       motion = Motion.add(motion, %{"type" => "motion", "value" => %{"chars" => "w"}}, now)
-      assert Motion.calculate_total_apm(motion) == 1
       assert motion.length == 1
+      assert motion.apm == 1
 
       motion = Motion.add(motion, %{"type" => "motion", "value" => %{"chars" => "w"}}, now)
-      assert Motion.calculate_total_apm(motion) < 2 # calculating this is hard... and it changes frequently.
       assert motion.length == 2
+      assert motion.apm == 2
     end
 
     test "test modes" do
