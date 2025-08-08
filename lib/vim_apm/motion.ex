@@ -18,6 +18,10 @@ defmodule VimApm.Motion do
             },
             max_age: 60 * 1000,
             apm: 0,
+            cpm_times: TimeQueue.new(max_age: 60_000),
+            cpm_raw: 0,
+            cpm_changed: 0,
+            time_in_insert: 0,
             length: 0
 
   alias VimApm.Motion.Stat
@@ -32,11 +36,12 @@ defmodule VimApm.Motion do
       max_age: max_age,
       motions: TimeQueue.new(max_age: max_age),
       modes: TimeQueue.new(max_age: max_age),
-      last_motions: CountQueue.new(max: last_motion_count)
+      last_motions: CountQueue.new(max: last_motion_count),
+      cpm_times: TimeQueue.new(max_age: max_age)
     }
   end
 
-  def calculate_apm(motion) do
+  def calculate_total_apm(motion) do
     minutes = motion.max_age / 60_000.0
     Float.round(motion.apm / minutes, 2)
   end
@@ -83,6 +88,21 @@ defmodule VimApm.Motion do
     }
 
     remove_motions(motion, tl)
+  end
+
+  defp remove_cpm_times(%__MODULE__{} = motion, []) do
+    motion
+  end
+
+  defp remove_cpm_times(%__MODULE__{} = motion, [insert_report | tl]) do
+    %{"time" => time, "raw_typed" => raw_typed, "changed" => changed} = insert_report
+
+    remove_cpm_times(%VimApm.Motion{
+      motion
+      | cpm_raw: motion.cpm_raw - raw_typed,
+        cpm_changed: motion.cpm_changed - changed,
+        time_in_insert: motion.time_in_insert - time
+    }, tl)
   end
 
   def add(motion, %{"type" => "mode_times", "value" => mode_values}, now) do
@@ -148,15 +168,19 @@ defmodule VimApm.Motion do
     remove_motions(motion, removed)
   end
 
-  def add(
-        motion,
-        %{
-          "type" => "insert_report",
-          "value" => %{"time" => _time, "raw_typed" => _raw_typed, "changed" => _changed}
-        },
-        _now
-      ) do
-    motion
+  def add(%__MODULE__{} = motion, %{"type" => "insert_report", "value" => value}, now) do
+    %{"time" => time, "raw_typed" => raw_typed, "changed" => changed} = value
+    {cpm_times, removed} = TimeQueue.add(motion.cpm_times, value, now)
+
+    motion = %VimApm.Motion{
+      motion
+      | cpm_times: cpm_times,
+        cpm_raw: motion.cpm_raw + raw_typed,
+        cpm_changed: motion.cpm_changed + changed,
+        time_in_insert: motion.time_in_insert + time
+    }
+
+    remove_cpm_times(motion, removed)
   end
 
   def add(motion, %{"type" => "apm_state_change", "value" => _value}, _now) do

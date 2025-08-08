@@ -38,13 +38,13 @@ defmodule VimApm.MotionTest do
 
       now = 0
       motion = Motion.add(motion, %{"type" => "motion", "value" => %{"chars" => "w"}}, now)
-      assert Motion.calculate_apm(motion) == 0.5
+      assert Motion.calculate_total_apm(motion) == 0.5
 
       motion = Motion.add(motion, %{"type" => "motion", "value" => %{"chars" => "w2"}}, now)
-      assert Motion.calculate_apm(motion) == 1
+      assert Motion.calculate_total_apm(motion) == 1
 
       motion = Motion.add(motion, %{"type" => "motion", "value" => %{"chars" => "w3"}}, now)
-      assert Motion.calculate_apm(motion) == 1.5
+      assert Motion.calculate_total_apm(motion) == 1.5
     end
 
     test "test repeats" do
@@ -52,11 +52,11 @@ defmodule VimApm.MotionTest do
 
       now = 0
       motion = Motion.add(motion, %{"type" => "motion", "value" => %{"chars" => "w"}}, now)
-      assert Motion.calculate_apm(motion) == 1
+      assert Motion.calculate_total_apm(motion) == 1
       assert motion.length == 1
 
       motion = Motion.add(motion, %{"type" => "motion", "value" => %{"chars" => "w"}}, now)
-      assert Motion.calculate_apm(motion) < 2 # calculating this is hard... and it changes frequently.
+      assert Motion.calculate_total_apm(motion) < 2 # calculating this is hard... and it changes frequently.
       assert motion.length == 2
     end
 
@@ -134,6 +134,43 @@ defmodule VimApm.MotionTest do
                "v" => 42 + 71000,
                "untracked" => 69 + 72000
              } == motion.mode_times
+    end
+
+    test "test cpm times" do
+      motion = Motion.new(max_age: 1000)
+
+      now = 0
+
+      motion = Motion.add(motion, %{
+        "type" => "insert_report",
+        "value" => %{"time" => 150, "raw_typed" => 30, "changed" => 50}
+      }, now)
+
+      assert 30 == motion.cpm_raw
+      assert 50 == motion.cpm_changed
+      assert 150 == motion.time_in_insert
+
+      now = 1000
+
+      motion = Motion.add(motion, %{
+        "type" => "insert_report",
+        "value" => %{"time" => 420, "raw_typed" => 69, "changed" => 42}
+      }, now)
+
+      assert 30 + 69 == motion.cpm_raw
+      assert 50 + 42 == motion.cpm_changed
+      assert 150 + 420 == motion.time_in_insert
+
+
+      now = 1001
+      motion = Motion.add(motion, %{
+        "type" => "insert_report",
+        "value" => %{"time" => 1337, "raw_typed" => 420, "changed" => 69}
+      }, now)
+
+      assert 69 + 420 == motion.cpm_raw
+      assert 42 + 69 == motion.cpm_changed
+      assert 420 + 1337 == motion.time_in_insert
     end
   end
 end
