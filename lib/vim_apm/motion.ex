@@ -4,7 +4,7 @@ end
 
 defmodule VimApm.Motion do
   defstruct last_motions: :queue.new(),
-            motions: VimApm.TimeQueue.new(max_age: 60_000),
+            motions: :queue.new(),
             motion_times: %{},
             modes: :queue.new(),
             mode_times: %{
@@ -23,7 +23,7 @@ defmodule VimApm.Motion do
     max_age = Keyword.get(args, :max_age, 60 * 1000)
     %__MODULE__{
       max_age: max_age,
-      motions: VimApm.TimeQueue.new(max_age: max_age)
+      motions: :queue.new()
     }
   end
 
