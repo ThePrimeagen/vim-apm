@@ -6,7 +6,7 @@ defmodule VimApmWeb.TestLive do
       Phoenix.PubSub.subscribe(VimApm.PubSub, "server:messages")
     end
 
-    {:ok, assign(socket, motion: "none", motion_count: 0)}
+    {:ok, assign(socket, motion: "none", motion_count: 0, progress: 0.5)}
   end
 
   def handle_info({:message, message}, socket) do

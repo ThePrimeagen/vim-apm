@@ -47,5 +47,5 @@ Hello from test live
   <div id="last_motion_used" phx-hook="on_motion_update" class="throb">
     Last Motion: {@motion}
   </div>
-  <progress-bar id="motion_progress_bar" phx-update="ignore" progress="{@progress}" time-to-stop="10000" interval="100"></progress-bar>
+  <progress-bar id="motion_progress_bar" progress={@progress} time-to-stop="10000" interval="100"></progress-bar>
 <% end %>
