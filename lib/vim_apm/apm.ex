@@ -7,7 +7,7 @@ defmodule VimApm.Apm do
             last_motion_count: 0,
             level_time: 0
 
-  def new(args) do
+  def new(args \\ []) do
     %__MODULE__{
       level_time: Keyword.get(args, :level_time, Application.fetch_env!(:vim_apm, :level_time))
     }
