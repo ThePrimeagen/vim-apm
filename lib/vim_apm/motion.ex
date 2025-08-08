@@ -1,5 +1,5 @@
 defmodule VimApm.Motion.Stat do
-  defstruct time: 0, type: :motion, value: "", apm: 0
+  defstruct type: :motion, value: "", apm: 0
 end
 
 defmodule VimApm.Motion do
@@ -7,7 +7,7 @@ defmodule VimApm.Motion do
   alias VimApm.TimeQueue
 
   defstruct last_motions: CountQueue.new(max: 3),
-            motions: :queue.new(),
+            motions: TimeQueue.new(max_age: 60_000),
             motion_times: %{},
             modes: :queue.new(),
             mode_times: %{
@@ -28,7 +28,7 @@ defmodule VimApm.Motion do
 
     %__MODULE__{
       max_age: max_age,
-      motions: :queue.new(),
+      motions: TimeQueue.new(max_age: max_age),
       last_motions: CountQueue.new(max: last_motion_count)
     }
   end
@@ -76,28 +76,22 @@ defmodule VimApm.Motion do
     end
   end
 
-  defp remove_motions(motion, now) do
-    with {:value, front} <- :queue.peek(motion.motions) do
-      if now - front.time > motion.max_age do
-        # there has to be a better way of doing this...
-        count = Map.get(motion.motion_times, front.value, 1) - 1
-        motion_times = Map.put(motion.motion_times, front.value, count)
+  defp remove_motions(%__MODULE__{} = motion, []) do
+    motion
+  end
 
-        motion = %VimApm.Motion{
-          motion
-          | motions: :queue.drop(motion.motions),
-            length: motion.length - 1,
-            apm: motion.apm - front.apm,
-            motion_times: motion_times
-        }
+  defp remove_motions(%__MODULE__{} = motion, [stat | tl]) do
+    count = Map.get(motion.motion_times, stat.value, 1) - 1
+    motion_times = Map.put(motion.motion_times, stat.value, count)
 
-        remove_motions(motion, now)
-      else
-        motion
-      end
-    else
-      _ -> motion
-    end
+    motion = %VimApm.Motion{
+      motion
+      | length: motion.length - 1,
+        apm: motion.apm - stat.apm,
+        motion_times: motion_times
+    }
+
+    remove_motions(motion, tl)
   end
 
   def add(motion, %{"type" => "mode_times", "value" => mode_values}, now) do
@@ -126,43 +120,47 @@ defmodule VimApm.Motion do
     apm = get_apm(motion, chars)
 
     {last_motions, _} = CountQueue.add(motion.last_motions, chars)
+    {motions, removed} = TimeQueue.add(motion.motions, %Stat{type: :motion, value: chars, apm: apm}, now)
 
     motion = %VimApm.Motion{
       motion
-      | motions:
-          :queue.in(%Stat{time: now, type: :motion, value: chars, apm: apm}, motion.motions),
+      | motions: motions,
         motion_times: motion_times,
         apm: motion.apm + apm,
         length: motion.length + 1,
         last_motions: last_motions
     }
 
-    remove_motions(motion, now)
+    remove_motions(motion, removed)
   end
 
   def add(motion, %{"type" => "write"}, now) do
-    %VimApm.Motion{
+    {motions, removed} = TimeQueue.add(motion.motions, %Stat{type: :write, value: ""}, now)
+    motion = %VimApm.Motion{
       motion
-      | motions: :queue.in(%Stat{time: now, type: :write, value: ""}, motion.motions)
+      | motions: motions
     }
+    remove_motions(motion, removed)
   end
 
   def add(motion, %{"type" => "buf_enter"}, now) do
-    %VimApm.Motion{
+    {motions, removed} = TimeQueue.add(motion.motions, %Stat{type: :buf_enter, value: ""}, now)
+    motion = %VimApm.Motion{
       motion
-      | motions: :queue.in(%Stat{time: now, type: :write, value: ""}, motion.motions)
+      | motions: motions
     }
+    remove_motions(motion, removed)
   end
 
-  def add(motion, %{"type" => "insert_report", "value" => %{"time" => time, "raw_typed" => raw_typed, "changed" => changed}}, now) do
+  def add(motion, %{"type" => "insert_report", "value" => %{"time" => _time, "raw_typed" => _raw_typed, "changed" => _changed}}, _now) do
     motion
   end
 
-  def add(motion, %{"type" => "apm_state_change", "value" => value}, now) do
+  def add(motion, %{"type" => "apm_state_change", "value" => _value}, _now) do
     motion
   end
 
-  def add(motion, unknown_vim_motion, now) do
+  def add(motion, unknown_vim_motion, _now) do
     IO.inspect(unknown_vim_motion, label: "unknown vim message")
     motion
   end
