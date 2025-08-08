@@ -23,6 +23,5 @@ return {
     APM_REPORT = "apm",
     MOTION = "motion",
     STATS = "stats-update",
-    INSERT_TO_TIME = "insert-to-time",
-    INSERT_IN_TIME = "insert-in-time",
+    INSERT_REPORT = "insert_report",
 }

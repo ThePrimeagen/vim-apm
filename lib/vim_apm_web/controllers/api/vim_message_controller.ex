@@ -27,7 +27,6 @@ defmodule VimApmWeb.Api.VimMessageController do
           unauthorized(conn)
         else
           user ->
-            IO.inspect(params, label: "vim_message_controller#handle_message")
             handle_message(conn, params)
         end
 

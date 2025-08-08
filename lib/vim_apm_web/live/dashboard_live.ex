@@ -25,7 +25,6 @@ defmodule VimApmWeb.DashboardLive do
 
   def handle_info({:message, message}, socket) do
     motion = socket.assigns.motion
-    IO.inspect(message, label: "dashboard#handle_info")
     motion = Motion.add(motion, message, System.system_time(:millisecond))
 
     {:noreply,

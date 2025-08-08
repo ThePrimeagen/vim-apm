@@ -50,6 +50,10 @@ function NetworkReporter:enable()
                 value = value,
             }
 
+            if type == "insert_report" then
+                print("insert_report", vim.inspect(value, {newline = " ", indent = ""}))
+            end
+
             if self.opts.network_mode == "immediate" then
                 self:_flush()
             end
@@ -88,6 +92,7 @@ function NetworkReporter:enable()
     end, Config.modes_report_interval, "modes_report_interval")
 
     bussin:listen(Events.MOTION, store_event("motion"))
+    bussin:listen(Events.INSERT_REPORT, store_event("insert_report"))
     bussin:listen(Events.WRITE, store_event("write"))
     bussin:listen(Events.BUF_ENTER, store_event("buf_enter"))
     bussin:listen(Events.IDLE_WORK, set_state("idle"))

@@ -1,0 +1,51 @@
+<style>
+  .throb-target {
+    transition: transform 0.3s ease;
+  }
+
+  .throb {
+    animation: bounce-throb 0.4s ease-out;
+  }
+
+  @keyframes bounce-throb {
+    0%   { transform: scale(1); }
+    30%  { transform: scale(1.3); }    /* Big throb */
+    50%  { transform: scale(0.9); }    /* Recoil */
+    65%  { transform: scale(1.15); }   /* Overshoot bounce */
+    80%  { transform: scale(0.98); }   /* Undershoot */
+    100% { transform: scale(1); }      /* Settle back */
+  }
+
+  /* Small vibrate/shake */
+  @keyframes vibrate {
+    0%, 100% { transform: translate(0); }
+    25% { transform: translate(-1px, 1px); }
+    50% { transform: translate(1px, -1px); }
+    75% { transform: translate(-1px, -1px); }
+  }
+
+  /* Bounce with a bit of rotate */
+  @keyframes bounce-vibrate {
+    0%, 100% { transform: translate(0); rotate(0deg); }
+    25% { transform: translate(-1px, 1px); rotate(1deg); }
+    50% { transform: translate(1px, -1px); rotate(0deg); }
+    75% { transform: translate(-1px, -1px); rotate(-1deg); }
+  }
+
+  .vibrate {
+    animation: vibrate 0.2s linear infinite;
+  }
+
+  .bounce-vibrate {
+    animation: bounce-vibrate 0.4s ease-in-out infinite;
+  }
+
+</style>
+
+Hello from test live
+<%= if @motion != "none" do %>
+  <div id="last_motion_used" phx-hook="on_motion_update" class="throb">
+    Last Motion: {@motion}
+  </div>
+  <progress-bar id="motion_progress_bar" phx-update="ignore" progress="{@progress}" time-to-stop="10000" interval="100"></progress-bar>
+<% end %>

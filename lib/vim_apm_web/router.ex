@@ -28,6 +28,7 @@ defmodule VimApmWeb.Router do
     get "/", PageController, :home
     get "/stats", StatsController, :index
     live "/dashboard/:dashboard_id", DashboardLive
+    live "/test", TestLive
   end
 
   scope "/api", VimApmWeb.Api do

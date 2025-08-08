@@ -4,7 +4,6 @@ if VimAPMRequired then
 end
 
 R("vim-apm")
--- luacheck: pop
 
 local apm = require("vim-apm")
 apm:setup({

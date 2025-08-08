@@ -4,7 +4,7 @@ end
 
 defmodule VimApm.Motion do
   defstruct last_motions: :queue.new(),
-            motions: :queue.new(),
+            motions: VimApm.TimeQueue.new(max_age: 60_000),
             motion_times: %{},
             modes: :queue.new(),
             mode_times: %{
@@ -20,8 +20,10 @@ defmodule VimApm.Motion do
   alias VimApm.Motion.Stat
 
   def new(args) do
+    max_age = Keyword.get(args, :max_age, 60 * 1000)
     %__MODULE__{
-      max_age: Keyword.get(args, :max_age, 60 * 1000)
+      max_age: max_age,
+      motions: VimApm.TimeQueue.new(max_age: max_age)
     }
   end
 
@@ -60,6 +62,7 @@ defmodule VimApm.Motion do
     with {:value, front} <- :queue.peek(motion.modes) do
       if now - front.time > motion.max_age do
         modes = :queue.drop(motion.modes)
+
         mode_times =
           Enum.reduce(front, motion.mode_times, fn {mode, time}, acc ->
             # remember, we add a time field to the mode map.  this is annoying
@@ -104,68 +107,75 @@ defmodule VimApm.Motion do
     end
   end
 
-  def add(motion, vim_message, now) do
-    case vim_message do
-      %{"type" => "mode_times", "value" => mode_values} ->
-        timed_mode_values = Map.put(mode_values, :time, now)
-        modes = :queue.in(timed_mode_values, motion.modes)
+  def add(motion, %{"type" => "mode_times", "value" => mode_values}, now) do
+    timed_mode_values = Map.put(mode_values, :time, now)
+    modes = :queue.in(timed_mode_values, motion.modes)
 
-        mode_times =
-          Enum.reduce(mode_values, motion.mode_times, fn {mode, time}, acc ->
-            Map.put(acc, mode, Map.get(acc, mode, 0) + time)
-          end)
+    mode_times =
+      Enum.reduce(mode_values, motion.mode_times, fn {mode, time}, acc ->
+        Map.put(acc, mode, Map.get(acc, mode, 0) + time)
+      end)
 
-        remove_modes(
-          %VimApm.Motion{
-            motion
-            | mode_times: mode_times,
-              modes: modes
-          },
-          now
-        )
-
-      %{"type" => "motion", "value" => %{"chars" => chars}} ->
-        motion_times =
-          Map.put(motion.motion_times, chars, Map.get(motion.motion_times, chars, 0) + 1)
-
-        apm = get_apm(motion, chars)
-
-        last_motions = :queue.in(chars, motion.last_motions)
-
-        if :queue.len(last_motions) > Application.fetch_env!(:vim_apm, :motion_last_few) do
-          :queue.drop(last_motions)
-        end
-
-        motion = %VimApm.Motion{
-          motion
-          | motions:
-              :queue.in(%Stat{time: now, type: :motion, value: chars, apm: apm}, motion.motions),
-            motion_times: motion_times,
-            apm: motion.apm + apm,
-            length: motion.length + 1,
-            last_motions: last_motions
-        }
-
-        remove_motions(motion, now)
-
-      %{"type" => "write"} ->
-        %VimApm.Motion{
-          motion
-          | motions: :queue.in(%Stat{time: now, type: :write, value: ""}, motion.motions)
-        }
-
-      %{"type" => "buf_enter"} ->
-        %VimApm.Motion{
-          motion
-          | motions: :queue.in(%Stat{time: now, type: :write, value: ""}, motion.motions)
-        }
-
-      %{"type" => "apm_state_change", "value" => value} ->
+    remove_modes(
+      %VimApm.Motion{
         motion
+        | mode_times: mode_times,
+          modes: modes
+      },
+      now
+    )
+  end
 
-      _ ->
-        IO.inspect(vim_message, label: "unknown vim message")
+  def add(motion, %{"type" => "motion", "value" => %{"chars" => chars}}, now) do
+    motion_times =
+      Map.put(motion.motion_times, chars, Map.get(motion.motion_times, chars, 0) + 1)
+
+    apm = get_apm(motion, chars)
+
+    last_motions = :queue.in(chars, motion.last_motions)
+
+    if :queue.len(last_motions) > Application.fetch_env!(:vim_apm, :motion_last_few) do
+      :queue.drop(last_motions)
     end
 
+    motion = %VimApm.Motion{
+      motion
+      | motions:
+          :queue.in(%Stat{time: now, type: :motion, value: chars, apm: apm}, motion.motions),
+        motion_times: motion_times,
+        apm: motion.apm + apm,
+        length: motion.length + 1,
+        last_motions: last_motions
+    }
+
+    remove_motions(motion, now)
   end
+
+  def add(motion, %{"type" => "write"}, now) do
+    %VimApm.Motion{
+      motion
+      | motions: :queue.in(%Stat{time: now, type: :write, value: ""}, motion.motions)
+    }
+  end
+
+  def add(motion, %{"type" => "buf_enter"}, now) do
+    %VimApm.Motion{
+      motion
+      | motions: :queue.in(%Stat{time: now, type: :write, value: ""}, motion.motions)
+    }
+  end
+
+  def add(motion, %{"type" => "insert_report", "value" => %{"time" => time, "raw_typed" => raw_typed, "changed" => changed}}, now) do
+    motion
+  end
+
+  def add(motion, %{"type" => "apm_state_change", "value" => value}, now) do
+    motion
+  end
+
+  def add(motion, unknown_vim_motion, now) do
+    IO.inspect(unknown_vim_motion, label: "unknown vim message")
+    motion
+  end
+
 end
