@@ -4,9 +4,18 @@ defmodule VimApmWeb.TestLive do
   def mount(_params, _session, socket) do
     if connected?(socket) do
       Phoenix.PubSub.subscribe(VimApm.PubSub, "server:messages")
+      :timer.send_interval(1000, :tick)
     end
 
-    {:ok, assign(socket, motion: "none", motion_count: 0, progress: 0.5)}
+    {:ok, assign(socket,
+      motion: "none",
+      motion_count: 0,
+      progress: 0.5
+    ) }
+  end
+
+  def handle_info(:tick, socket) do
+    {:noreply, assign(socket, progress: socket.assigns.progress + 0.01)}
   end
 
   def handle_info({:message, message}, socket) do

@@ -36,7 +36,7 @@ defmodule VimApmWeb.DashboardLive do
 
   def handle_info(:tick, socket) do
     motion = socket.assigns.motion
-    apm = Motion.calculate_apm(motion)
+    {apm, _, _, _} = Motion.calculate_total_apm(motion)
     mode_timings = motion.mode_times
 
     {:noreply,

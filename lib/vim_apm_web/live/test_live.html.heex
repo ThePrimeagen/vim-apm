@@ -39,7 +39,6 @@
   .bounce-vibrate {
     animation: bounce-vibrate 0.4s ease-in-out infinite;
   }
-
 </style>
 
 Hello from test live
@@ -47,5 +46,5 @@ Hello from test live
   <div id="last_motion_used" phx-hook="on_motion_update" class="throb">
     Last Motion: {@motion}
   </div>
-  <progress-bar id="motion_progress_bar" progress={@progress} time-to-stop="10000" interval="100"></progress-bar>
+  <progress-bar phx-hook="progress_bar" phx-update="ignore" id="motion_progress_bar" data-progress={@progress} data-max_duration="10000" data-interval="100"></progress-bar>
 <% end %>

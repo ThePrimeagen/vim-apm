@@ -21,9 +21,9 @@ import "phoenix_html";
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
-import "./components/progress";
 import "./motion-components";
 import hooks from "./hooks";
+import "./components/progress";
 
 let csrfToken = document
     .querySelector("meta[name='csrf-token']")
