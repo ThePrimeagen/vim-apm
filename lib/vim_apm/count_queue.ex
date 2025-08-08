@@ -20,4 +20,18 @@ defmodule VimApm.CountQueue do
       {%__MODULE__{queue | buffer: buffer, length: queue.length + 1}, nil}
     end
   end
+
+  def count(%__MODULE__{} = queue, item) do
+      :queue.fold(
+        fn el, acc ->
+          if el == item do
+            acc + 1
+          else
+            acc
+          end
+        end,
+        0,
+        queue.buffer
+      )
+  end
 end

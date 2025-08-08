@@ -3,7 +3,10 @@ defmodule VimApm.Motion.Stat do
 end
 
 defmodule VimApm.Motion do
-  defstruct last_motions: :queue.new(),
+  alias VimApm.CountQueue
+  alias VimApm.TimeQueue
+
+  defstruct last_motions: CountQueue.new(max: 3),
             motions: :queue.new(),
             motion_times: %{},
             modes: :queue.new(),
@@ -21,9 +24,12 @@ defmodule VimApm.Motion do
 
   def new(args) do
     max_age = Keyword.get(args, :max_age, 60 * 1000)
+    last_motion_count = Keyword.get(args, :last_motion_count, Application.fetch_env!(:vim_apm, :motion_last_few))
+
     %__MODULE__{
       max_age: max_age,
-      motions: :queue.new()
+      motions: :queue.new(),
+      last_motions: CountQueue.new(max: last_motion_count)
     }
   end
 
@@ -40,21 +46,8 @@ defmodule VimApm.Motion do
 
   defp get_apm(motion, chars) do
     in_window = Map.get(motion.motion_times, chars, 0)
-
-    last_four =
-      :queue.fold(
-        fn item, acc ->
-          if item == chars do
-            acc + 1
-          else
-            acc
-          end
-        end,
-        0,
-        motion.last_motions
-      )
-
-    reduction = in_window * 0.01 + last_four * 0.25
+    count = CountQueue.count(motion.last_motions, chars)
+    reduction = in_window * 0.01 + count * 0.25
     max(1 - reduction, 0.01)
   end
 
@@ -132,11 +125,7 @@ defmodule VimApm.Motion do
 
     apm = get_apm(motion, chars)
 
-    last_motions = :queue.in(chars, motion.last_motions)
-
-    if :queue.len(last_motions) > Application.fetch_env!(:vim_apm, :motion_last_few) do
-      :queue.drop(last_motions)
-    end
+    {last_motions, _} = CountQueue.add(motion.last_motions, chars)
 
     motion = %VimApm.Motion{
       motion
